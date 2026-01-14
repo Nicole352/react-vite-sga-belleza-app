@@ -572,7 +572,7 @@ const ControlUsuarios = () => {
             }} />
             <input
               type="text"
-              placeholder={isMobile ? "Buscar..." : "Buscar por nombre, username o email..."}
+              placeholder={isMobile ? "Buscar..." : "Buscar por nombre, identificación o email..."}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -697,13 +697,13 @@ const ControlUsuarios = () => {
                   background: tableHeaderBg
                 }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Usuario</th>
-                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Nombre Completo</th>
-                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Rol</th>
-                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Email</th>
-                    <th style={{ textAlign: 'center', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Estado</th>
-                    <th style={{ textAlign: 'left', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Última Conexión</th>
-                    <th style={{ textAlign: 'center', padding: '0.5rem 0.75rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.7rem', textTransform: 'uppercase' }}>Acciones</th>
+                    <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Usuario</th>
+                    <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Nombre Completo</th>
+                    <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Rol</th>
+                    <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Email</th>
+                    <th style={{ textAlign: 'center', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Estado</th>
+                    <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Última Conexión</th>
+                    <th style={{ textAlign: 'center', padding: '0.25rem 0.5rem', fontWeight: '600', color: tableHeaderText, fontSize: '0.65rem', textTransform: 'uppercase' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -715,26 +715,26 @@ const ControlUsuarios = () => {
                       onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: textPrimaryColor, fontWeight: 600 }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
+                        <div style={{ fontSize: '0.7rem', color: textPrimaryColor, fontWeight: 600 }}>
                           {usuario.username || usuario.email}
                         </div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
-                        <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.125rem', fontSize: '0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
+                        <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.125rem', fontSize: '0.7rem' }}>
                           {usuario.apellido}, {usuario.nombre}
                         </div>
                         <div style={{ fontSize: '0.65rem', color: textMutedColor }}>{usuario.cedula}</div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getRolColor(usuario.nombre_rol)}`}>
                           {usuario.nombre_rol}
                         </span>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
-                        <div style={{ fontSize: '0.7rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
+                        <div style={{ fontSize: '0.65rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         {usuario.cuenta_bloqueada ? (
                           <span className="px-2 py-0.5 rounded-full text-[0.65rem] font-medium border bg-red-600/20 text-red-500 border-red-600/30 flex items-center justify-center gap-1">
                             <Lock size={10} /> BLOQUEADO
@@ -745,15 +745,15 @@ const ControlUsuarios = () => {
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
-                        <div style={{ fontSize: '0.7rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
+                        <div style={{ fontSize: '0.65rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
                             onClick={() => verDetalle(usuario)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -771,12 +771,12 @@ const ControlUsuarios = () => {
                             }}
                             title="Ver detalle"
                           >
-                            <Eye style={{ width: '1rem', height: '1rem' }} />
+                            <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
                             onClick={() => confirmarCambioEstado(usuario)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: `1px solid ${usuario.estado === 'activo' ? '#ef4444' : '#10b981'}`,
                               backgroundColor: 'transparent',
@@ -797,9 +797,9 @@ const ControlUsuarios = () => {
                             title={usuario.estado === 'activo' ? 'Desactivar usuario' : 'Activar usuario'}
                           >
                             {usuario.estado === 'activo' ? (
-                              <Power style={{ width: '1rem', height: '1rem' }} />
+                              <Power style={{ width: '0.85rem', height: '0.85rem' }} />
                             ) : (
-                              <CheckCircle style={{ width: '1rem', height: '1rem' }} />
+                              <CheckCircle style={{ width: '0.85rem', height: '0.85rem' }} />
                             )}
                           </button>
 
@@ -807,7 +807,7 @@ const ControlUsuarios = () => {
                           <button
                             onClick={() => usuario.cuenta_bloqueada ? confirmarDesbloqueo(usuario) : confirmarBloqueo(usuario)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: `1px solid ${usuario.cuenta_bloqueada ? '#10b981' : '#ef4444'}`,
                               backgroundColor: 'transparent',
@@ -828,16 +828,16 @@ const ControlUsuarios = () => {
                             title={usuario.cuenta_bloqueada ? 'Desbloquear cuenta' : 'Bloquear cuenta'}
                           >
                             {usuario.cuenta_bloqueada ? (
-                              <Unlock style={{ width: '1rem', height: '1rem' }} />
+                              <Unlock style={{ width: '0.85rem', height: '0.85rem' }} />
                             ) : (
-                              <Lock style={{ width: '1rem', height: '1rem' }} />
+                              <Lock style={{ width: '0.85rem', height: '0.85rem' }} />
                             )}
                           </button>
                           {usuario.cuenta_bloqueada && (
                             <button
                               onClick={() => confirmarDesbloqueoTemporal(usuario)}
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #ff9800',
                                 backgroundColor: 'transparent',
@@ -855,13 +855,13 @@ const ControlUsuarios = () => {
                               }}
                               title="Desbloqueo temporal (24h)"
                             >
-                              <Clock style={{ width: '1rem', height: '1rem' }} />
+                              <Clock style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                           )}
                           <button
                             onClick={() => resetearPassword(usuario)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #f59e0b',
                               backgroundColor: 'transparent',
@@ -879,7 +879,7 @@ const ControlUsuarios = () => {
                             }}
                             title="Resetear contraseña"
                           >
-                            <KeyRound style={{ width: '1rem', height: '1rem' }} />
+                            <KeyRound style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                         </div>
                       </td>

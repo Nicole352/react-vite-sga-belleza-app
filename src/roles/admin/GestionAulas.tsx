@@ -585,42 +585,42 @@ const GestionAulas = () => {
                 tint="red"
                 intensity="light"
                 style={{
-                  padding: '0.75rem',
-                  borderRadius: '0.85rem',
+                  padding: '0.45rem',
+                  borderRadius: '0.65rem',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.75rem'
+                  gap: '0.5rem'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <div style={{
-                      width: '2.25rem',
-                      height: '2.25rem',
-                      borderRadius: '0.75rem',
+                      width: '1.75rem',
+                      height: '1.75rem',
+                      borderRadius: '0.5rem',
                       background: 'rgba(239, 68, 68, 0.12)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      <Building2 size={18} color={RedColorPalette.primary} />
+                      <Building2 size={14} color={RedColorPalette.primary} />
                     </div>
                     <div>
-                      <h3 style={{ color: textPrimary, margin: '0 0 0.2rem 0', fontSize: '0.85rem', fontWeight: 700 }}>
+                      <h3 style={{ color: textPrimary, margin: '0 0 0.15rem 0', fontSize: '0.75rem', fontWeight: 700 }}>
                         {aula.nombre}
                       </h3>
                       <span style={{
                         display: 'inline-flex',
-                        padding: '0.15rem 0.6rem',
+                        padding: '0.1rem 0.4rem',
                         borderRadius: '9999px',
-                        fontSize: '0.62rem',
+                        fontSize: '0.6rem',
                         fontWeight: 700,
                         textTransform: 'uppercase',
                         background: `${getEstadoColor(aula.estado)}20`,
                         border: `1px solid ${getEstadoColor(aula.estado)}40`,
                         color: getEstadoColor(aula.estado),
                         letterSpacing: '0.05em',
-                        marginBottom: '0.3rem'
+                        marginBottom: '0.2rem'
                       }}>
                         {getEstadoText(aula.estado)}
                       </span>
@@ -631,48 +631,48 @@ const GestionAulas = () => {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(2, minmax(0, 1fr))',
-                  gap: '0.75rem',
-                  paddingTop: '0.75rem',
+                  gap: '0.5rem',
+                  paddingTop: '0.5rem',
                   borderTop: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   <div style={{ display: 'grid', gap: '0.55rem' }}>
                     <div>
-                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
-                        <Hash size={12} />
+                      <div style={{ color: textMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.2rem', fontWeight: 600 }}>
+                        <Hash size={11} />
                         Código
                       </div>
-                      <div style={{ color: textPrimary, fontSize: '0.8rem', fontWeight: 600 }}>
+                      <div style={{ color: textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
                         {aula.codigo_aula}
                       </div>
                     </div>
                     <div>
-                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
-                        <Calendar size={12} />
+                      <div style={{ color: textMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.2rem', fontWeight: 600 }}>
+                        <Calendar size={11} />
                         Fecha Creación
                       </div>
-                      <div style={{ color: textPrimary, fontSize: '0.7rem' }}>
+                      <div style={{ color: textPrimary, fontSize: '0.65rem' }}>
                         {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
                       </div>
                     </div>
                   </div>
                   <div style={{ display: 'grid', gap: '0.55rem' }}>
                     <div>
-                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
-                        <MapPin size={12} />
+                      <div style={{ color: textMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.2rem', fontWeight: 600 }}>
+                        <MapPin size={11} />
                         Ubicación
                       </div>
-                      <div style={{ color: textPrimary, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <div style={{ color: textPrimary, fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                         {aula.ubicacion || 'No especificada'}
                       </div>
                     </div>
                     <div>
-                      <div style={{ color: textMuted, fontSize: '0.65rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}>
-                        <FileText size={12} />
+                      <div style={{ color: textMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.2rem', fontWeight: 600 }}>
+                        <FileText size={11} />
                         Descripción
                       </div>
                       <div style={{
                         color: textPrimary,
-                        fontSize: '0.7rem',
+                        fontSize: '0.65rem',
                         lineHeight: 1.4,
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
@@ -687,7 +687,7 @@ const GestionAulas = () => {
 
 
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.55rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.35rem' }}>
                   <button
                     onClick={() => handleViewAula(aula)}
                     style={{
@@ -695,12 +695,12 @@ const GestionAulas = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.375rem',
-                      padding: '0.375rem 0.5rem',
+                      padding: '0.25rem 0.5rem',
                       background: pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.18)'),
                       border: `0.0625rem solid ${pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.32)')}`,
                       borderRadius: '0.5rem',
                       color: pick('#1d4ed8', '#93c5fd'),
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'background 0.2s ease'
@@ -712,7 +712,7 @@ const GestionAulas = () => {
                       e.currentTarget.style.background = pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.18)');
                     }}
                   >
-                    <Eye size={14} color={pick('#1d4ed8', '#93c5fd')} />
+                    <Eye size={13} color={pick('#1d4ed8', '#93c5fd')} />
                     Ver
                   </button>
                   <button
@@ -722,12 +722,12 @@ const GestionAulas = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.375rem',
-                      padding: '0.375rem 0.5rem',
+                      padding: '0.25rem 0.5rem',
                       background: palette.tableActionBg,
                       border: `0.0625rem solid ${palette.tableActionBorder}`,
                       borderRadius: '0.5rem',
                       color: palette.tableActionText,
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'background 0.2s ease'
@@ -739,7 +739,7 @@ const GestionAulas = () => {
                       e.currentTarget.style.background = palette.tableActionBg;
                     }}
                   >
-                    <Edit size={14} color={palette.tableActionText} />
+                    <Edit size={13} color={palette.tableActionText} />
                     Editar
                   </button>
                   <button
@@ -750,7 +750,7 @@ const GestionAulas = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.375rem',
-                      padding: '0.375rem 0.5rem',
+                      padding: '0.25rem 0.5rem',
                       background: aula.estado === 'activa'
                         ? pick('rgba(239,68,68,0.1)', 'rgba(239,68,68,0.18)')
                         : pick('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.18)'),
@@ -761,7 +761,7 @@ const GestionAulas = () => {
                       color: aula.estado === 'activa'
                         ? pick('#b91c1c', '#fca5a5')
                         : pick('#047857', '#34d399'),
-                      fontSize: '0.75rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'background 0.2s ease'
@@ -777,7 +777,7 @@ const GestionAulas = () => {
                         : pick('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.18)');
                     }}
                   >
-                    <Power size={14} color={aula.estado === 'activa' ? pick('#b91c1c', '#fca5a5') : pick('#047857', '#34d399')} />
+                    <Power size={13} color={aula.estado === 'activa' ? pick('#b91c1c', '#fca5a5') : pick('#047857', '#34d399')} />
                     {aula.estado === 'activa' ? 'Inactivar' : 'Activar'}
                   </button>
                 </div>
@@ -845,22 +845,22 @@ const GestionAulas = () => {
                     background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
                     borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
                   }}>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Código
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       NOMBRE
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Ubicación
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Estado
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Fecha Creación
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Acciones
                     </th>
                   </tr>
@@ -894,27 +894,27 @@ const GestionAulas = () => {
                           e.currentTarget.style.background = 'transparent';
                         }}
                       >
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{
                             fontWeight: '600',
-                            color: '#f87171',
-                            fontSize: '0.8rem'
+                            color: textPrimary,
+                            fontSize: '0.7rem'
                           }}>
                             {aula.codigo_aula}
                           </div>
                         </td>
-                        <td className="table-nombre-uppercase" style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td className="table-nombre-uppercase" style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{
                             fontWeight: '600',
                             color: textPrimary,
-                            fontSize: '0.85rem',
+                            fontSize: '0.75rem',
                             marginBottom: '0.125rem'
                           }}>
                             {aula.nombre}
                           </div>
                           {aula.descripcion && (
                             <div style={{
-                              fontSize: '0.7rem',
+                              fontSize: '0.65rem',
                               color: textMuted,
                               maxWidth: '12.5rem',
                               overflow: 'hidden',
@@ -925,23 +925,23 @@ const GestionAulas = () => {
                             </div>
                           )}
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.375rem',
                             color: textSecondary,
-                            fontSize: '0.8rem'
+                            fontSize: '0.7rem'
                           }}>
                             <MapPin size={12} />
                             {aula.ubicacion || 'No especificada'}
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <span style={{
                             padding: '4px 0.625rem',
                             borderRadius: '0.5rem',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             fontWeight: '700',
                             textTransform: 'uppercase',
                             background: `${getEstadoColor(aula.estado)}20`,
@@ -951,25 +951,25 @@ const GestionAulas = () => {
                             {getEstadoText(aula.estado)}
                           </span>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.375rem',
                             color: textSecondary,
-                            fontSize: '0.75rem'
+                            fontSize: '0.65rem'
                           }}>
                             <Calendar size={12} />
                             {new Date(aula.fecha_creacion).toLocaleDateString('es-ES')}
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
                             <button
                               onClick={() => handleViewAula(aula)}
                               title="Ver detalles"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #3b82f6',
                                 backgroundColor: 'transparent',
@@ -986,13 +986,13 @@ const GestionAulas = () => {
                                 e.currentTarget.style.color = '#3b82f6';
                               }}
                             >
-                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                             <button
                               onClick={() => openEditModal(aula)}
                               title="Editar"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #f59e0b',
                                 backgroundColor: 'transparent',

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { CSSProperties, ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Search, Eye, UserCheck, Phone, Mail, User, X, Plus, Edit, Lock, Info, Grid, List, ChevronLeft, ChevronRight, RefreshCcw, ArrowLeftRight, Sheet, Power, AlertCircle
+  Search, Eye, UserCheck, Phone, Mail, User, X, Plus, Edit, Lock, Info, Grid, List, ChevronLeft, ChevronRight, RefreshCcw, ArrowLeftRight, Sheet, Power, AlertCircle, GraduationCap
 } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import StyledSelect from '../../components/StyledSelect';
@@ -637,7 +637,7 @@ const GestionDocentes = () => {
             <Search size={14} style={{ position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)', color: theme.inputIcon }} />
             <input
               type="text"
-              placeholder={isMobile ? "Buscar..." : "Buscar docente..."}
+              placeholder={isMobile ? "Buscar..." : "Buscar por nombre o identificación..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -801,13 +801,16 @@ const GestionDocentes = () => {
                   background: theme.cardBackground,
                   border: `1px solid ${theme.cardBorder}`,
                   borderRadius: '0.75rem',
-                  padding: '0.75rem',
+                  padding: '0.5rem',
                   transition: 'all 0.3s ease',
                   cursor: 'pointer',
-                  boxShadow: pick('0 0.35rem 1rem rgba(15,23,42,0.08)', 'none')
+                  boxShadow: pick('0 0.35rem 1rem rgba(15,23,42,0.08)', 'none'),
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = pick('0 0.75rem 1.75rem rgba(15,23,42,0.12)', '0 0.75rem 1.75rem rgba(239, 68, 68, 0.25)');
                 }}
                 onMouseLeave={(e) => {
@@ -815,134 +818,149 @@ const GestionDocentes = () => {
                   e.currentTarget.style.boxShadow = pick('0 0.35rem 1rem rgba(15,23,42,0.08)', 'none');
                 }}
               >
-                <div style={{ marginBottom: '0.625rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem', gap: '0.5rem' }}>
-                    <span style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      color: theme.badgeText,
-                      fontSize: '0.65rem',
-                      background: theme.badgeBg,
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.3125rem',
-                      border: `1px solid ${theme.surfaceBorder}`,
-                      minWidth: 0,
-                      maxWidth: '65%',
-                      flex: '1 1 auto'
-                    }}>
-                      <Mail size={12} color={theme.badgeText} style={{ flexShrink: 0 }} />
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{docente.gmail || 'Sin correo'}</span>
-                    </span>
-                    <span style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.1875rem',
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      background: docente.estado === 'activo'
-                        ? 'rgba(16, 185, 129, 0.1)'
-                        : 'rgba(239, 68, 68, 0.1)',
-                      border: `1px solid ${docente.estado === 'activo'
-                        ? 'rgba(10, 185, 129, 0.2)'
-                        : 'rgba(239, 68, 68, 0.2)'}`,
-                      color: docente.estado === 'activo'
-                        ? '#10b981'
-                        : '#ef4444'
-                    }}>
-                      {docente.estado}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                    <UserAvatar
-                      userId={docente.id_usuario || 0}
-                      nombre={docente.nombres}
-                      apellido={docente.apellidos}
-                      size={2}
-                      showBorder={true}
-                      borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
-                      fotoUrl={docente.foto_perfil}
-                    />
-                    <h3 style={{
-                      color: theme.textPrimary,
-                      margin: 0,
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}>
-                      {docente.apellidos}, {docente.nombres}
-                    </h3>
-                  </div>
-                </div>
-
+                {/* Header Grid: 2 Columns */}
                 <div style={{
-                  paddingTop: '0.625rem',
-                  borderTop: `1px solid ${theme.divider}`,
-                  marginBottom: '0.625rem'
+                  display: 'grid',
+                  gridTemplateColumns: '1.4fr 1fr',
+                  gap: '0.5rem',
+                  alignItems: 'start'
                 }}>
+                  {/* Left Column: Status, Avatar, Name, ID */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.1875rem',
+                        padding: '0.15rem 0.4rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        background: docente.estado === 'activo'
+                          ? 'rgba(16, 185, 129, 0.1)'
+                          : 'rgba(239, 68, 68, 0.1)',
+                        border: `1px solid ${docente.estado === 'activo'
+                          ? 'rgba(10, 185, 129, 0.2)'
+                          : 'rgba(239, 68, 68, 0.2)'}`,
+                        color: docente.estado === 'activo'
+                          ? '#10b981'
+                          : '#ef4444',
+                        width: 'fit-content'
+                      }}>
+                        {docente.estado}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <UserAvatar
+                        userId={docente.id_usuario || 0}
+                        nombre={docente.nombres}
+                        apellido={docente.apellidos}
+                        size={1.8}
+                        showBorder={true}
+                        borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
+                        fotoUrl={docente.foto_perfil}
+                      />
+                      <div>
+                        <h3 style={{
+                          color: theme.textPrimary,
+                          margin: 0,
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          lineHeight: 1.2
+                        }}>
+                          {docente.apellidos}, {docente.nombres}
+                        </h3>
+                        <div style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500, marginTop: '0.1rem' }}>
+                          ID: {docente.identificacion}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: User & Experience Compact Box */}
                   <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                    gap: '0.5rem',
-                    marginBottom: '0.5rem'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.3rem',
+                    background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                    padding: '0.35rem',
+                    borderRadius: '0.35rem',
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'}`
                   }}>
-                    <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                        Identificación
-                      </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
-                        {docente.identificacion}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: 600 }}>Usuario:</span>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '80px', textAlign: 'right' }}>
+                        {docente.username || 'N/A'}
                       </div>
                     </div>
-                    <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                        Usuario
-                      </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
-                        {docente.username || 'Sin usuario'}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                        Título
-                      </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
-                        {docente.titulo_profesional}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ color: theme.textSecondary, fontSize: '0.65rem', marginBottom: '0.1875rem' }}>
-                        Experiencia
-                      </div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: 600 }}>Experiencia:</span>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {docente.experiencia_anos} años
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div style={{
-                  borderTop: `1px solid ${theme.divider}`,
-                  paddingTop: '0.75rem',
-                  marginTop: '0.75rem'
-                }}>
+                {/* Body: Email & Title (Stacked) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+
+                  {/* Email */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.3rem 0.5rem',
+                    background: pick('rgba(59, 130, 246, 0.04)', 'rgba(59, 130, 246, 0.08)'),
+                    border: `1px solid ${pick('rgba(59, 130, 246, 0.08)', 'rgba(59, 130, 246, 0.15)')}`,
+                    borderRadius: '0.35rem'
+                  }}>
+                    <div style={{ minWidth: '12px', display: 'flex', alignItems: 'center' }}>
+                      <Mail size={12} color={theme.textMuted} />
+                    </div>
+                    <span style={{ color: theme.textSecondary, fontSize: '0.65rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={docente.gmail || 'Sin correo'}>
+                      {docente.gmail || 'Sin correo'}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.3rem 0.5rem',
+                    background: pick('rgba(16, 185, 129, 0.04)', 'rgba(16, 185, 129, 0.08)'),
+                    border: `1px solid ${pick('rgba(16, 185, 129, 0.08)', 'rgba(16, 185, 129, 0.15)')}`,
+                    borderRadius: '0.35rem'
+                  }}>
+                    <div style={{ minWidth: '12px', display: 'flex', alignItems: 'center' }}>
+                      <GraduationCap size={12} color={theme.textMuted} />
+                    </div>
+                    <span style={{ color: theme.textSecondary, fontSize: '0.65rem', fontWeight: 600 }} title={docente.titulo_profesional}>
+                      {docente.titulo_profesional}
+                    </span>
+                  </div>
+
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.1rem' }}>
                   <button
                     onClick={() => handleViewDocente(docente)}
                     style={{
-                      width: '100%',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.375rem',
-                      padding: '6px 0.75rem',
+                      gap: '0.3rem',
+                      padding: '0.25rem 0.5rem',
                       background: theme.infoPanelBg,
                       border: `1px solid ${theme.infoPanelBorder}`,
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.35rem',
                       color: viewDetailsColor,
                       fontSize: '0.7rem',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
                     }}
@@ -953,7 +971,7 @@ const GestionDocentes = () => {
                       e.currentTarget.style.background = theme.infoPanelBg;
                     }}
                   >
-                    <Eye size={12} color={viewDetailsColor} /> Ver Detalles
+                    <Eye size={13} color={viewDetailsColor} /> Ver
                   </button>
                   <button
                     onClick={(e) => {
@@ -961,27 +979,25 @@ const GestionDocentes = () => {
                       confirmarCambioEstado(docente);
                     }}
                     style={{
-                      width: '100%',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.375rem',
-                      padding: '6px 0.75rem',
+                      gap: '0.3rem',
+                      padding: '0.25rem 0.5rem',
                       background: docente.estado === 'activo'
                         ? pick('rgba(239, 68, 68, 0.12)', 'rgba(239, 68, 68, 0.1)')
                         : pick('rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.1)'),
                       border: `1px solid ${docente.estado === 'activo'
                         ? pick('rgba(239,68,68,0.24)', 'rgba(239,68,68,0.3)')
                         : pick('rgba(16,185,129,0.24)', 'rgba(16,185,129,0.3)')}`,
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.35rem',
                       color: docente.estado === 'activo'
                         ? pick('#ef4444', '#f87171')
                         : pick('#10b981', '#34d399'),
                       fontSize: '0.7rem',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      marginTop: '0.5rem'
+                      transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = docente.estado === 'activo'
@@ -994,7 +1010,7 @@ const GestionDocentes = () => {
                         : pick('rgba(16, 185, 129, 0.12)', 'rgba(16, 185, 129, 0.1)');
                     }}
                   >
-                    <Power size={16} /> {docente.estado === 'activo' ? 'Inactivar' : 'Activar'}
+                    <Power size={13} /> {docente.estado === 'activo' ? 'Inactivar' : 'Activar'}
                   </button>
                 </div>
               </div>
@@ -1061,25 +1077,25 @@ const GestionDocentes = () => {
                     background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
                     borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
                   }}>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Docente
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Identificación
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Usuario
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Título Profesional
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Estado
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Experiencia
                     </th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Acciones
                     </th>
                   </tr>
@@ -1107,7 +1123,7 @@ const GestionDocentes = () => {
                           e.currentTarget.style.background = 'transparent';
                         }}
                       >
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
                             <UserAvatar
                               userId={docente.id_usuario || docente.id_docente}
@@ -1118,7 +1134,7 @@ const GestionDocentes = () => {
                               borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
                             />
                             <div>
-                              <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.75rem' }}>
+                              <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.7rem' }}>
                                 {docente.apellidos}, {docente.nombres}
                               </div>
                               {docente.telefono && (
@@ -1129,24 +1145,24 @@ const GestionDocentes = () => {
                             </div>
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.tableText, fontSize: '0.7rem', verticalAlign: 'middle' }}>
                           {docente.identificacion}
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.tableText, fontSize: '0.7rem', verticalAlign: 'middle' }}>
                           {docente.username ? (
-                            <span style={{ fontWeight: '600', fontSize: '0.75rem' }}>
+                            <span style={{ fontWeight: '600', fontSize: '0.7rem' }}>
                               {docente.username}
                             </span>
                           ) : (
-                            <span style={{ color: theme.textMuted, fontSize: '0.7rem' }}>
+                            <span style={{ color: theme.textMuted, fontSize: '0.65rem' }}>
                               Sin usuario
                             </span>
                           )}
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.tableText, fontSize: '0.7rem', verticalAlign: 'middle' }}>
                           {docente.titulo_profesional}
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <div style={{
                             display: 'inline-block',
                             padding: '4px 0.625rem',
@@ -1167,16 +1183,16 @@ const GestionDocentes = () => {
                             {docente.estado}
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.tableText, fontSize: '0.7rem', verticalAlign: 'middle' }}>
                           {docente.experiencia_anos} años
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
                             <button
                               onClick={() => handleViewDocente(docente)}
                               title="Ver detalles"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #3b82f6',
                                 backgroundColor: 'transparent',
@@ -1193,7 +1209,7 @@ const GestionDocentes = () => {
                                 e.currentTarget.style.color = '#3b82f6';
                               }}
                             >
-                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                             <button
                               onClick={() => {
@@ -1203,7 +1219,7 @@ const GestionDocentes = () => {
                               }}
                               title="Editar"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #f59e0b',
                                 backgroundColor: 'transparent',
@@ -1220,7 +1236,7 @@ const GestionDocentes = () => {
                                 e.currentTarget.style.color = '#f59e0b';
                               }}
                             >
-                              <Edit style={{ width: '1rem', height: '1rem' }} />
+                              <Edit style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                             <button
                               onClick={(e) => {
@@ -1229,7 +1245,7 @@ const GestionDocentes = () => {
                               }}
                               title={docente.estado === 'activo' ? 'Inactivar' : 'Activar'}
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: docente.estado === 'activo' ? '1px solid #ef4444' : '1px solid #10b981',
                                 backgroundColor: 'transparent',
@@ -1248,7 +1264,7 @@ const GestionDocentes = () => {
                                 e.currentTarget.style.color = color;
                               }}
                             >
-                              <Power style={{ width: '1rem', height: '1rem' }} />
+                              <Power style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                           </div>
                         </td>

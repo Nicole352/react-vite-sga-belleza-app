@@ -813,13 +813,13 @@ const GestionPromociones: React.FC = () => {
                 background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
               }}>
                 <tr>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Estado</th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Promoción</th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Curso Principal</th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Curso Promocional</th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Beneficio</th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Cupos</th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase' }}>Acciones</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Estado</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Promoción</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Curso Principal</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Curso Promocional</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Beneficio</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Cupos</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -849,7 +849,7 @@ const GestionPromociones: React.FC = () => {
                         e.currentTarget.style.background = 'transparent';
                       }}
                     >
-                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 600, textAlign: 'center', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: 600, textAlign: 'center', verticalAlign: 'middle' }}>
                         <span
                           style={{
                             display: 'inline-flex',
@@ -866,7 +866,7 @@ const GestionPromociones: React.FC = () => {
                           {promo.activa ? 'Activa' : 'Inactiva'}
                         </span>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', verticalAlign: 'middle' }}>
                         <div style={{ fontWeight: 600, color: theme.textPrimary }}>{promo.nombre_promocion}</div>
                         {promo.descripcion && (
                           <div style={{ fontSize: '0.68rem', color: theme.textSecondary, marginTop: '3px' }}>
@@ -874,7 +874,7 @@ const GestionPromociones: React.FC = () => {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', verticalAlign: 'middle' }}>
                         <div style={{ fontWeight: 600, color: 'rgba(59,130,246,0.95)' }}>
                           {promo.nombre_curso_principal || 'N/A'}
                         </div>
@@ -882,7 +882,7 @@ const GestionPromociones: React.FC = () => {
                           {promo.codigo_curso_principal || 'Sin código'} · {promo.horario_principal || 'Horario no definido'}
                         </div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', verticalAlign: 'middle' }}>
                         <div style={{ fontWeight: 600, color: 'rgba(16,185,129,0.95)' }}>
                           {promo.nombre_curso_promocional || 'N/A'}
                         </div>
@@ -890,12 +890,12 @@ const GestionPromociones: React.FC = () => {
                           {promo.codigo_curso_promocional || 'Sin código'} · {promo.horario_promocional || 'Horario no definido'}
                         </div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 600, verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', fontWeight: 600, verticalAlign: 'middle' }}>
                         {promo.modalidad_promocional === 'clases'
                           ? `${promo.clases_gratis || 0} clases gratis`
                           : `${promo.meses_gratis || 0} meses gratis`}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div
                           style={{
                             fontWeight: 700,
@@ -910,13 +910,13 @@ const GestionPromociones: React.FC = () => {
                           {promo.cupos_utilizados || 0} aceptados
                         </div>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
                             onClick={() => handleViewPromocion(promo)}
                             title="Ver detalles"
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -933,12 +933,12 @@ const GestionPromociones: React.FC = () => {
                               e.currentTarget.style.color = '#3b82f6';
                             }}
                           >
-                            <Eye style={{ width: '1rem', height: '1rem' }} />
+                            <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
                             onClick={() => openEdit(promo)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -956,12 +956,12 @@ const GestionPromociones: React.FC = () => {
                             }}
                             title="Editar promoción"
                           >
-                            <Edit style={{ width: '1rem', height: '1rem' }} />
+                            <Edit style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
                             onClick={() => handleToggleActiva(promo)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: `1px solid ${promo.activa ? '#ef4444' : '#10b981'}`,
                               backgroundColor: 'transparent',
@@ -981,30 +981,36 @@ const GestionPromociones: React.FC = () => {
                             }}
                             title={promo.activa ? 'Desactivar promoción' : 'Activar promoción'}
                           >
-                            <Power style={{ width: '1rem', height: '1rem' }} />
+                            <Power style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
-                            onClick={() => setDeleteTarget(promo)}
+                            onClick={() => {
+                              if ((promo.cupos_utilizados || 0) > 0) return;
+                              setDeleteTarget(promo);
+                            }}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
-                              border: '1px solid #ef4444',
+                              border: (promo.cupos_utilizados || 0) > 0 ? '1px solid transparent' : '1px solid #ef4444',
                               backgroundColor: 'transparent',
-                              color: '#ef4444',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
+                              color: (promo.cupos_utilizados || 0) > 0 ? (darkMode ? '#64748b' : '#94a3b8') : '#ef4444',
+                              cursor: (promo.cupos_utilizados || 0) > 0 ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s',
+                              opacity: (promo.cupos_utilizados || 0) > 0 ? 0.5 : 1
                             }}
                             onMouseEnter={(e) => {
+                              if ((promo.cupos_utilizados || 0) > 0) return;
                               e.currentTarget.style.backgroundColor = '#ef4444';
                               e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
+                              if ((promo.cupos_utilizados || 0) > 0) return;
                               e.currentTarget.style.backgroundColor = 'transparent';
                               e.currentTarget.style.color = '#ef4444';
                             }}
-                            title="Eliminar promoción"
+                            title={(promo.cupos_utilizados || 0) > 0 ? "No se puede eliminar: tiene estudiantes inscritos" : "Eliminar promoción"}
                           >
-                            <Trash2 style={{ width: '1rem', height: '1rem' }} />
+                            <Trash2 style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                         </div>
                       </td>
@@ -1021,8 +1027,8 @@ const GestionPromociones: React.FC = () => {
       {viewMode === 'cards' && !loading && paginatedPromociones.length > 0 && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : isSmallScreen ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-          gap: isMobile ? '12px' : '1rem',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: isMobile ? '8px' : '0.75rem',
           marginBottom: isMobile ? '12px' : '0.5rem'
         }}>
           {paginatedPromociones.map((promo) => {
@@ -1035,75 +1041,65 @@ const GestionPromociones: React.FC = () => {
                 style={{
                   background: theme.cardBackground,
                   border: `1px solid ${promo.activa ? theme.cardBorderActive : theme.cardBorderInactive}`,
-                  borderRadius: '1rem',
-                  padding: '0.75rem',
-                  transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-                  cursor: 'pointer',
+                  borderRadius: '0.625rem',
+                  padding: '0.625rem',
                   position: 'relative',
                   overflow: 'hidden',
                   boxShadow: theme.cardShadow
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = theme.cardHoverShadow;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = theme.cardShadow;
                 }}
               >
                 {/* Badge de ahorro (esquina superior derecha) */}
                 {ahorro > 0 && (
                   <div style={{
                     position: 'absolute',
-                    top: '8px',
-                    right: '8px',
+                    top: '6px',
+                    right: '6px',
                     background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                     color: '#fff',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    fontSize: '0.65rem',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontSize: '0.6rem',
                     fontWeight: '700',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '3px',
-                    boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                    gap: '2px',
+                    boxShadow: '0 1px 4px rgba(245, 158, 11, 0.3)'
                   }}>
-                    <Sparkles size={10} color="#ffffff" />
-                    PROMOCION
+                    <Sparkles size={8} color="#ffffff" />
+                    PROMO
                   </div>
                 )}
-                <div style={{ marginBottom: '0.75rem' }}>
+                <div style={{ marginBottom: '0.5rem' }}>
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'start',
-                    marginBottom: '0.5rem'
+                    alignItems: 'center',
+                    marginBottom: '0.375rem'
                   }}>
                     <div style={{
                       background: promo.activa ? theme.badgeActiveBg : theme.badgeInactiveBg,
                       border: `1px solid ${promo.activa ? theme.badgeActiveBorder : theme.badgeInactiveBorder}`,
                       color: promo.activa ? '#10b981' : '#ef4444',
-                      padding: '3px 8px',
-                      borderRadius: '6px',
-                      fontSize: '0.65rem',
+                      padding: '1px 6px',
+                      borderRadius: '4px',
+                      fontSize: '0.6rem',
                       fontWeight: '700',
                       textTransform: 'uppercase',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '3px'
                     }}>
-                      <Power size={10} color={promo.activa ? '#10b981' : '#ef4444'} />
+                      <Power size={8} color={promo.activa ? '#10b981' : '#ef4444'} />
                       {promo.activa ? 'Activa' : 'Inactiva'}
                     </div>
                   </div>
 
                   <h3 style={{
                     color: theme.textPrimary,
-                    margin: '0 0 0.375rem 0',
-                    fontSize: '0.85rem',
+                    margin: '0 0 0.25rem 0',
+                    fontSize: '0.8rem',
                     fontWeight: '600',
-                    lineHeight: 1.3
+                    lineHeight: '1.2'
                   }}>
                     {promo.nombre_promocion}
                   </h3>
@@ -1112,23 +1108,23 @@ const GestionPromociones: React.FC = () => {
                   <div style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '3px',
+                    gap: '2px',
                     fontSize: '0.65rem'
                   }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '3px',
                       color: 'rgba(59, 130, 246, 0.9)'
                     }}>
-                      <BookOpen size={11} color="rgba(59,130,246,0.9)" />
+                      <BookOpen size={10} color="rgba(59,130,246,0.9)" />
                       <strong>Paga:</strong> {promo.nombre_curso_principal || 'N/A'}
                       <span style={{
-                        marginLeft: '4px',
-                        padding: '1px 4px',
+                        marginLeft: '3px',
+                        padding: '0 3px',
                         background: 'rgba(59, 130, 246, 0.2)',
                         borderRadius: '3px',
-                        fontSize: '0.6rem',
+                        fontSize: '0.55rem',
                         textTransform: 'capitalize'
                       }}>
                         {promo.horario_principal || 'N/A'}
@@ -1137,17 +1133,17 @@ const GestionPromociones: React.FC = () => {
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '3px',
                       color: 'rgba(16, 185, 129, 0.9)'
                     }}>
-                      <Gift size={11} color="rgba(16,185,129,0.9)" />
+                      <Gift size={10} color="rgba(16,185,129,0.9)" />
                       <strong>Gratis:</strong> {promo.nombre_curso_promocional || 'N/A'}
                       <span style={{
-                        marginLeft: '4px',
-                        padding: '1px 4px',
+                        marginLeft: '3px',
+                        padding: '0 3px',
                         background: 'rgba(16, 185, 129, 0.2)',
                         borderRadius: '3px',
-                        fontSize: '0.6rem',
+                        fontSize: '0.55rem',
                         textTransform: 'capitalize'
                       }}>
                         {promo.horario_promocional || 'N/A'}
@@ -1161,21 +1157,21 @@ const GestionPromociones: React.FC = () => {
                   background: benefitTokens.background,
                   border: benefitTokens.border,
                   borderRadius: '0.5rem',
-                  padding: '0.625rem',
-                  marginBottom: '0.625rem',
+                  padding: '0.375rem',
+                  marginBottom: '0.5rem',
                   textAlign: 'center'
                 }}>
                   <div style={{
-                    fontSize: '1.25rem',
+                    fontSize: '1rem',
                     fontWeight: '800',
                     color: benefitTokens.title,
                     lineHeight: 1,
-                    marginBottom: '4px'
+                    marginBottom: '2px'
                   }}>
                     {promo.modalidad_promocional === 'clases' ? promo.clases_gratis : promo.meses_gratis}
                   </div>
                   <div style={{
-                    fontSize: '0.65rem',
+                    fontSize: '0.6rem',
                     color: theme.textSecondary,
                     fontWeight: '600',
                     textTransform: 'uppercase'
@@ -1188,13 +1184,14 @@ const GestionPromociones: React.FC = () => {
                 {promo.descripcion && (
                   <p style={{
                     color: theme.textSecondary,
-                    fontSize: '0.7rem',
-                    margin: '0 0 0.75rem 0',
-                    lineHeight: 1.4,
+                    fontSize: '0.65rem',
+                    margin: '0 0 0.5rem 0',
+                    lineHeight: 1.3,
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    minHeight: '1.7rem'
                   }}>
                     {promo.descripcion}
                   </p>
@@ -1203,10 +1200,10 @@ const GestionPromociones: React.FC = () => {
                 {/* Info adicional */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '0.5rem',
-                  marginBottom: '0.75rem',
-                  paddingTop: '0.75rem',
+                  gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                  gap: '0.375rem 0.5rem',
+                  marginBottom: '0.5rem',
+                  paddingTop: '0.5rem',
                   borderTop: `1px solid ${theme.divider}`
                 }}>
                   {/* Cupos Promocionales */}
@@ -1214,7 +1211,7 @@ const GestionPromociones: React.FC = () => {
                     <div style={{
                       color: theme.textMuted,
                       fontSize: '0.6rem',
-                      marginBottom: '2px'
+                      marginBottom: '0'
                     }}>
                       Cupos Promo
                     </div>
@@ -1222,7 +1219,7 @@ const GestionPromociones: React.FC = () => {
                       color: promo.cupos_disponibles && (promo.cupos_disponibles - (promo.cupos_utilizados || 0)) <= 0
                         ? '#ef4444'
                         : theme.textPrimary,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: '600'
                     }}>
                       {promo.cupos_disponibles
@@ -1233,7 +1230,7 @@ const GestionPromociones: React.FC = () => {
                     <div style={{
                       color: theme.textMuted,
                       fontSize: '0.55rem',
-                      marginTop: '1px'
+                      marginTop: '0'
                     }}>
                       {promo.cupos_utilizados || 0} aceptados
                     </div>
@@ -1244,13 +1241,13 @@ const GestionPromociones: React.FC = () => {
                     <div style={{
                       color: theme.textMuted,
                       fontSize: '0.6rem',
-                      marginBottom: '2px'
+                      marginBottom: '0'
                     }}>
                       Modalidad
                     </div>
                     <div style={{
                       color: theme.textPrimary,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: '600',
                       textTransform: 'capitalize'
                     }}>
@@ -1262,80 +1259,116 @@ const GestionPromociones: React.FC = () => {
                 {/* Acciones */}
                 <div style={{
                   display: 'flex',
-                  gap: '6px',
-                  paddingTop: '0.75rem',
+                  gap: '0.25rem',
+                  paddingTop: '0.5rem',
                   borderTop: `1px solid ${theme.divider}`
                 }}>
                   <button
                     onClick={() => handleViewPromocion(promo)}
                     style={{
-                      padding: '0.375rem 0.625rem',
+                      flex: 1,
+                      padding: '0.25rem 0.5rem',
                       background: 'rgba(59, 130, 246, 0.15)',
                       border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '6px',
+                      borderRadius: '0.375rem',
                       color: '#3b82f6',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.25rem',
+                      height: '24px',
+                      fontSize: '0.65rem',
+                      fontWeight: 600
                     }}
                   >
-                    <Eye size={16} color="#3b82f6" />
+                    <Eye size={12} color="#3b82f6" /> Ver
                   </button>
 
                   <button
                     onClick={() => openEdit(promo)}
                     style={{
-                      padding: '0.375rem 0.625rem',
+                      flex: 1,
+                      padding: '0.25rem 0.5rem',
                       background: 'rgba(59, 130, 246, 0.15)',
                       border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '6px',
+                      borderRadius: '0.375rem',
                       color: '#3b82f6',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.25rem',
+                      height: '24px',
+                      fontSize: '0.65rem',
+                      fontWeight: 600
                     }}
                   >
-                    <Edit size={16} color="#3b82f6" />
+                    <Edit size={12} color="#3b82f6" /> Editar
                   </button>
 
                   <button
                     onClick={() => handleToggleActiva(promo)}
                     style={{
-                      flex: 1,
-                      padding: '0.375rem',
+                      flex: 1.5,
+                      padding: '0.25rem',
                       background: promo.activa
                         ? 'rgba(239, 68, 68, 0.15)'
                         : 'rgba(16, 185, 129, 0.15)',
                       border: promo.activa
                         ? '1px solid rgba(239, 68, 68, 0.3)'
                         : '1px solid rgba(16, 185, 129, 0.3)',
-                      borderRadius: '6px',
+                      borderRadius: '0.375rem',
                       color: promo.activa ? '#ef4444' : '#10b981',
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: '600',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '4px'
+                      gap: '3px',
+                      height: '24px'
                     }}
                   >
-                    <Power size={16} color={promo.activa ? '#ef4444' : '#10b981'} />
+                    <Power size={12} color={promo.activa ? '#ef4444' : '#10b981'} />
                     {promo.activa ? 'Desactivar' : 'Activar'}
                   </button>
 
                   <button
-                    onClick={() => setDeleteTarget(promo)}
-                    style={{
-                      padding: '0.375rem 0.625rem',
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: '6px',
-                      color: '#ef4444',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                    onClick={() => {
+                      if ((promo.cupos_utilizados || 0) > 0) return;
+                      setDeleteTarget(promo);
                     }}
+                    style={{
+                      flex: 1,
+                      padding: '0.25rem 0.5rem',
+                      background: (promo.cupos_utilizados || 0) > 0
+                        ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                        : 'rgba(239, 68, 68, 0.15)',
+                      border: (promo.cupos_utilizados || 0) > 0
+                        ? '1px solid transparent'
+                        : '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '0.375rem',
+                      color: (promo.cupos_utilizados || 0) > 0
+                        ? (darkMode ? '#64748b' : '#94a3b8')
+                        : '#ef4444',
+                      cursor: (promo.cupos_utilizados || 0) > 0 ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.25rem',
+                      height: '24px',
+                      fontSize: '0.65rem',
+                      fontWeight: 600,
+                      opacity: (promo.cupos_utilizados || 0) > 0 ? 0.6 : 1
+                    }}
+                    title={(promo.cupos_utilizados || 0) > 0 ? "No se puede eliminar: tiene estudiantes inscritos" : "Eliminar promoción"}
                   >
-                    <Trash2 size={16} color="#ef4444" />
+                    <Trash2 size={12} color={(promo.cupos_utilizados || 0) > 0 ? "currentColor" : "#ef4444"} /> Eliminar
                   </button>
                 </div>
               </div>

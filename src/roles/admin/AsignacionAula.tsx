@@ -794,16 +794,16 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                   {/* Header */}
                   <div style={{
                     background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.35rem 0.6rem',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
                       <div style={{
-                        width: '1.875em',
-                        height: '1.875em',
-                        borderRadius: '0.5em',
+                        width: '1.65em',
+                        height: '1.65em',
+                        borderRadius: '0.4em',
                         background: pick('rgba(255, 255, 255, 0.85)', 'rgba(255, 255, 255, 0.12)'),
                         border: `0.0625rem solid ${pick('rgba(255, 255, 255, 0.6)', 'rgba(255, 255, 255, 0.18)')}`,
                         color: pick('rgba(30, 41, 59, 0.85)', '#f8fafc'),
@@ -811,13 +811,13 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                         alignItems: 'center',
                         justifyContent: 'center'
                       }}>
-                        <MapPin size={isMobile ? 14 : 16} color="currentColor" />
+                        <MapPin size={isMobile ? 13 : 14} color="currentColor" />
                       </div>
                       <div>
                         <h3 style={{ color: pick('#1f2937', '#f8fafc'), margin: 0 }}>
                           {asignacion.aula_nombre}
                         </h3>
-                        <div style={{ color: palette.textMuted, fontSize: '0.65em' }}>
+                        <div style={{ color: palette.textMuted, fontSize: '0.6em' }}>
                           {asignacion.codigo_aula}
                         </div>
                       </div>
@@ -825,9 +825,9 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     <div style={{
                       background: cardStatus.background,
                       color: cardStatus.color,
-                      padding: '0.3em 0.75em',
-                      borderRadius: '0.9em',
-                      fontSize: '0.65em',
+                      padding: '0.25em 0.6em',
+                      borderRadius: '0.8em',
+                      fontSize: '0.6em',
                       fontWeight: '700',
                       textTransform: 'uppercase',
                       border: `0.0625rem solid ${cardStatus.border}`,
@@ -838,24 +838,24 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                   </div>
 
                   {/* Contenido */}
-                  <div style={{ padding: '0.5rem 0.75rem' }}>
+                  <div style={{ padding: '0.4rem 0.6rem' }}>
                     {/* Curso y Docente */}
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
-                        <Calendar size={isMobile ? 9 : 10} />
+                      <div style={{ color: palette.labelMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                        <Calendar size={isMobile ? 8 : 9} />
                         CURSO
                       </div>
-                      <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '600' }}>
+                      <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '600' }}>
                         {asignacion.curso_nombre}
                       </div>
                     </div>
 
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
-                        <Users size={isMobile ? 9 : 10} />
+                      <div style={{ color: palette.labelMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                        <Users size={isMobile ? 8 : 9} />
                         DOCENTE
                       </div>
-                      <div style={{ color: palette.textSecondary, fontSize: '0.75rem' }}>
+                      <div style={{ color: palette.textSecondary, fontSize: '0.7rem' }}>
                         {asignacion.docente_apellidos}, {asignacion.docente_nombres}
                       </div>
                     </div>
@@ -863,22 +863,22 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     {/* Horario y Período */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <div>
-                        <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.1875rem', display: 'flex', alignItems: 'center', gap: '0.1875rem' }}>
-                          <Clock size={isMobile ? 9 : 10} />
+                        <div style={{ color: palette.labelMuted, fontSize: '0.6rem', marginBottom: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                          <Clock size={isMobile ? 8 : 9} />
                           HORARIO
                         </div>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.65rem', fontWeight: '600' }}>
                           {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
                         </div>
                       </div>
                       <div>
-                        <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.25rem' }}>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.2rem' }}>
                           PERÍODO
                         </div>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem' }}>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem' }}>
                           {formatearFecha(asignacion.fecha_inicio)}
                         </div>
-                        <div style={{ color: palette.labelMuted, fontSize: '0.7rem' }}>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.65rem' }}>
                           {formatearFecha(asignacion.fecha_fin)}
                         </div>
                       </div>
@@ -886,7 +886,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
 
                     {/* Días */}
                     <div style={{ marginBottom: '0.5rem' }}>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginBottom: '0.375rem' }}>
+                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginBottom: '0.25rem' }}>
                         DÍAS DE CLASE
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
@@ -894,9 +894,9 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           <div key={idx} style={{
                             background: palette.blueChipBg,
                             color: palette.blueChipText,
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.375rem',
-                            fontSize: '0.7rem',
+                            padding: '0.2rem 0.4rem',
+                            borderRadius: '0.3rem',
+                            fontSize: '0.65rem',
                             fontWeight: '600',
                             border: `0.0625rem solid ${palette.blueChipBorder}`
                           }}>
@@ -914,11 +914,11 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       marginBottom: '0.5rem',
                       border: `0.0625rem solid ${palette.softSurfaceBorder}`
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
-                        <div style={{ color: palette.labelMuted, fontSize: '0.7rem', fontWeight: '600' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                        <div style={{ color: palette.labelMuted, fontSize: '0.65rem', fontWeight: '600' }}>
                           OCUPACIÓN
                         </div>
-                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.8rem', fontWeight: '700' }}>
+                        <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '700' }}>
                           {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
                         </div>
                       </div>
@@ -938,7 +938,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           transition: 'width 0.3s ease'
                         }} />
                       </div>
-                      <div style={{ color: palette.labelMuted, fontSize: '0.7rem', marginTop: '0.25rem', textAlign: 'right' }}>
+                      <div style={{ color: palette.labelMuted, fontSize: '0.65rem', marginTop: '0.2rem', textAlign: 'right' }}>
                         {asignacion.porcentaje_ocupacion}% ocupado
                       </div>
                     </div>
@@ -948,12 +948,12 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       <button
                         onClick={() => handleViewAsignacion(asignacion)}
                         style={{
-                          padding: '0.375rem 0.5rem',
+                          padding: '0.25rem 0.5rem',
                           background: pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.18)'),
                           border: `0.0625rem solid ${pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.32)')}`,
                           borderRadius: '0.5rem',
                           color: pick('#1d4ed8', '#93c5fd'),
-                          fontSize: '0.75rem',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           cursor: 'pointer',
                           display: 'flex',
@@ -969,18 +969,18 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           e.currentTarget.style.background = pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.18)');
                         }}
                       >
-                        <Eye size={14} color={pick('#1d4ed8', '#93c5fd')} />
+                        <Eye size={13} color={pick('#1d4ed8', '#93c5fd')} />
                         Ver
                       </button>
                       <button
                         onClick={() => handleEditAsignacion(asignacion)}
                         style={{
-                          padding: '0.375rem 0.5rem',
+                          padding: '0.25rem 0.5rem',
                           background: palette.tableActionBg,
                           border: `0.0625rem solid ${palette.tableActionBorder}`,
                           borderRadius: '0.5rem',
                           color: palette.tableActionText,
-                          fontSize: '0.75rem',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           cursor: 'pointer',
                           display: 'flex',
@@ -996,14 +996,14 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           e.currentTarget.style.background = palette.tableActionBg;
                         }}
                       >
-                        <Edit size={14} color={palette.tableActionText} />
+                        <Edit size={13} color={palette.tableActionText} />
                         Editar
                       </button>
                       <button
                         onClick={() => handleToggleEstado(asignacion)}
                         style={{
                           gridColumn: '1 / -1',
-                          padding: '0.375rem 0.5rem',
+                          padding: '0.25rem 0.5rem',
                           background: asignacion.estado === 'activa'
                             ? pick('rgba(239,68,68,0.1)', 'rgba(239,68,68,0.18)')
                             : pick('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.18)'),
@@ -1014,7 +1014,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           color: asignacion.estado === 'activa'
                             ? pick('#b91c1c', '#fca5a5')
                             : pick('#047857', '#34d399'),
-                          fontSize: '0.75rem',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           cursor: 'pointer',
                           display: 'flex',
@@ -1034,7 +1034,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                             : pick('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.18)');
                         }}
                       >
-                        <Power size={14} color={asignacion.estado === 'activa' ? pick('#b91c1c', '#fca5a5') : pick('#047857', '#34d399')} />
+                        <Power size={13} color={asignacion.estado === 'activa' ? pick('#b91c1c', '#fca5a5') : pick('#047857', '#34d399')} />
                         {asignacion.estado === 'activa' ? 'Inactivar' : 'Activar'}
                       </button>
                     </div>
@@ -1112,15 +1112,15 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                       background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
                       borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
                     }}>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
-                      <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.7rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1139,17 +1139,17 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           e.currentTarget.style.background = 'transparent';
                         }}
                       >
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                          <div className="table-nombre-uppercase" style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem', marginBottom: '0.1rem' }}>{asignacion.aula_nombre}</div>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                          <div className="table-nombre-uppercase" style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.7rem', marginBottom: '0.1rem' }}>{asignacion.aula_nombre}</div>
                           <div style={{ color: palette.tableSubtext, fontSize: '0.65rem', letterSpacing: '0.015em' }}>{asignacion.codigo_aula}</div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.75rem' }}>{asignacion.curso_nombre}</div>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontWeight: '600', fontSize: '0.7rem' }}>{asignacion.curso_nombre}</div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: palette.textSecondary, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', color: palette.textSecondary, fontSize: '0.7rem', verticalAlign: 'middle' }}>
                           {asignacion.docente_apellidos}, {asignacion.docente_nombres}
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -1158,12 +1158,12 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                             borderRadius: '0.375rem',
                             border: `0.0625rem solid ${palette.blueChipBorder}`
                           }}>
-                            <span style={{ color: palette.blueChipText, fontWeight: '600', fontSize: '0.7rem', letterSpacing: '0.015em' }}>
+                            <span style={{ color: palette.blueChipText, fontWeight: '600', fontSize: '0.65rem', letterSpacing: '0.015em' }}>
                               {asignacion.hora_inicio.substring(0, 5)} - {asignacion.hora_fin.substring(0, 5)}
                             </span>
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                             {asignacion.dias.split(',').map((dia, idx) => (
                               <span key={idx} style={{
@@ -1180,7 +1180,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                             ))}
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                           <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '600' }}>
                             {formatearFecha(asignacion.fecha_inicio)}
                           </div>
@@ -1188,15 +1188,15 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                             {formatearFecha(asignacion.fecha_fin)}
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '0.125rem' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{ color: 'var(--admin-text-primary, #1f2937)', fontSize: '0.7rem', fontWeight: '700', marginBottom: '0.125rem' }}>
                             {asignacion.estudiantes_matriculados}/{asignacion.capacidad_maxima}
                           </div>
                           <div style={{ color: palette.tableSubtext, fontSize: '0.65rem' }}>
                             {asignacion.porcentaje_ocupacion}%
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <div style={{
                             background: getStatusStyles(asignacion.estado).background,
                             color: getStatusStyles(asignacion.estado).color,
@@ -1212,13 +1212,13 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                             {asignacion.estado}
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
                             <button
                               onClick={() => handleViewAsignacion(asignacion)}
                               title="Ver detalles"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #3b82f6',
                                 backgroundColor: 'transparent',
@@ -1235,13 +1235,13 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                                 e.currentTarget.style.color = '#3b82f6';
                               }}
                             >
-                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                             <button
                               onClick={() => handleEditAsignacion(asignacion)}
                               title="Editar asignación"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #f59e0b',
                                 backgroundColor: 'transparent',
@@ -1258,13 +1258,13 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                                 e.currentTarget.style.color = '#f59e0b';
                               }}
                             >
-                              <Edit style={{ width: '1rem', height: '1rem' }} />
+                              <Edit style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                             <button
                               onClick={() => handleToggleEstado(asignacion)}
                               title={asignacion.estado === 'activa' ? 'Inactivar' : 'Activar'}
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: `1px solid ${asignacion.estado === 'activa' ? '#ef4444' : '#10b981'}`,
                                 backgroundColor: 'transparent',
@@ -1282,7 +1282,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                                 e.currentTarget.style.color = asignacion.estado === 'activa' ? '#ef4444' : '#10b981';
                               }}
                             >
-                              <Power style={{ width: '1rem', height: '1rem' }} />
+                              <Power style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                           </div>
                         </td>

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   FileText,
   Download,
-  Filter,
   Search,
   Calendar,
   ChevronDown,
@@ -11,18 +10,14 @@ import {
   BookOpen,
   TrendingUp,
   AlertCircle,
-  CheckCircle2,
   XCircle,
   Clock,
-  ArrowRight,
   Loader2,
   FileSpreadsheet,
   BarChart3,
   History,
   Eye,
   User,
-  Award,
-  Target,
   ArrowUp,
   ArrowDown,
   ArrowUpDown
@@ -162,42 +157,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     gap: '0.35rem'
   });
 
-  const hexToRgb = (hex: string) => {
-    const sanitized = hex.replace('#', '');
-    const bigint = parseInt(sanitized, 16);
-    return {
-      r: (bigint >> 16) & 255,
-      g: (bigint >> 8) & 255,
-      b: bigint & 255
-    };
-  };
 
-  const buildMetricCardStyle = (accent: string): React.CSSProperties => {
-    const { r, g, b } = hexToRgb(accent);
-    return {
-      background: darkMode
-        ? `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.18) 0%, rgba(${r}, ${g}, ${b}, 0.08) 100%)`
-        : `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.12) 0%, rgba(255,255,255,0.95) 100%)`,
-      border: `1px solid rgba(${r}, ${g}, ${b}, 0.28)`,
-      borderRadius: '0.375rem',
-      padding: '0.5rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      boxShadow: themeColors.shadow
-    };
-  };
 
-  const metricValueStyle = (accent?: string): React.CSSProperties => ({
-    fontSize: '1.1rem',
-    fontWeight: 700,
-    color: accent ?? themeColors.textPrimary
-  });
-
-  const metricLabelStyle: React.CSSProperties = {
-    fontSize: '0.65rem',
-    color: themeColors.textMuted
-  };
 
   // Estilos para scrollbar horizontal
   const scrollbarStyles = `
@@ -324,7 +285,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
   const ITEMS_POR_PAGINA_CURSOS = 12;
   const [busquedaCursos, setBusquedaCursos] = useState('');
   const [paginaActualEstudiantes, setPaginaActualEstudiantes] = useState(1);
-  const ITEMS_POR_PAGINA_ESTUDIANTES = 12;
+  const ITEMS_POR_PAGINA_ESTUDIANTES = 15;
   const [paginaActualHistorial, setPaginaActualHistorial] = useState(1);
   const ITEMS_POR_PAGINA_HISTORIAL = 5;
 
@@ -848,77 +809,6 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     return datos;
   }, [datosReporte, busquedaRapida, ordenamiento, ordenAscendente, tipoReporte]);
 
-  // Calcular estadísticas mejoradas
-  const estadisticasCalculadas = useMemo(() => {
-    if (!datosProcesados || datosProcesados.length === 0) return null;
-
-    if (tipoReporte === 'estudiantes') {
-      // Get unique students
-      const uniqueStudents = new Set(datosProcesados.map((e: any) => e.id_usuario));
-      const total = uniqueStudents.size;
-
-      // Helper to count unique students by condition
-      const countUniqueByCondition = (condition: (e: any) => boolean) => {
-        const matchingStudents = new Set();
-        datosProcesados.forEach((e: any) => {
-          if (condition(e)) {
-            matchingStudents.add(e.id_usuario);
-          }
-        });
-        return matchingStudents.size;
-      };
-
-      // Aprobados: estado 'aprobado', 'graduado' o nota >= 7
-      const aprobados = countUniqueByCondition((e: any) =>
-        e.estado_academico === 'aprobado' ||
-        e.estado_academico === 'graduado' ||
-        (e.nota_final && parseFloat(e.nota_final) >= 7)
-      );
-
-      const tasaAprobacion = total > 0 ? ((aprobados / total) * 100).toFixed(1) : '0';
-
-      return {
-        total,
-        aprobados,
-        tasaAprobacion,
-        // En curso: 'inscrito' o 'activo' y que no estén aprobados/graduados
-        enCurso: countUniqueByCondition((e: any) =>
-          (!e.estado_academico || ['inscrito', 'activo'].includes(e.estado_academico)) &&
-          (!e.nota_final || parseFloat(e.nota_final) < 7)
-        ),
-        reprobados: countUniqueByCondition((e: any) => e.estado_academico === 'reprobado')
-      };
-    } else if (tipoReporte === 'financiero') {
-      const total = datosProcesados.length;
-      const ingresoTotal = datosProcesados.reduce((sum: number, p: any) => sum + parseFloat(p.monto || 0), 0);
-      const promedio = total > 0 ? ingresoTotal / total : 0;
-      const verificados = datosProcesados.filter((p: any) => p.estado === 'verificado').length;
-
-      return {
-        total,
-        ingresoTotal,
-        promedio,
-        verificados,
-        pendientes: datosProcesados.filter((p: any) => p.estado === 'pendiente' || p.estado === 'pagado').length
-      };
-    } else if (tipoReporte === 'cursos') {
-      const total = datosProcesados.length;
-      const capacidadTotal = datosProcesados.reduce((sum: number, c: any) => sum + parseInt(c.capacidad_maxima || 0), 0);
-      const capacidadPromedio = total > 0 ? Math.round(capacidadTotal / total) : 0;
-      const activos = datosProcesados.filter((c: any) => c.estado === 'activo').length;
-      const finalizados = datosProcesados.filter((c: any) => c.estado === 'finalizado').length;
-
-      return {
-        total,
-        capacidadPromedio,
-        activos,
-        finalizados,
-        cancelados: datosProcesados.filter((c: any) => c.estado === 'cancelado').length
-      };
-    }
-
-    return null;
-  }, [datosProcesados, tipoReporte]);
 
   // Renderizar filtros específicos
   const renderFiltrosEspecificos = () => {
@@ -964,7 +854,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
                 return (
                   <option key={curso.id_curso} value={curso.id_curso}>
-                    {curso.nombre}{horario}{periodo}
+                    {curso.codigo_curso} - {curso.nombre}{horario}{periodo}
                   </option>
                 );
               })}
@@ -1136,7 +1026,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
                 return (
                   <option key={curso.id_curso} value={curso.id_curso}>
-                    {curso.nombre}{horario}{periodo}
+                    {curso.codigo_curso} - {curso.nombre}{horario}{periodo}
                   </option>
                 );
               })}
@@ -1226,126 +1116,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     return null;
   };
 
-  // Renderizar tarjetas de resumen
-  const renderTarjetasResumen = () => {
-    if (!estadisticasCalculadas) return null;
 
-    if (tipoReporte === 'estudiantes' && 'tasaAprobacion' in estadisticasCalculadas) {
-      const { total, tasaAprobacion, enCurso } = estadisticasCalculadas;
-      return (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1rem'
-        }}>
-          <div style={buildMetricCardStyle('#ef4444')}>
-            <Users size={22} color="#ef4444" />
-            <div>
-              <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
-              <div style={metricLabelStyle}>Total Estudiantes</div>
-            </div>
-          </div>
-
-          <div style={buildMetricCardStyle('#10b981')}>
-            <CheckCircle2 size={22} color="#10b981" />
-            <div>
-              <div style={metricValueStyle('#10b981')}>{tasaAprobacion}%</div>
-              <div style={metricLabelStyle}>Tasa Aprobación</div>
-            </div>
-          </div>
-
-          <div style={buildMetricCardStyle('#3b82f6')}>
-            <Target size={22} color="#3b82f6" />
-            <div>
-              <div style={metricValueStyle('#3b82f6')}>{enCurso}</div>
-              <div style={metricLabelStyle}>Estudiantes Activos</div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (tipoReporte === 'financiero' && 'ingresoTotal' in estadisticasCalculadas) {
-      const {
-        ingresoTotal = 0,
-        promedio = 0,
-        total
-      } = estadisticasCalculadas;
-
-      return (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1rem'
-        }}>
-          <div style={buildMetricCardStyle('#10b981')}>
-            <DollarSign size={22} color="#10b981" />
-            <div>
-              <div style={metricValueStyle('#10b981')}>${ingresoTotal.toFixed(2)}</div>
-              <div style={metricLabelStyle}>Ingresos Totales</div>
-            </div>
-          </div>
-
-          <div style={buildMetricCardStyle('#ef4444')}>
-            <BarChart3 size={22} color="#ef4444" />
-            <div>
-              <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
-              <div style={metricLabelStyle}>Total Pagos</div>
-            </div>
-          </div>
-
-          <div style={buildMetricCardStyle('#3b82f6')}>
-            <Award size={22} color="#3b82f6" />
-            <div>
-              <div style={metricValueStyle('#3b82f6')}>${promedio.toFixed(2)}</div>
-              <div style={metricLabelStyle}>Promedio</div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (tipoReporte === 'cursos' && 'capacidadPromedio' in estadisticasCalculadas) {
-      const {
-        total,
-        capacidadPromedio = 0,
-        activos = 0
-      } = estadisticasCalculadas;
-
-      return (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1rem'
-        }}>
-          <div style={buildMetricCardStyle('#ef4444')}>
-            <BookOpen size={22} color="#ef4444" />
-            <div>
-              <div style={metricValueStyle(themeColors.textPrimary)}>{total}</div>
-              <div style={metricLabelStyle}>Total Cursos</div>
-            </div>
-          </div>
-
-          <div style={buildMetricCardStyle('#10b981')}>
-            <CheckCircle2 size={22} color="#10b981" />
-            <div>
-              <div style={metricValueStyle('#10b981')}>{activos}</div>
-              <div style={metricLabelStyle}>Cursos Activos</div>
-            </div>
-          </div>
-
-          <div style={buildMetricCardStyle('#3b82f6')}>
-            <Users size={22} color="#3b82f6" />
-            <div>
-              <div style={metricValueStyle('#3b82f6')}>{capacidadPromedio}</div>
-              <div style={metricLabelStyle}>Capacidad Promedio</div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
-  };
 
   const renderEstadisticas = () => {
     if (!datosReporte || !estadisticas) {
@@ -1376,20 +1147,16 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       return (
         <div style={{
           display: 'grid',
-          gap: isMobile ? '16px' : '1.5rem',
+          gap: isMobile ? '12px' : '1rem',
           width: '100%',
           maxWidth: '100%'
         }}>
-          {/* Tarjetas de resumen */}
-          {renderTarjetasResumen()}
-
           {/* Controles de búsqueda y ordenamiento */}
           {datosReporte.length > 0 && (
             <div style={{
               display: 'flex',
               flexDirection: isMobile ? 'column' : 'row',
               gap: '0.75rem',
-              marginBottom: '1rem',
               alignItems: isMobile ? 'stretch' : 'center'
             }}>
               {/* Búsqueda rápida */}
@@ -1397,7 +1164,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.textMuted }} />
                 <input
                   type="text"
-                  placeholder="Buscar por nombre o curso..."
+                  placeholder="Buscar por nombre, identificación o email..."
                   value={busquedaRapida}
                   onChange={(e) => setBusquedaRapida(e.target.value)}
                   style={{
@@ -1422,7 +1189,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   style={getToggleButtonStyle(ordenamiento === 'nombre')}
                 >
                   {ordenamiento === 'nombre' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
-                  Nombre
+                  Apellidos
                 </button>
 
                 <button
@@ -1439,395 +1206,400 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   {ordenamiento === 'fecha' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
                   Fecha
                 </button>
-
               </div>
             </div>
           )}
 
           {/* Lista de estudiantes */}
-          {(() => {
-            // 1. Agrupar estudiantes por ID
-            const estudiantesMap = new Map();
-            datosReporte.forEach((item: any) => {
-              if (!estudiantesMap.has(item.id_usuario)) {
-                estudiantesMap.set(item.id_usuario, {
-                  ...item,
-                  cursos: []
-                });
-              }
-              // Evitar duplicados de cursos si el backend devuelve filas repetidas
-              const cursoExistente = estudiantesMap.get(item.id_usuario).cursos.find((c: any) => c.codigo_curso === item.codigo_curso);
-              if (!cursoExistente) {
-                estudiantesMap.get(item.id_usuario).cursos.push({
-                  nombre_curso: item.nombre_curso,
-                  codigo_curso: item.codigo_curso,
-                  estado_academico: item.estado_academico,
-                  fecha_inscripcion: item.fecha_inscripcion,
-                  nota_final: item.nota_final
-                });
-              }
-            });
-            const estudiantesAgrupados = Array.from(estudiantesMap.values());
+          {
+            (() => {
+              // 1. Agrupar estudiantes por ID
+              const estudiantesMap = new Map();
+              datosReporte.forEach((item: any) => {
+                if (!estudiantesMap.has(item.id_usuario)) {
+                  estudiantesMap.set(item.id_usuario, {
+                    ...item,
+                    cursos: []
+                  });
+                }
+                // Evitar duplicados de cursos si el backend devuelve filas repetidas
+                const cursoExistente = estudiantesMap.get(item.id_usuario).cursos.find((c: any) => c.codigo_curso === item.codigo_curso);
+                if (!cursoExistente) {
+                  estudiantesMap.get(item.id_usuario).cursos.push({
+                    nombre_curso: item.nombre_curso,
+                    codigo_curso: item.codigo_curso,
+                    estado_academico: item.estado_academico,
+                    fecha_inscripcion: item.fecha_inscripcion,
+                    nota_final: item.nota_final
+                  });
+                }
+              });
+              const estudiantesAgrupados = Array.from(estudiantesMap.values());
 
-            // 2. Filtrar
-            const filtrados = estudiantesAgrupados.filter((est: any) => {
-              if (!busquedaRapida) return true;
-              const term = busquedaRapida.toLowerCase();
-              const nombreCompleto = `${est.nombre} ${est.apellido}`.toLowerCase();
-              const cursosMatch = est.cursos.some((c: any) => c.nombre_curso.toLowerCase().includes(term));
-              return nombreCompleto.includes(term) || cursosMatch;
-            });
+              // 2. Filtrar
+              const filtrados = estudiantesAgrupados.filter((est: any) => {
+                if (!busquedaRapida) return true;
+                const term = busquedaRapida.toLowerCase();
+                const nombreCompleto = `${est.nombre} ${est.apellido}`.toLowerCase();
+                const cedulaMatch = (est.cedula?.toString().toLowerCase() || '').includes(term);
+                const emailMatch = (est.email?.toLowerCase() || '').includes(term);
+                const cursosMatch = est.cursos.some((c: any) =>
+                  c.nombre_curso.toLowerCase().includes(term) ||
+                  (c.codigo_curso?.toLowerCase() || '').includes(term)
+                );
+                return nombreCompleto.includes(term) || cedulaMatch || emailMatch || cursosMatch;
+              });
 
-            // 3. Ordenar
-            const datosProcesados = filtrados.sort((a: any, b: any) => {
-              if (ordenamiento === 'nombre') {
-                const nombreA = `${a.nombre} ${a.apellido}`.toLowerCase();
-                const nombreB = `${b.nombre} ${b.apellido}`.toLowerCase();
-                return ordenAscendente ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
-              } else {
-                const fechaA = new Date(a.fecha_inscripcion).getTime();
-                const fechaB = new Date(b.fecha_inscripcion).getTime();
-                return ordenAscendente ? fechaA - fechaB : fechaB - fechaA;
-              }
-            });
-            // 4. Calcular paginación
-            const totalPaginasEstudiantes = Math.ceil(datosProcesados.length / ITEMS_POR_PAGINA_ESTUDIANTES);
-            const indiceInicioEstudiantes = (paginaActualEstudiantes - 1) * ITEMS_POR_PAGINA_ESTUDIANTES;
-            const indiceFinEstudiantes = indiceInicioEstudiantes + ITEMS_POR_PAGINA_ESTUDIANTES;
-            const estudiantesPaginados = datosProcesados.slice(indiceInicioEstudiantes, indiceFinEstudiantes);
+              // 3. Ordenar
+              const datosProcesados = filtrados.sort((a: any, b: any) => {
+                if (ordenamiento === 'nombre') {
+                  const nombreA = `${a.apellido} ${a.nombre}`.toLowerCase();
+                  const nombreB = `${b.apellido} ${b.nombre}`.toLowerCase();
+                  return ordenAscendente ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
+                } else {
+                  const fechaA = new Date(a.fecha_inscripcion).getTime();
+                  const fechaB = new Date(b.fecha_inscripcion).getTime();
+                  return ordenAscendente ? fechaA - fechaB : fechaB - fechaA;
+                }
+              });
+              // 4. Calcular paginación
+              const totalPaginasEstudiantes = Math.ceil(datosProcesados.length / ITEMS_POR_PAGINA_ESTUDIANTES);
+              const indiceInicioEstudiantes = (paginaActualEstudiantes - 1) * ITEMS_POR_PAGINA_ESTUDIANTES;
+              const indiceFinEstudiantes = indiceInicioEstudiantes + ITEMS_POR_PAGINA_ESTUDIANTES;
+              const estudiantesPaginados = datosProcesados.slice(indiceInicioEstudiantes, indiceFinEstudiantes);
 
-            return datosProcesados.length > 0 && (
-              <div style={{
-                maxHeight: isMobile ? 'auto' : '60vh',
-                overflowY: isMobile ? 'visible' : 'auto',
-                paddingRight: isMobile ? '0' : '0.5rem'
-              }}>
-                <h4 style={{
-                  color: themeColors.textPrimary,
-                  fontSize: '0.85rem',
-                  fontWeight: '700',
-                  marginBottom: '0.75rem',
-                  textShadow: darkMode ? '0 0.125rem 0.25rem rgba(0,0,0,0.35)' : 'none'
+              return datosProcesados.length > 0 && (
+                <div style={{
+                  maxHeight: isMobile ? 'auto' : '60vh',
+                  overflowY: isMobile ? 'visible' : 'auto',
+                  paddingRight: isMobile ? '0' : '0.5rem'
                 }}>
-                  Estudiantes Matriculados ({datosProcesados.length})
-                </h4>
-
-                {/* Indicador de scroll en móvil */}
-                {isSmallScreen && (
-                  <div style={{
-                    background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
-                    border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
-                    borderRadius: '0.5rem',
-                    padding: '0.5rem',
+                  <h4 style={{
+                    color: themeColors.textPrimary,
+                    fontSize: '0.85rem',
+                    fontWeight: '700',
                     marginBottom: '0.75rem',
-                    color: '#ef4444',
-                    fontSize: '0.75rem',
-                    textAlign: 'center',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.375rem'
+                    textShadow: darkMode ? '0 0.125rem 0.25rem rgba(0,0,0,0.35)' : 'none'
                   }}>
-                    <TrendingUp size={14} />
-                    Desplazate
-                  </div>
-                )}
+                    Estudiantes Matriculados ({datosProcesados.length})
+                  </h4>
 
-                {/* Cards en grid compacto */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
-                    gap: '0.5rem'
-                  }}
-                >
-                  {estudiantesPaginados.map((estudiante: any, idx: number) => {
-                    const numeroGlobal = indiceInicioEstudiantes + idx + 1;
-                    return (
-                      <div key={idx} style={{
-                        position: 'relative',
-                        background: darkMode
-                          ? 'linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(10, 10, 10, 0.8) 100%)'
-                          : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
-                        backdropFilter: 'blur(12px)',
-                        border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)'}`,
-                        borderRadius: '0.5rem',
-                        padding: '0.5rem',
-                        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.4rem',
-                        boxShadow: darkMode
-                          ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
-                          : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
-                        overflow: 'hidden'
-                      }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-4px)';
-                          e.currentTarget.style.borderColor = '#ef4444';
-                          e.currentTarget.style.boxShadow = darkMode
-                            ? '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(239, 68, 68, 0.1)'
-                            : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)';
-                          e.currentTarget.style.boxShadow = darkMode
-                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
-                            : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)';
-                        }}
-                      >
-                        {/* Indicador de Posición Flotante */}
-                        <div style={{
-                          position: 'absolute',
-                          top: '0',
-                          right: '0',
-                          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                          color: '#fff',
-                          padding: '0.15rem 0.5rem',
-                          borderBottomLeftRadius: '0.5rem',
-                          fontSize: '0.5rem',
-                          fontWeight: '900',
-                          boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
-                          zIndex: 2,
-                          letterSpacing: '0.05em'
-                        }}>
-                          #{numeroGlobal}
-                        </div>
+                  {/* Indicador de scroll en móvil */}
+                  {isSmallScreen && (
+                    <div style={{
+                      background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
+                      border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
+                      borderRadius: '0.5rem',
+                      padding: '0.5rem',
+                      marginBottom: '0.75rem',
+                      color: '#ef4444',
+                      fontSize: '0.75rem',
+                      textAlign: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.375rem'
+                    }}>
+                      <TrendingUp size={14} />
+                      Desplazate
+                    </div>
+                  )}
 
-                        {/* Encabezado: Avatar e Identificación */}
-                        <div style={{
+                  {/* Cards en grid compacto */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {estudiantesPaginados.map((estudiante: any, idx: number) => {
+                      const numeroGlobal = indiceInicioEstudiantes + idx + 1;
+                      return (
+                        <div key={idx} style={{
+                          position: 'relative',
+                          background: darkMode
+                            ? 'linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(10, 10, 10, 0.8) 100%)'
+                            : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                          backdropFilter: 'blur(12px)',
+                          border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)'}`,
+                          borderRadius: '0.5rem',
+                          padding: '0.5rem',
+                          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
                           display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          marginBottom: '0.2rem'
-                        }}>
+                          flexDirection: 'column',
+                          gap: '0.4rem',
+                          boxShadow: darkMode
+                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
+                            : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                          overflow: 'hidden'
+                        }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.borderColor = '#ef4444';
+                            e.currentTarget.style.boxShadow = darkMode
+                              ? '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(239, 68, 68, 0.1)'
+                              : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)';
+                            e.currentTarget.style.boxShadow = darkMode
+                              ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
+                              : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)';
+                          }}
+                        >
+                          {/* Indicador de Posición Flotante */}
                           <div style={{
-                            width: '1.6rem',
-                            height: '1.6rem',
-                            borderRadius: '50%',
+                            position: 'absolute',
+                            top: '0',
+                            right: '0',
                             background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                            color: '#fff',
+                            padding: '0.15rem 0.5rem',
+                            borderBottomLeftRadius: '0.5rem',
+                            fontSize: '0.5rem',
+                            fontWeight: '900',
+                            boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+                            zIndex: 2,
+                            letterSpacing: '0.05em'
+                          }}>
+                            #{numeroGlobal}
+                          </div>
+
+                          {/* Encabezado: Avatar e Identificación */}
+                          <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            fontSize: '0.65rem',
-                            fontWeight: '800',
-                            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.25)',
-                            flexShrink: 0,
-                            border: '2px solid ' + (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)')
+                            gap: '0.5rem',
+                            marginBottom: '0.2rem'
                           }}>
-                            {((estudiante.nombre?.charAt(0) || '') + (estudiante.apellido?.charAt(0) || '')).toUpperCase()}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
-                              fontSize: '0.75rem',
-                              fontWeight: '800',
-                              color: themeColors.textPrimary,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              letterSpacing: '-0.01em',
-                              textTransform: 'uppercase',
-                              lineHeight: 1.1
-                            }}>
-                              {estudiante.apellido} {estudiante.nombre}
-                            </div>
-                            <div style={{
-                              fontSize: '0.5rem',
-                              color: themeColors.textMuted,
-                              fontWeight: '700',
-                              marginTop: '0.05rem'
-                            }}>
-                              ESTUDIANTE REGISTRADO
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Lista de Cursos Premium */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                          {estudiante.cursos.map((curso: any, cIdx: number) => (
-                            <div key={cIdx} style={{
+                              width: '1.6rem',
+                              height: '1.6rem',
+                              borderRadius: '50%',
+                              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                               display: 'flex',
-                              flexDirection: 'column',
-                              gap: '0.3rem',
-                              padding: '0.4rem 0.5rem',
-                              background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
-                              borderRadius: '0.4rem',
-                              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)'}`,
-                              position: 'relative',
-                              overflow: 'hidden'
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#fff',
+                              fontSize: '0.65rem',
+                              fontWeight: '800',
+                              boxShadow: '0 4px 10px rgba(239, 68, 68, 0.25)',
+                              flexShrink: 0,
+                              border: '2px solid ' + (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)')
                             }}>
-                              {/* Sutil decorado lateral */}
+                              {((estudiante.nombre?.charAt(0) || '') + (estudiante.apellido?.charAt(0) || '')).toUpperCase()}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                bottom: 0,
-                                width: '3px',
-                                background: curso.estado_academico === 'aprobado' ? '#10b981' : '#ef4444'
-                              }} />
-
-                              <div style={{
+                                fontSize: '0.75rem',
+                                fontWeight: '800',
                                 color: themeColors.textPrimary,
-                                fontSize: '0.68rem',
-                                fontWeight: '700',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.35rem'
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                letterSpacing: '-0.01em',
+                                textTransform: 'uppercase',
+                                lineHeight: 1.1
                               }}>
-                                <BookOpen size={11} color="#ef4444" />
-                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {curso.nombre_curso}
-                                </span>
+                                {estudiante.apellido} {estudiante.nombre}
                               </div>
-
                               <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '0.5rem',
-                                marginTop: '0.125rem'
+                                fontSize: '0.5rem',
+                                color: themeColors.textMuted,
+                                fontWeight: '700',
+                                marginTop: '0.05rem'
                               }}>
+                                ESTUDIANTE REGISTRADO
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Lista de Cursos Premium */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            {estudiante.cursos.map((curso: any, cIdx: number) => (
+                              <div key={cIdx} style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.3rem',
+                                padding: '0.4rem 0.5rem',
+                                background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(15,23,42,0.02)',
+                                borderRadius: '0.4rem',
+                                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)'}`,
+                                position: 'relative',
+                                overflow: 'hidden'
+                              }}>
+                                {/* Sutil decorado lateral */}
                                 <div style={{
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  padding: '0.2rem 0.5rem',
-                                  borderRadius: '2rem',
-                                  fontSize: '0.575rem',
-                                  fontWeight: '900',
-                                  background: curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
-                                    curso.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.15)' :
-                                      'rgba(59, 130, 246, 0.15)',
-                                  color: curso.estado_academico === 'aprobado' ? '#10b981' :
-                                    curso.estado_academico === 'reprobado' ? '#ef4444' :
-                                      '#3b82f6',
-                                  letterSpacing: '0.025em',
-                                  border: `1px solid ${curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                                }}>
-                                  {curso.estado_academico?.toUpperCase() || 'ACTIVO'}
-                                </div>
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 0,
+                                  bottom: 0,
+                                  width: '3px',
+                                  background: curso.estado_academico === 'aprobado' ? '#10b981' : '#ef4444'
+                                }} />
+
                                 <div style={{
-                                  color: themeColors.textMuted,
-                                  fontSize: '0.65rem',
+                                  color: themeColors.textPrimary,
+                                  fontSize: '0.68rem',
+                                  fontWeight: '700',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '0.25rem',
-                                  fontWeight: '700'
+                                  gap: '0.35rem'
                                 }}>
-                                  <Calendar size={11} color={themeColors.textMuted} />
-                                  {new Date(curso.fecha_inscripcion).toLocaleTimeString('es-ES', {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  }) === '00:00' ?
-                                    new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
-                                      day: '2-digit',
-                                      month: 'short'
-                                    }) :
-                                    new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
-                                      day: '2-digit',
-                                      month: 'short',
-                                      year: '2-digit'
-                                    })
-                                  }
+                                  <BookOpen size={11} color="#ef4444" />
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {curso.nombre_curso}
+                                  </span>
+                                </div>
+
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: '0.5rem',
+                                  marginTop: '0.125rem'
+                                }}>
+                                  <div style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    padding: '0.2rem 0.5rem',
+                                    borderRadius: '2rem',
+                                    fontSize: '0.575rem',
+                                    fontWeight: '900',
+                                    background: curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
+                                      curso.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.15)' :
+                                        'rgba(59, 130, 246, 0.15)',
+                                    color: curso.estado_academico === 'aprobado' ? '#10b981' :
+                                      curso.estado_academico === 'reprobado' ? '#ef4444' :
+                                        '#3b82f6',
+                                    letterSpacing: '0.025em',
+                                    border: `1px solid ${curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                                  }}>
+                                    {curso.estado_academico?.toUpperCase() || 'ACTIVO'}
+                                  </div>
+                                  <div style={{
+                                    color: themeColors.textMuted,
+                                    fontSize: '0.65rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    fontWeight: '700'
+                                  }}>
+                                    <Calendar size={11} color={themeColors.textMuted} />
+                                    {new Date(curso.fecha_inscripcion).toLocaleTimeString('es-ES', {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    }) === '00:00' ?
+                                      new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
+                                        day: '2-digit',
+                                        month: 'short'
+                                      }) :
+                                      new Date(curso.fecha_inscripcion).toLocaleDateString('es-ES', {
+                                        day: '2-digit',
+                                        month: 'short',
+                                        year: '2-digit'
+                                      })
+                                    }
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {/* Controles de Paginación */}
-                {
-                  totalPaginasEstudiantes > 1 && (
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: isMobile ? 'column' : 'row',
-                      justifyContent: 'space-between',
-                      alignItems: isMobile ? 'stretch' : 'center',
-                      gap: isMobile ? '0.75rem' : '0',
-                      padding: isMobile ? '8px' : '0.25rem 1rem',
-                      background: themeColors.panelBg,
-                      border: `1px solid ${themeColors.panelBorder}`,
-                      borderRadius: '0.75rem',
-                      marginTop: '1rem'
-                    }}>
-                      <div style={{
-                        color: themeColors.textSecondary,
-                        fontSize: isMobile ? '0.75rem' : '0.8rem',
-                        textAlign: isMobile ? 'center' : 'left'
-                      }}>
-                        Página {paginaActualEstudiantes} de {totalPaginasEstudiantes}
-                      </div>
+                      );
+                    })}
+                  </div>
+                  {/* Controles de Paginación */}
+                  {
+                    totalPaginasEstudiantes > 1 && (
                       <div style={{
                         display: 'flex',
-                        gap: '0.375rem',
-                        flexWrap: 'wrap',
-                        justifyContent: isMobile ? 'center' : 'flex-start'
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'space-between',
+                        alignItems: isMobile ? 'stretch' : 'center',
+                        gap: isMobile ? '0.75rem' : '0',
+                        padding: isMobile ? '8px' : '0.25rem 1rem',
+                        background: themeColors.panelBg,
+                        border: `1px solid ${themeColors.panelBorder}`,
+                        borderRadius: '0.75rem',
+                        marginTop: '1rem'
                       }}>
-                        <button
-                          onClick={() => setPaginaActualEstudiantes(prev => Math.max(1, prev - 1))}
-                          disabled={paginaActualEstudiantes === 1}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: isMobile ? '4px' : '0.25rem',
-                            padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
-                            background: paginaActualEstudiantes === 1
-                              ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                              : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                            border: `1px solid ${paginaActualEstudiantes === 1
-                              ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
-                              : 'rgba(239, 68, 68, 0.3)'}`,
-                            borderRadius: '0.625rem',
-                            color: paginaActualEstudiantes === 1 ? themeColors.textMuted : '#ef4444',
-                            fontSize: isMobile ? '0.75rem' : '0.8rem',
-                            fontWeight: 600,
-                            cursor: paginaActualEstudiantes === 1 ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.2s ease',
-                            flex: isMobile ? '1' : 'initial',
-                            boxShadow: 'none'
-                          }}
-                        >
-                          {!isMobile && 'Anterior'}
-                        </button>
-                        <button
-                          onClick={() => setPaginaActualEstudiantes(prev => Math.min(totalPaginasEstudiantes, prev + 1))}
-                          disabled={paginaActualEstudiantes === totalPaginasEstudiantes}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: isMobile ? '4px' : '0.25rem',
-                            padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
-                            background: paginaActualEstudiantes === totalPaginasEstudiantes
-                              ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                              : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                            border: `1px solid ${paginaActualEstudiantes === totalPaginasEstudiantes
-                              ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
-                              : 'rgba(239, 68, 68, 0.3)'}`,
-                            borderRadius: '0.625rem',
-                            color: paginaActualEstudiantes === totalPaginasEstudiantes ? themeColors.textMuted : '#ef4444',
-                            fontSize: isMobile ? '0.75rem' : '0.8rem',
-                            fontWeight: 600,
-                            cursor: paginaActualEstudiantes === totalPaginasEstudiantes ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.2s ease',
-                            flex: isMobile ? '1' : 'initial',
-                            boxShadow: 'none'
-                          }}
-                        >
-                          {!isMobile && 'Siguiente'}
-                        </button>
+                        <div style={{
+                          color: themeColors.textSecondary,
+                          fontSize: isMobile ? '0.75rem' : '0.8rem',
+                          textAlign: isMobile ? 'center' : 'left'
+                        }}>
+                          Página {paginaActualEstudiantes} de {totalPaginasEstudiantes}
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          gap: '0.375rem',
+                          flexWrap: 'wrap',
+                          justifyContent: isMobile ? 'center' : 'flex-start'
+                        }}>
+                          <button
+                            onClick={() => setPaginaActualEstudiantes(prev => Math.max(1, prev - 1))}
+                            disabled={paginaActualEstudiantes === 1}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: isMobile ? '4px' : '0.25rem',
+                              padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                              background: paginaActualEstudiantes === 1
+                                ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                                : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                              border: `1px solid ${paginaActualEstudiantes === 1
+                                ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                                : 'rgba(239, 68, 68, 0.3)'}`,
+                              borderRadius: '0.625rem',
+                              color: paginaActualEstudiantes === 1 ? themeColors.textMuted : '#ef4444',
+                              fontSize: isMobile ? '0.75rem' : '0.8rem',
+                              fontWeight: 600,
+                              cursor: paginaActualEstudiantes === 1 ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s ease',
+                              flex: isMobile ? '1' : 'initial',
+                              boxShadow: 'none'
+                            }}
+                          >
+                            {!isMobile && 'Anterior'}
+                          </button>
+                          <button
+                            onClick={() => setPaginaActualEstudiantes(prev => Math.min(totalPaginasEstudiantes, prev + 1))}
+                            disabled={paginaActualEstudiantes === totalPaginasEstudiantes}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: isMobile ? '4px' : '0.25rem',
+                              padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                              background: paginaActualEstudiantes === totalPaginasEstudiantes
+                                ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                                : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                              border: `1px solid ${paginaActualEstudiantes === totalPaginasEstudiantes
+                                ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                                : 'rgba(239, 68, 68, 0.3)'}`,
+                              borderRadius: '0.625rem',
+                              color: paginaActualEstudiantes === totalPaginasEstudiantes ? themeColors.textMuted : '#ef4444',
+                              fontSize: isMobile ? '0.75rem' : '0.8rem',
+                              fontWeight: 600,
+                              cursor: paginaActualEstudiantes === totalPaginasEstudiantes ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s ease',
+                              flex: isMobile ? '1' : 'initial',
+                              boxShadow: 'none'
+                            }}
+                          >
+                            {!isMobile && 'Siguiente'}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )
-                }
-              </div>
-            );
-          })()
+                    )
+                  }
+                </div>
+              );
+            })()
           }
         </div >
       );
@@ -1856,12 +1628,18 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   pagos: [],
                   cursos: new Set(),
                   totalPagado: 0,
-                  totalPendiente: 0
+                  totalPendiente: 0,
+                  ultimaFecha: 0
                 });
               }
               const estudiante = pagosMap.get(key);
               estudiante.pagos.push(pago);
               estudiante.cursos.add(pago.nombre_curso);
+
+              const fechaPago = new Date(pago.fecha_pago || pago.fecha || 0).getTime();
+              if (fechaPago > estudiante.ultimaFecha) {
+                estudiante.ultimaFecha = fechaPago;
+              }
 
               const monto = parseFloat(pago.monto) || 0;
               if (pago.estado_pago === 'pagado' || pago.estado_pago === 'verificado') {
@@ -1872,9 +1650,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             });
 
             const estudiantesFinanciero = Array.from(pagosMap.values()).sort((a: any, b: any) => {
+              if (ordenamiento === 'fecha') {
+                return ordenAscendente ? a.ultimaFecha - b.ultimaFecha : b.ultimaFecha - a.ultimaFecha;
+              }
               const nombreA = `${a.apellido} ${a.nombre}`.toLowerCase();
               const nombreB = `${b.apellido} ${b.nombre}`.toLowerCase();
-              return nombreA.localeCompare(nombreB);
+              return ordenAscendente ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
             });
 
             // Aplicar búsqueda
@@ -1886,7 +1667,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 const cursosStr = Array.from(est.cursos).join(' ').toLowerCase();
 
                 return nombreCompleto.includes(searchTerm) ||
-                  cedulaStr.includes(searchTerm) ||
+                  cedulaStr.toLowerCase().includes(searchTerm) ||
+                  (est.email?.toLowerCase() || '').includes(searchTerm) ||
                   cursosStr.includes(searchTerm);
               })
               : estudiantesFinanciero;
@@ -1922,56 +1704,98 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                     {busquedaRapida ? `${estudiantesFiltrados.length} de ${estudiantesFinanciero.length}` : `${estudiantesFinanciero.length}`} estudiantes
                   </span>
                 </div>
-                {/* Campo de búsqueda */}
                 <div style={{
-                  marginBottom: '1rem',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                  flexDirection: isMobile ? 'column' : 'row',
+                  gap: '0.75rem',
+                  marginBottom: '1rem',
+                  alignItems: isMobile ? 'stretch' : 'center'
                 }}>
-                  <Search size={18} color={themeColors.textMuted} />
-                  <input
-                    type="text"
-                    placeholder="Buscar por nombre, apellido, cédula o curso..."
-                    value={busquedaRapida}
-                    onChange={(e) => {
-                      setBusquedaRapida(e.target.value);
-                      setPaginaActualFinanciero(1);
-                    }}
-                    style={{
-                      flex: 1,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      color: themeColors.textPrimary,
-                      fontSize: '0.85rem',
-                      padding: '0.25rem'
-                    }}
-                  />
-                  {busquedaRapida && (
-                    <button
-                      onClick={() => {
-                        setBusquedaRapida('');
+                  {/* Campo de búsqueda */}
+                  <div style={{
+                    position: 'relative',
+                    flex: 1,
+                    minWidth: isMobile ? 'auto' : '250px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                  }}>
+                    <Search size={18} color={themeColors.textMuted} />
+                    <input
+                      type="text"
+                      placeholder="Buscar por nombre, identificación o curso..."
+                      value={busquedaRapida}
+                      onChange={(e) => {
+                        setBusquedaRapida(e.target.value);
                         setPaginaActualFinanciero(1);
                       }}
                       style={{
+                        flex: 1,
                         background: 'transparent',
                         border: 'none',
-                        cursor: 'pointer',
-                        color: themeColors.textMuted,
-                        padding: '0.25rem',
-                        display: 'flex',
-                        alignItems: 'center'
+                        outline: 'none',
+                        color: themeColors.textPrimary,
+                        fontSize: '0.85rem',
+                        padding: '0.25rem'
                       }}
+                    />
+                    {busquedaRapida && (
+                      <button
+                        onClick={() => {
+                          setBusquedaRapida('');
+                          setPaginaActualFinanciero(1);
+                        }}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: themeColors.textMuted,
+                          padding: '0.25rem',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <XCircle size={16} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => {
+                        if (ordenamiento === 'nombre') {
+                          setOrdenAscendente(!ordenAscendente);
+                        } else {
+                          setOrdenamiento('nombre');
+                          setOrdenAscendente(true);
+                        }
+                      }}
+                      style={getToggleButtonStyle(ordenamiento === 'nombre')}
                     >
-                      <XCircle size={16} />
+                      {ordenamiento === 'nombre' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                      Apellidos
                     </button>
-                  )}
+                    <button
+                      onClick={() => {
+                        if (ordenamiento === 'fecha') {
+                          setOrdenAscendente(!ordenAscendente);
+                        } else {
+                          setOrdenamiento('fecha');
+                          setOrdenAscendente(false);
+                        }
+                      }}
+                      style={getToggleButtonStyle(ordenamiento === 'fecha')}
+                    >
+                      {ordenamiento === 'fecha' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                      Fecha
+                    </button>
+                  </div>
                 </div>
+
                 {/* Cards en grid */}
                 <div
                   style={{
@@ -2298,86 +2122,131 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   const filtrados = datosReporte.filter((c: any) => {
                     const term = busquedaCursos.toLowerCase();
                     return (c.nombre_curso?.toLowerCase() || '').includes(term) ||
-                      (c.docente?.toLowerCase() || '').includes(term) ||
+                      (c.codigo_curso?.toLowerCase() || '').includes(term) ||
+                      (c.docente_nombres?.toLowerCase() || '').includes(term) ||
+                      (c.docente_apellidos?.toLowerCase() || '').includes(term) ||
                       (c.horario?.toLowerCase() || '').includes(term);
                   });
                   return filtrados.length;
                 })()} de ${datosReporte.length}` : datosReporte.length})              </h4>
-              {/* Campo de búsqueda */}
               <div style={{
-                marginBottom: '1rem',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: '0.75rem',
+                marginBottom: '1rem',
+                alignItems: isMobile ? 'stretch' : 'center'
               }}>
-                <Search size={18} color={themeColors.textMuted} />
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre, docente u horario..."
-                  value={busquedaCursos}
-                  onChange={(e) => {
-                    setBusquedaCursos(e.target.value);
-                    setPaginaActualCursos(1);
-                  }}
-                  style={{
-                    flex: 1,
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    color: themeColors.textPrimary,
-                    fontSize: '0.85rem',
-                    padding: '0.25rem'
-                  }}
-                />
-                {busquedaCursos && (
-                  <button
-                    onClick={() => {
-                      setBusquedaCursos('');
+                {/* Campo de búsqueda */}
+                <div style={{
+                  position: 'relative',
+                  flex: 1,
+                  minWidth: isMobile ? 'auto' : '250px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+                  padding: '0.75rem',
+                  borderRadius: '0.5rem',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                }}>
+                  <Search size={18} color={themeColors.textMuted} />
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre, código o docente..."
+                    value={busquedaCursos}
+                    onChange={(e) => {
+                      setBusquedaCursos(e.target.value);
                       setPaginaActualCursos(1);
                     }}
                     style={{
+                      flex: 1,
                       background: 'transparent',
                       border: 'none',
-                      cursor: 'pointer',
-                      color: themeColors.textMuted,
-                      padding: '0.25rem',
-                      display: 'flex',
-                      alignItems: 'center'
+                      outline: 'none',
+                      color: themeColors.textPrimary,
+                      fontSize: '0.85rem',
+                      padding: '0.25rem'
                     }}
+                  />
+                  {busquedaCursos && (
+                    <button
+                      onClick={() => {
+                        setBusquedaCursos('');
+                        setPaginaActualCursos(1);
+                      }}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: themeColors.textMuted,
+                        padding: '0.25rem',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => {
+                      if (ordenamiento === 'nombre') {
+                        setOrdenAscendente(!ordenAscendente);
+                      } else {
+                        setOrdenamiento('nombre');
+                        setOrdenAscendente(true);
+                      }
+                    }}
+                    style={getToggleButtonStyle(ordenamiento === 'nombre')}
                   >
-                    <XCircle size={16} />
+                    {ordenamiento === 'nombre' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                    Nombre del curso
                   </button>
-                )}
+                  <button
+                    onClick={() => {
+                      if (ordenamiento === 'fecha') {
+                        setOrdenAscendente(!ordenAscendente);
+                      } else {
+                        setOrdenamiento('fecha');
+                        setOrdenAscendente(false);
+                      }
+                    }}
+                    style={getToggleButtonStyle(ordenamiento === 'fecha')}
+                  >
+                    {ordenamiento === 'fecha' ? (ordenAscendente ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} />}
+                    Fecha
+                  </button>
+                </div>
               </div>
+
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 {(() => {
                   // 1. Aplicar búsqueda
                   const cursosFiltrados = busquedaCursos
                     ? datosReporte.filter((curso: any) => {
                       const searchTerm = busquedaCursos.toLowerCase();
-                      const nombreCurso = curso.nombre_curso?.toLowerCase() || '';
-                      const docente = curso.docente?.toLowerCase() || '';
                       const horario = curso.horario?.toLowerCase() || '';
 
-                      return nombreCurso.includes(searchTerm) ||
-                        docente.includes(searchTerm) ||
+                      return (curso.nombre_curso?.toLowerCase() || '').includes(searchTerm) ||
+                        (curso.codigo_curso?.toLowerCase() || '').includes(searchTerm) ||
+                        (curso.docente_nombres?.toLowerCase() || '').includes(searchTerm) ||
+                        (curso.docente_apellidos?.toLowerCase() || '').includes(searchTerm) ||
                         horario.includes(searchTerm);
                     })
                     : datosReporte;
 
-                  // 2. Ordenar por fecha de inicio (más recientes primero)
+                  // 2. Ordenar dinámicamente
                   const cursosOrdenados = [...cursosFiltrados].sort((a: any, b: any) => {
+                    if (ordenamiento === 'nombre') {
+                      const nombreA = (a.nombre_curso || '').toLowerCase();
+                      const nombreB = (b.nombre_curso || '').toLowerCase();
+                      return ordenAscendente ? nombreA.localeCompare(nombreB) : nombreB.localeCompare(nombreA);
+                    }
                     const fechaA = new Date(a.fecha_inicio || 0).getTime();
                     const fechaB = new Date(b.fecha_inicio || 0).getTime();
-                    return fechaB - fechaA; // Descendente (más recientes primero)
+                    return ordenAscendente ? fechaA - fechaB : fechaB - fechaA;
                   });
-
-                  // 3. Calcular paginación
-                  const totalPaginasCursos = Math.ceil(cursosOrdenados.length / ITEMS_POR_PAGINA_CURSOS);
                   const indiceInicioCursos = (paginaActualCursos - 1) * ITEMS_POR_PAGINA_CURSOS;
                   const indiceFinCursos = indiceInicioCursos + ITEMS_POR_PAGINA_CURSOS;
                   const cursosPaginados = cursosOrdenados.slice(indiceInicioCursos, indiceFinCursos);
@@ -2424,7 +2293,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         fontSize: '0.75rem',
                         color: themeColors.textMuted
                       }}>
-                        <span>Horario: {curso.horario}</span>
+                        <span>Horario: {curso.horario?.toUpperCase()}</span>
                         <span>Docente: {curso.docente_apellidos} {curso.docente_nombres}</span>
                       </div>
                     </div>
@@ -2966,7 +2835,6 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   );
 
                   // Calcular paginación
-                  const totalPaginasHistorial = Math.ceil(reportesFiltrados.length / ITEMS_POR_PAGINA_HISTORIAL);
                   const indiceInicioHistorial = (paginaActualHistorial - 1) * ITEMS_POR_PAGINA_HISTORIAL;
                   const indiceFinHistorial = indiceInicioHistorial + ITEMS_POR_PAGINA_HISTORIAL;
                   const reportesPaginados = reportesFiltrados.slice(indiceInicioHistorial, indiceFinHistorial);

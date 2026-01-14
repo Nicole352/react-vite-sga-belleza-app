@@ -1009,8 +1009,8 @@ const GestionCursos = () => {
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: isMobile ? '12px' : '1rem',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: isMobile ? '8px' : '0.75rem',
           marginBottom: isMobile ? '12px' : '0.5rem'
         }}>
           {paginatedCursos.map((curso) => {
@@ -1035,17 +1035,20 @@ const GestionCursos = () => {
                 variant="card"
                 tint="neutral"
                 intensity="light"
-                hover
-                animated
+                style={{
+                  padding: '0.625rem',
+                  borderRadius: '0.625rem'
+                }}
               >
-                <div style={{ marginBottom: '0.625rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.375rem' }}>
+                <div style={{ marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.375rem' }}>
                     <span style={{
                       color: themeColors.textMuted,
                       fontSize: '0.65rem',
                       background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,0.9)',
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.3125rem'
+                      padding: '1px 0.375rem',
+                      borderRadius: '0.25rem',
+                      fontWeight: 600
                     }}>
                       {curso.codigo_curso}
                     </span>
@@ -1053,14 +1056,14 @@ const GestionCursos = () => {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.1875rem',
-                        padding: '2px 0.5rem',
-                        borderRadius: 6,
+                        gap: '0.125rem',
+                        padding: '1px 0.375rem',
+                        borderRadius: 4,
                         background: estadoConfig.background,
                         border: estadoConfig.border,
                         color: estadoConfig.color,
                         fontWeight: 700,
-                        fontSize: '0.65rem',
+                        fontSize: '0.6rem',
                         textTransform: 'uppercase',
                       }}
                     >
@@ -1070,9 +1073,10 @@ const GestionCursos = () => {
                   </div>
                   <h3 style={{
                     color: themeColors.textPrimary,
-                    margin: '0 0 0.5rem 0',
-                    fontSize: '0.85rem',
-                    fontWeight: 600
+                    margin: '0 0 0.25rem 0',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    lineHeight: '1.2'
                   }}>
                     {curso.nombre}
                   </h3>
@@ -1080,95 +1084,99 @@ const GestionCursos = () => {
 
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '0.5rem',
-                  marginBottom: '0.625rem',
-                  paddingTop: '0.625rem',
+                  gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                  gap: '0.375rem 0.5rem',
+                  marginBottom: '0.5rem',
+                  paddingTop: '0.5rem',
                   borderTop: `1px solid ${themeColors.controlBorder}`
                 }}>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                      Fecha Inicio
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.6rem', marginBottom: '0px' }}>
+                      Inicio
                     </div>
-                    <div style={{ color: themeColors.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.65rem', fontWeight: 600 }}>
                       {curso.fecha_inicio}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                      Fecha Fin
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.6rem', marginBottom: '0px' }}>
+                      Fin
                     </div>
-                    <div style={{ color: themeColors.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.65rem', fontWeight: 600 }}>
                       {curso.fecha_fin}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.6rem', marginBottom: '0px' }}>
                       Cupos
                     </div>
-                    <div style={{ color: curso.estado === 'cancelado' ? statusStyles.cancelado.color : mapToRedScheme('#10b981'), fontSize: '0.7rem', fontWeight: 700 }}>
+                    <div style={{ color: curso.estado === 'cancelado' ? statusStyles.cancelado.color : mapToRedScheme('#10b981'), fontSize: '0.65rem', fontWeight: 700 }}>
                       {curso.estado === 'cancelado' ? 'N/A' : `${curso.cupos_disponibles || 0} / ${curso.capacidad_maxima}`}
                     </div>
                   </div>
                   <div>
-                    <div style={{ color: themeColors.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
+                    <div style={{ color: themeColors.textMuted, fontSize: '0.6rem', marginBottom: '0px' }}>
                       Horario
                     </div>
-                    <div style={{ color: themeColors.textPrimary, fontSize: '0.7rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                    <div style={{ color: themeColors.textPrimary, fontSize: '0.65rem', fontWeight: 600, textTransform: 'capitalize' }}>
                       {curso.horario}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+                <div style={{
+                  display: 'flex',
+                  gap: '0.25rem',
+                  borderTop: `1px solid ${themeColors.controlBorder}`,
+                  paddingTop: '0.5rem',
+                  marginTop: 'auto'
+                }}>
                   <button
                     onClick={() => handleViewCurso(curso)}
                     style={{
-                      flex: '1 1 auto',
+                      flex: 1,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.25rem',
-                      padding: '0.375rem',
+                      padding: '0.25rem',
                       background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.75)',
                       border: darkMode ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(252, 165, 165, 0.85)',
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.375rem',
                       color: viewActionColor,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
+                      height: '24px'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(254, 202, 202, 0.92)';
-                      e.currentTarget.style.transform = 'scale(1.05) translateY(-1px)';
-                      e.currentTarget.style.boxShadow = `0 0.25rem 0.75rem ${RedColorPalette.primary}40`;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.75)';
-                      e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    <Eye size={16} color={viewActionColor} /> Ver
+                    <Eye size={12} color={viewActionColor} /> Ver
                   </button>
                   <button
                     onClick={() => handleEditCurso(curso)}
                     style={{
-                      flex: '1 1 auto',
+                      flex: 1,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.25rem',
-                      padding: '0.375rem',
+                      padding: '0.25rem',
                       background: darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff',
                       border: `1px solid ${themeColors.controlBorder}`,
-                      borderRadius: '0.625rem',
+                      borderRadius: '0.375rem',
                       color: editActionColor,
-                      fontSize: '0.7rem',
+                      fontSize: '0.65rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
+                      height: '24px'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(248,250,252,0.95)';
@@ -1177,20 +1185,24 @@ const GestionCursos = () => {
                       e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : '#ffffff';
                     }}
                   >
-                    <Edit size={16} color={editActionColor} /> Editar
+                    <Edit size={12} color={editActionColor} /> Editar
                   </button>
                   <button
                     onClick={() => confirmDeleteCurso(curso)}
                     style={{
-                      padding: '0.375rem 0.75rem',
+                      flex: 0,
+                      minWidth: '24px',
+                      padding: '0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       background: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.85)',
                       border: `1px solid ${excelButtonStyles.border}`,
-                      borderRadius: '0.625rem',
+                      borderRadius: '0.375rem',
                       color: deleteActionColor,
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
+                      height: '24px'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.25)' : 'rgba(254, 202, 202, 0.95)';
@@ -1199,30 +1211,29 @@ const GestionCursos = () => {
                       e.currentTarget.style.background = darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.85)';
                     }}
                   >
-                    <Trash2 size={16} color={deleteActionColor} />
+                    <Trash2 size={12} color={deleteActionColor} />
                   </button>
                   <button
                     onClick={() => handleToggleMatricula(curso)}
                     title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
                     style={{
-                      flex: '1 1 100%',
+                      flex: 0,
+                      minWidth: '24px',
+                      padding: '0',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.25rem',
-                      padding: '0.375rem',
                       background: curso.estado === 'cancelado'
                         ? (darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(187, 247, 208, 0.8)')
                         : (darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.85)'),
                       border: curso.estado === 'cancelado'
                         ? `1px solid ${darkMode ? 'rgba(16, 185, 129, 0.3)' : 'rgba(134, 239, 172, 0.9)'}`
                         : `1px solid ${excelButtonStyles.border}`,
-                      borderRadius: '0.625rem',
+                      borderRadius: '0.375rem',
                       color: toggleActionColor,
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
+                      height: '24px'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = curso.estado === 'cancelado'
@@ -1236,9 +1247,8 @@ const GestionCursos = () => {
                     }}
                   >
                     {curso.estado === 'cancelado'
-                      ? <Unlock size={16} color={toggleActionColor} />
-                      : <Lock size={16} color={toggleActionColor} />}
-                    {curso.estado === 'cancelado' ? 'Reanudar' : 'Cerrar'}
+                      ? <Unlock size={12} color={toggleActionColor} />
+                      : <Lock size={12} color={toggleActionColor} />}
                   </button>
                 </div>
               </GlassEffect>
@@ -1292,71 +1302,71 @@ const GestionCursos = () => {
               }}>
                 <tr>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'left',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Código
                   </th>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'left',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Nombre
                   </th>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Fecha Inicio
                   </th>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Fecha Fin
                   </th>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Cupos
                   </th>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Estado
                   </th>
                   <th style={{
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
                     color: darkMode ? '#ffffff' : '#9f1239',
                     textAlign: 'center',
                     fontWeight: 600,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     textTransform: 'uppercase'
                   }}>
                     Acciones
@@ -1390,38 +1400,38 @@ const GestionCursos = () => {
                       }}
                     >
                       <td style={{
-                        padding: '0.5rem 0.75rem',
+                        padding: '0.25rem 0.5rem',
                         color: themeColors.textPrimary,
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem'
                       }}>
                         {curso.codigo_curso}
                       </td>
                       <td className="table-nombre-uppercase" style={{
-                        padding: '0.5rem 0.75rem',
+                        padding: '0.25rem 0.5rem',
                         color: themeColors.textPrimary,
                         fontWeight: 600,
-                        fontSize: '0.75rem'
+                        fontSize: '0.7rem'
                       }}>
                         {curso.nombre}
                       </td>
                       <td style={{
-                        padding: '0.5rem 0.75rem',
+                        padding: '0.25rem 0.5rem',
                         color: themeColors.textSecondary,
                         textAlign: 'center',
-                        fontSize: '0.7rem'
+                        fontSize: '0.65rem'
                       }}>
                         {curso.fecha_inicio}
                       </td>
                       <td style={{
-                        padding: '0.5rem 0.75rem',
+                        padding: '0.25rem 0.5rem',
                         color: themeColors.textSecondary,
                         textAlign: 'center',
-                        fontSize: '0.7rem'
+                        fontSize: '0.65rem'
                       }}>
                         {curso.fecha_fin}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
                         {curso.estado === 'cancelado' ? (
                           <span style={{
                             display: 'inline-block',
@@ -1457,7 +1467,7 @@ const GestionCursos = () => {
                           </span>
                         )}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
                         <span style={{
                           display: 'inline-block',
                           padding: '2px 0.5rem',
@@ -1472,12 +1482,12 @@ const GestionCursos = () => {
                           {curso.estado}
                         </span>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                           <button
                             onClick={() => handleViewCurso(curso)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -1495,12 +1505,12 @@ const GestionCursos = () => {
                             }}
                             title="Ver detalle"
                           >
-                            <Eye style={{ width: '1rem', height: '1rem' }} />
+                            <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
                             onClick={() => handleEditCurso(curso)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -1518,12 +1528,12 @@ const GestionCursos = () => {
                             }}
                             title="Editar curso"
                           >
-                            <Edit style={{ width: '1rem', height: '1rem' }} />
+                            <Edit style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
                             onClick={() => confirmDeleteCurso(curso)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #ef4444',
                               backgroundColor: 'transparent',
@@ -1541,12 +1551,12 @@ const GestionCursos = () => {
                             }}
                             title="Eliminar curso"
                           >
-                            <Trash2 style={{ width: '1rem', height: '1rem' }} />
+                            <Trash2 style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           <button
                             onClick={() => handleToggleMatricula(curso)}
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: `1px solid ${curso.estado === 'cancelado' ? '#10b981' : '#6b7280'}`,
                               backgroundColor: 'transparent',
@@ -1567,9 +1577,9 @@ const GestionCursos = () => {
                             title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
                           >
                             {curso.estado === 'cancelado' ? (
-                              <Unlock style={{ width: '1rem', height: '1rem' }} />
+                              <Unlock style={{ width: '0.85rem', height: '0.85rem' }} />
                             ) : (
-                              <Lock style={{ width: '1rem', height: '1rem' }} />
+                              <Lock style={{ width: '0.85rem', height: '0.85rem' }} />
                             )}
                           </button>
                         </div>

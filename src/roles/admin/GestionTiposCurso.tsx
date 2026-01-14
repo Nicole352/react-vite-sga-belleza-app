@@ -500,8 +500,8 @@ const GestionTiposCurso: React.FC = () => {
       {viewMode === 'cards' && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: isMobile ? '12px' : '1rem',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: isMobile ? '8px' : '0.75rem',
           marginBottom: isMobile ? '12px' : '0.5rem'
         }}>
           {paginatedTipos.map((t) => (
@@ -510,27 +510,18 @@ const GestionTiposCurso: React.FC = () => {
               style={{
                 background: theme.cardBg,
                 border: `1px solid ${theme.cardBorder}`,
-                borderRadius: '0.75rem',
-                padding: '0.75rem',
+                borderRadius: '0.625rem',
+                padding: '0.625rem',
                 transition: 'all 0.3s ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = darkMode
-                  ? '0 0.5rem 1.5rem rgba(239, 68, 68, 0.24)'
-                  : '0 12px 28px rgba(239, 68, 68, 0.12)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
-              <div style={{ marginBottom: '0.625rem' }}>
+              <div style={{ marginBottom: '0.5rem' }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'start',
+                  alignItems: 'center',
                   marginBottom: '0.375rem'
                 }}>
                   <span
@@ -538,9 +529,10 @@ const GestionTiposCurso: React.FC = () => {
                       color: theme.pillText,
                       fontSize: '0.65rem',
                       background: theme.pillBg,
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.3125rem',
+                      padding: '1px 0.375rem',
+                      borderRadius: '0.25rem',
                       border: darkMode ? '1px solid transparent' : '1px solid rgba(239,68,68,0.25)',
+                      fontWeight: 600
                     }}
                   >
                     TC-{String(t.id_tipo_curso).padStart(3, '0')}
@@ -549,14 +541,14 @@ const GestionTiposCurso: React.FC = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.1875rem',
-                      padding: '2px 0.5rem',
-                      borderRadius: 6,
+                      gap: '0.125rem',
+                      padding: '1px 0.375rem',
+                      borderRadius: 4,
                       background: t.estado === 'activo' ? theme.statusActiveBg : theme.statusInactiveBg,
                       color: t.estado === 'activo' ? theme.statusActiveText : theme.statusInactiveText,
                       border: t.estado === 'activo' ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(239,68,68,0.3)',
                       fontWeight: 700,
-                      fontSize: '0.65rem',
+                      fontSize: '0.6rem',
                       textTransform: 'uppercase'
                     }}
                   >
@@ -565,9 +557,10 @@ const GestionTiposCurso: React.FC = () => {
                 </div>
                 <h3 style={{
                   color: theme.textPrimary,
-                  margin: '0 0 0.5rem 0',
-                  fontSize: '0.85rem',
-                  fontWeight: 600
+                  margin: '0 0 0.25rem 0',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  lineHeight: '1.2'
                 }}>
                   {t.nombre}
                 </h3>
@@ -575,97 +568,90 @@ const GestionTiposCurso: React.FC = () => {
 
               <div
                 style={{
-                  paddingTop: '0.625rem',
-                  borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(248,113,113,0.2)'}`,
-                  marginBottom: '0.625rem',
+                  paddingTop: '0.5rem',
+                  borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,113,113,0.15)'}`,
+                  marginBottom: '0.5rem',
                 }}
               >
-                <p style={{
-                  color: theme.textSecondary,
-                  fontSize: '0.7rem',
-                  margin: 0,
-                  lineHeight: 1.5,
-                  minHeight: '2.1rem'
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '0.375rem'
                 }}>
-                  {t.descripcion || 'Sin descripción'}
-                </p>
-              </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <Calendar size={12} color={theme.textMuted} />
+                    <span style={{ color: theme.textSecondary, fontSize: '0.7rem' }}>
+                      {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <DollarSign size={12} color={theme.priceText} />
+                    <span style={{ color: theme.priceText, fontSize: '0.75rem', fontWeight: 700 }}>
+                      {formatPrice(t.precio_base ?? null)}
+                    </span>
+                  </div>
+                </div>
 
-              <div style={{
-                display: 'flex',
-                gap: '0.75rem',
-                marginBottom: '0.625rem'
-              }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                    Duración
-                  </div>
-                  <div style={{ color: darkMode ? 'rgba(255,255,255,0.95)' : theme.textPrimary, fontSize: '0.7rem', fontWeight: 600 }}>
-                    {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
-                  </div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.125rem' }}>
-                    Precio
-                  </div>
-                  <div style={{ color: theme.priceText, fontSize: '0.75rem', fontWeight: 700 }}>
-                    {formatPrice(t.precio_base ?? null)}
-                  </div>
-                </div>
+                <p style={{
+                  color: theme.textMuted,
+                  fontSize: '0.65rem',
+                  margin: 0,
+                  lineHeight: 1.4,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  minHeight: '1.85rem'
+                }}>
+                  {t.descripcion || 'Sin descripción disponible para este tipo de curso.'}
+                </p>
               </div>
 
               {/* Información de modalidad de pago */}
               {t.modalidad_pago === 'clases' && (
                 <div style={{
-                  marginBottom: '0.625rem',
-                  padding: '0.5rem',
-                  background: 'rgba(59, 130, 246, 0.08)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  borderRadius: '0.375rem'
+                  marginBottom: '0.5rem',
+                  padding: '0.375rem',
+                  background: 'rgba(59, 130, 246, 0.05)',
+                  border: '1px solid rgba(59, 130, 246, 0.15)',
+                  borderRadius: '0.375rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.375rem',
-                    marginBottom: '0.25rem'
+                    gap: '0.25rem'
                   }}>
                     <div style={{
-                      width: '0.3125rem',
-                      height: '0.3125rem',
+                      width: '0.25rem',
+                      height: '0.25rem',
                       borderRadius: '50%',
                       background: '#3b82f6'
                     }} />
-                    <span style={{
-                      color: '#3b82f6',
-                      fontSize: '0.65rem',
-                      fontWeight: 600
-                    }}>
-                      Modalidad por Clases
+                    <span style={{ color: '#3b82f6', fontSize: '0.65rem', fontWeight: 600 }}>
+                      x Clases ({t.numero_clases || 0})
                     </span>
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    gap: '0.75rem',
+                  <span style={{
+                    color: theme.textSecondary,
                     fontSize: '0.65rem',
-                    color: theme.textSecondary
+                    fontWeight: 500
                   }}>
-                    <span>
-                      <strong>{t.numero_clases || 0}</strong> clases total
-                    </span>
-                    <span>
-                      <strong>{formatPrice(t.precio_por_clase ?? null)}</strong> por clase
-                    </span>
-                  </div>
+                    {formatPrice(t.precio_por_clase ?? null)} / clase
+                  </span>
                 </div>
               )}
 
               <div
                 style={{
                   display: 'flex',
-                  gap: '0.375rem',
-                  borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(248,113,113,0.2)'}`,
-                  paddingTop: '0.625rem',
-                  marginTop: '0.625rem',
+                  gap: '0.25rem',
+                  borderTop: `1px solid ${darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,113,113,0.15)'}`,
+                  paddingTop: '0.5rem',
+                  marginTop: 'auto',
                 }}
               >
                 <button
@@ -676,24 +662,19 @@ const GestionTiposCurso: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.25rem',
-                    padding: '0.375rem',
-                    background: darkMode ? 'rgba(59, 130, 246, 0.14)' : 'rgba(59,130,246,0.18)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '0.5rem',
+                    padding: '0.25rem',
+                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59,130,246,0.12)',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    borderRadius: '0.375rem',
                     color: editActionColor,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.24)' : 'rgba(59,130,246,0.26)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.14)' : 'rgba(59,130,246,0.18)';
+                    transition: 'all 0.2s',
+                    height: '24px'
                   }}
                 >
-                  <Eye size={12} color={editActionColor} /> Ver
+                  <Eye size={12} /> Ver
                 </button>
                 <button
                   onClick={() => openEdit(t)}
@@ -703,24 +684,19 @@ const GestionTiposCurso: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.25rem',
-                    padding: '0.375rem',
-                    background: darkMode ? 'rgba(59, 130, 246, 0.14)' : 'rgba(59,130,246,0.18)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    borderRadius: '0.5rem',
+                    padding: '0.25rem',
+                    background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59,130,246,0.12)',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    borderRadius: '0.375rem',
                     color: editActionColor,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.24)' : 'rgba(59,130,246,0.26)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(59,130,246,0.14)' : 'rgba(59,130,246,0.18)';
+                    transition: 'all 0.2s',
+                    height: '24px'
                   }}
                 >
-                  <Edit size={12} color={editActionColor} /> Editar
+                  <Edit size={12} /> Editar
                 </button>
                 <button
                   onClick={() => requestDelete(t)}
@@ -730,24 +706,19 @@ const GestionTiposCurso: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.25rem',
-                    padding: '0.375rem',
-                    background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239,68,68,0.18)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: '0.5rem',
+                    padding: '0.25rem',
+                    background: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239,68,68,0.12)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '0.375rem',
                     color: deleteActionColor,
-                    fontSize: '0.7rem',
+                    fontSize: '0.65rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(239,68,68,0.24)' : 'rgba(239,68,68,0.28)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.18)';
+                    transition: 'all 0.2s',
+                    height: '24px'
                   }}
                 >
-                  <Trash2 size={12} color={deleteActionColor} /> Eliminar
+                  <Trash2 size={12} /> Eliminar
                 </button>
               </div>
             </div>
@@ -901,19 +872,19 @@ const GestionTiposCurso: React.FC = () => {
                 background: theme.tableHeaderBg
               }}>
                 <tr>
-                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'left', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '35%' }}>
+                  <th style={{ padding: '0.25rem 0.5rem', color: theme.tableHeaderText, textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase', width: '35%' }}>
                     NOMBRE
                   </th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '15%' }}>
+                  <th style={{ padding: '0.25rem 0.5rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase', width: '15%' }}>
                     Duración
                   </th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'right', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '20%' }}>
+                  <th style={{ padding: '0.25rem 0.5rem', color: theme.tableHeaderText, textAlign: 'right', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase', width: '20%' }}>
                     Precio
                   </th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '15%' }}>
+                  <th style={{ padding: '0.25rem 0.5rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase', width: '15%' }}>
                     Estado
                   </th>
-                  <th style={{ padding: '0.5rem 0.75rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.7rem', textTransform: 'uppercase', width: '15%' }}>
+                  <th style={{ padding: '0.25rem 0.5rem', color: theme.tableHeaderText, textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase', width: '15%' }}>
                     Acciones
                   </th>
                 </tr>
@@ -934,28 +905,28 @@ const GestionTiposCurso: React.FC = () => {
                       e.currentTarget.style.background = 'transparent';
                     }}
                   >
-                    <td className="table-nombre-uppercase" style={{ padding: '0.5rem 0.75rem', color: theme.tableText, fontWeight: 600, fontSize: '0.75rem' }}>
+                    <td className="table-nombre-uppercase" style={{ padding: '0.25rem 0.5rem', color: theme.tableText, fontWeight: 600, fontSize: '0.7rem' }}>
                       {t.nombre}
                     </td>
-                    <td style={{ padding: '0.5rem 0.75rem', color: theme.textSecondary, textAlign: 'center', fontSize: '0.7rem' }}>
+                    <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, textAlign: 'center', fontSize: '0.65rem' }}>
                       {t.duracion_meses != null ? `${t.duracion_meses} meses` : '-'}
                     </td>
-                    <td style={{ padding: '0.5rem 0.75rem', color: theme.tableText, textAlign: 'right', fontWeight: 600, fontSize: '0.75rem' }}>
+                    <td style={{ padding: '0.25rem 0.5rem', color: theme.tableText, textAlign: 'right', fontWeight: 600, fontSize: '0.7rem' }}>
                       {formatPrice(t.precio_base ?? null)}
                     </td>
-                    <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center' }}>
+                    <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${t.estado === 'activo' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}
                       >
                         {t.estado ? t.estado.toUpperCase() : 'ACTIVO'}
                       </span>
                     </td>
-                    <td style={{ padding: '0.5rem 0.75rem' }}>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>
                       <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center' }}>
                         <button
                           onClick={() => handleViewTipo(t)}
                           style={{
-                            padding: '0.375rem',
+                            padding: '0.25rem',
                             borderRadius: '0.5rem',
                             border: '1px solid #3b82f6',
                             backgroundColor: 'transparent',
@@ -976,12 +947,12 @@ const GestionTiposCurso: React.FC = () => {
                           }}
                           title="Ver detalles"
                         >
-                          <Eye style={{ width: '1rem', height: '1rem' }} />
+                          <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                         </button>
                         <button
                           onClick={() => openEdit(t)}
                           style={{
-                            padding: '0.375rem',
+                            padding: '0.25rem',
                             borderRadius: '0.5rem',
                             border: '1px solid #3b82f6',
                             backgroundColor: 'transparent',
@@ -1002,12 +973,12 @@ const GestionTiposCurso: React.FC = () => {
                           }}
                           title="Editar"
                         >
-                          <Edit style={{ width: '1rem', height: '1rem' }} />
+                          <Edit style={{ width: '0.85rem', height: '0.85rem' }} />
                         </button>
                         <button
                           onClick={() => requestDelete(t)}
                           style={{
-                            padding: '0.375rem',
+                            padding: '0.25rem',
                             borderRadius: '0.5rem',
                             border: '1px solid #ef4444',
                             backgroundColor: 'transparent',
@@ -1028,7 +999,7 @@ const GestionTiposCurso: React.FC = () => {
                           }}
                           title="Eliminar"
                         >
-                          <Trash2 style={{ width: '1rem', height: '1rem' }} />
+                          <Trash2 style={{ width: '0.85rem', height: '0.85rem' }} />
                         </button>
                       </div>
                     </td>

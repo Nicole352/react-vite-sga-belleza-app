@@ -96,7 +96,7 @@ const GestionPagosEstudiante = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table'); // Default to table view
 
   // Trigger to refetch data when socket notifies of changes.
@@ -1144,16 +1144,16 @@ const GestionPagosEstudiante = () => {
                 borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`
               }}>
                 <tr>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Estudiante</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Identificación</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Curso</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Cuota</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Monto</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Vencimiento</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Método</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Estado</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Comprobante</th>
-                  <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem' }}>Acciones</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Estudiante</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Identificación</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Curso</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Cuota</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Monto</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Vencimiento</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Método</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Estado</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Comprobante</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -1190,13 +1190,13 @@ const GestionPagosEstudiante = () => {
                       onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)'}
                       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                     >
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.textPrimary, fontWeight: 600, fontSize: '0.75rem', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 600, fontSize: '0.7rem', verticalAlign: 'middle' }}>
                         {estudiante.estudiante_apellido}, {estudiante.estudiante_nombre}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.textSecondary, fontSize: '0.7rem', verticalAlign: 'middle' }}>{estudiante.estudiante_cedula}</td>
-                      <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, fontSize: '0.65rem', verticalAlign: 'middle' }}>{estudiante.estudiante_cedula}</td>
+                      <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
                         {selectedCursoTab !== 'todos' ? (
-                          <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 500 }}>
+                          <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 500 }}>
                             {cursoActual.curso_nombre}
                           </div>
                         ) : estudiante.cursos.length > 1 ? (
@@ -1221,7 +1221,7 @@ const GestionPagosEstudiante = () => {
                               border: `1px solid ${theme.inputBorder}`,
                               borderRadius: '0.375rem',
                               color: theme.textPrimary,
-                              fontSize: '0.75rem',
+                              fontSize: '0.7rem',
                               cursor: 'pointer',
                               fontWeight: 500
                             }}
@@ -1240,10 +1240,10 @@ const GestionPagosEstudiante = () => {
                             ))}
                           </select>
                         ) : (
-                          <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: 500 }}>{cursoActual.curso_nombre}</div>
+                          <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 500 }}>{cursoActual.curso_nombre}</div>
                         )}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         <select
                           value={selectedCuota[cuotaKey] ?? pago.id_pago}
                           onChange={(e) => {
@@ -1275,30 +1275,30 @@ const GestionPagosEstudiante = () => {
                           ))}
                         </select>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.textPrimary, fontWeight: 700, fontSize: '0.75rem' }}>{formatearMonto(pago.monto)}</td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: theme.textSecondary, fontSize: '0.7rem' }}>{formatearFecha(pago.fecha_vencimiento)}</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 700, fontSize: '0.7rem' }}>{formatearMonto(pago.monto)}</td>
+                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, fontSize: '0.65rem' }}>{formatearFecha(pago.fecha_vencimiento)}</td>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.25rem',
                           padding: '3px 0.5rem',
                           borderRadius: '0.375rem',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           fontWeight: 600,
                           color: metodoPagoBadge.color,
                           background: `${metodoPagoBadge.color}15`,
                           border: `1px solid ${metodoPagoBadge.color}30`
                         }}>
-                          <MetodoIcon size={12} />
+                          <MetodoIcon size={11} />
                           {metodoPagoBadge.label}
                         </span>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>
+                      <td style={{ padding: '0.25rem 0.5rem' }}>
                         <span style={{
                           padding: '3px 0.625rem',
                           borderRadius: '999px',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           fontWeight: 700,
                           textTransform: 'uppercase',
                           background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
@@ -1317,13 +1317,13 @@ const GestionPagosEstudiante = () => {
                           {pago.estado}
                         </span>
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         {pago.numero_comprobante ? (
                           <button
                             onClick={() => openComprobanteModal(pago)}
                             title="Ver comprobante"
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #10b981',
                               backgroundColor: 'transparent',
@@ -1340,13 +1340,13 @@ const GestionPagosEstudiante = () => {
                               e.currentTarget.style.color = '#10b981';
                             }}
                           >
-                            <Download style={{ width: '1rem', height: '1rem' }} />
+                            <Download style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                         ) : (
-                          <span style={{ color: theme.textMuted, fontSize: '0.7rem', fontStyle: 'italic' }}>Sin comprobante</span>
+                          <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontStyle: 'italic' }}>Sin comprobante</span>
                         )}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                         <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center', alignItems: 'center' }}>
                           <button
                             onClick={() => {
@@ -1355,7 +1355,7 @@ const GestionPagosEstudiante = () => {
                             }}
                             title="Ver Detalles"
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #3b82f6',
                               backgroundColor: 'transparent',
@@ -1372,7 +1372,7 @@ const GestionPagosEstudiante = () => {
                               e.currentTarget.style.color = '#3b82f6';
                             }}
                           >
-                            <Eye style={{ width: '1rem', height: '1rem' }} />
+                            <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                           {pago.estado === 'pagado' && (
                             <>
@@ -1381,7 +1381,7 @@ const GestionPagosEstudiante = () => {
                                 disabled={procesando}
                                 title="Verificar Pago"
                                 style={{
-                                  padding: '0.375rem',
+                                  padding: '0.25rem',
                                   borderRadius: '0.5rem',
                                   border: '1px solid #10b981',
                                   backgroundColor: 'transparent',
@@ -1495,105 +1495,106 @@ const GestionPagosEstudiante = () => {
                   background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
                   backdropFilter: 'blur(1.25rem)',
                   border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-                  borderRadius: '0.625rem',
-                  padding: '0.5rem 0.75rem',
+                  borderRadius: '0.5rem',
+                  padding: '0.35rem 0.5rem',
                   boxShadow: '0 0.125rem 0.5rem rgba(0, 0, 0, 0.1)',
                   transition: 'all 0.3s ease',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.5rem'
+                  gap: '0.35rem'
                 }}
               >
-                {/* Información Principal */}
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem', gap: '0.5rem' }}>
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        color: metodoPagoBadge.color,
-                        fontSize: '0.55rem',
-                        background: metodoPagoBadge.background,
-                        border: metodoPagoBadge.border,
-                        padding: '2px 0.5rem',
-                        borderRadius: '0.35rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.01em'
-                      }}
-                    >
-                      <MetodoIcon size={12} color={metodoPagoBadge.color} />
-                      {metodoPagoBadge.label}
-                    </span>
-                    <span style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.35rem',
-                      fontSize: '0.55rem',
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.1)' :
-                        pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.1)' :
-                          pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.1)' :
-                            'rgba(156, 163, 175, 0.1)',
-                      border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.2)' :
-                        pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.2)' :
-                          pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.2)' :
-                            '1px solid rgba(156, 163, 175, 0.2)',
-                      color: pago.estado === 'verificado' ? '#10b981' :
-                        pago.estado === 'pagado' ? '#fbbf24' :
-                          pago.estado === 'vencido' ? '#ef4444' :
-                            '#9ca3af',
-                      letterSpacing: '0.025em'
-                    }}>
-                      {pago.estado}
-                    </span>
-                  </div>
-                  <h3 style={{
-                    color: theme.textPrimary,
-                    margin: '0',
-                    fontSize: '0.8rem',
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: '-0.01em'
-                  }}>
-                    {pago.estudiante_apellido}, {pago.estudiante_nombre}
-                  </h3>
-                </div>
-
+                {/* Información Principal + Selectores Combinados */}
                 <div style={{
-                  height: '1px',
-                  background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.15)',
-                  opacity: 0.5
-                }} />
-
-                <div>
-                  {/* Primera fila - Información básica con selectores */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
-                    gap: '0.5rem',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>Identificación</div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700 }}>{estudiante.estudiante_cedula}</div>
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.8fr',
+                  gap: '0.5rem',
+                  alignItems: 'start'
+                }}>
+                  {/* Izquierda: Badges + Nombre + ID */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.25rem' }}>
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.2rem',
+                            color: metodoPagoBadge.color,
+                            fontSize: '0.65rem',
+                            background: metodoPagoBadge.background,
+                            border: metodoPagoBadge.border,
+                            padding: '0.2rem 0.4rem',
+                            borderRadius: '0.35rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.01em'
+                          }}
+                        >
+                          <MetodoIcon size={12} color={metodoPagoBadge.color} />
+                          {metodoPagoBadge.label}
+                        </span>
+                        <span style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.2rem',
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '0.35rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          textTransform: 'uppercase',
+                          background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.1)' :
+                            pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.1)' :
+                              pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.1)' :
+                                'rgba(156, 163, 175, 0.1)',
+                          border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.2)' :
+                            pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.2)' :
+                              pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.2)' :
+                                '1px solid rgba(156, 163, 175, 0.2)',
+                          color: pago.estado === 'verificado' ? '#10b981' :
+                            pago.estado === 'pagado' ? '#fbbf24' :
+                              pago.estado === 'vencido' ? '#ef4444' :
+                                '#9ca3af',
+                          letterSpacing: '0.025em'
+                        }}>
+                          {pago.estado}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Selector de Curso */}
+                    <h3 style={{
+                      color: theme.textPrimary,
+                      margin: '0 0 0.1rem 0',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {pago.estudiante_apellido}, {pago.estudiante_nombre}
+                    </h3>
+                    <div style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>
+                      ID: {estudiante.estudiante_cedula}
+                    </div>
+                  </div>
+
+                  {/* Derecha: Selectores de Curso, Cuota y Vencimiento Compactos */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1.2fr 0.8fr 1fr',
+                    gap: '0.35rem',
+                    alignItems: 'end',
+                    background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
+                    padding: '0.25rem',
+                    borderRadius: '0.35rem'
+                  }}>
+                    {/* Curso */}
                     <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>Curso</div>
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>CURSO</div>
                       {selectedCursoTab !== 'todos' ? (
                         <div style={{
                           color: theme.textPrimary,
                           fontSize: '0.7rem',
                           fontWeight: 700,
-                          padding: '2px 0.375rem',
-                          background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
-                          borderRadius: '0.25rem',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis'
@@ -1617,14 +1618,15 @@ const GestionPagosEstudiante = () => {
                           }}
                           style={{
                             width: '100%',
-                            padding: '2px 4px',
+                            padding: '0.15rem 0.3rem',
                             background: theme.inputBg,
                             border: `1px solid ${theme.inputBorder}`,
                             borderRadius: '0.25rem',
                             color: theme.textPrimary,
                             fontSize: '0.7rem',
                             cursor: 'pointer',
-                            fontWeight: 700
+                            fontWeight: 700,
+                            lineHeight: 1.2
                           }}
                         >
                           {estudiante.cursos.map(curso => (
@@ -1645,11 +1647,9 @@ const GestionPagosEstudiante = () => {
                       )}
                     </div>
 
-                    {/* Selector de Cuota */}
+                    {/* Cuota */}
                     <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>
-                        {pago.modalidad_pago === 'clases' ? 'Clase' : 'Cuota'}
-                      </div>
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>{pago.modalidad_pago === 'clases' ? 'CLASE' : 'CUOTA'}</div>
                       <select
                         value={cuotaSeleccionada}
                         onChange={(e) => {
@@ -1657,14 +1657,15 @@ const GestionPagosEstudiante = () => {
                         }}
                         style={{
                           width: '100%',
-                          padding: '2px 4px',
+                          padding: '0.15rem 0.3rem',
                           background: theme.inputBg,
                           border: `1px solid ${theme.inputBorder}`,
                           borderRadius: '0.25rem',
                           color: theme.textPrimary,
                           fontSize: '0.7rem',
                           cursor: 'pointer',
-                          fontWeight: 800
+                          fontWeight: 800,
+                          lineHeight: 1.2
                         }}
                       >
                         {cursoActual.pagos.map(p => (
@@ -1682,110 +1683,109 @@ const GestionPagosEstudiante = () => {
                       </select>
                     </div>
 
+                    {/* Vencimiento */}
                     <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>Vencimiento</div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700 }}>
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>VENCE</div>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
                         {formatearFecha(pago.fecha_vencimiento)}
                       </div>
                     </div>
                   </div>
+                </div>    {/* Segunda fila - Número, Comprobante y Estado */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : (pago.metodo_pago === 'efectivo' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'),
+                  gap: '0.5rem',
+                  alignItems: 'end'
+                }}>
+                  {/* Número de comprobante */}
+                  <div>
+                    <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>
+                      Número Comprobante
+                    </div>
+                    <div style={{
+                      background: pago.numero_comprobante ? 'rgba(239, 68, 68, 0.05)' : 'rgba(107, 114, 128, 0.05)',
+                      border: pago.numero_comprobante ? '1px solid rgba(239, 68, 68, 0.1)' : '1px solid rgba(107, 114, 128, 0.1)',
+                      color: pago.numero_comprobante ? RedColorPalette.primary : 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
+                      padding: '0.2rem 0.4rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      textTransform: 'uppercase',
+                      fontStyle: pago.numero_comprobante ? 'normal' : 'italic'
+                    }}>
+                      {pago.numero_comprobante || 'N/A'}
+                    </div>
+                  </div>
 
-                  {/* Segunda fila - Número, Comprobante y Estado */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr' : (pago.metodo_pago === 'efectivo' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'),
-                    gap: '0.5rem',
-                    alignItems: 'end'
-                  }}>
-                    {/* Número de comprobante */}
+                  {/* Recibido por - Solo para efectivo */}
+                  {pago.metodo_pago === 'efectivo' && (
                     <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>
-                        Número Comprobante
-                      </div>
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>Recibido por</div>
                       <div style={{
-                        background: pago.numero_comprobante ? 'rgba(239, 68, 68, 0.05)' : 'rgba(107, 114, 128, 0.05)',
-                        border: pago.numero_comprobante ? '1px solid rgba(239, 68, 68, 0.1)' : '1px solid rgba(107, 114, 128, 0.1)',
-                        color: pago.numero_comprobante ? RedColorPalette.primary : 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
-                        padding: '3px 6px',
+                        background: 'rgba(180, 83, 9, 0.05)',
+                        border: '1px solid rgba(180, 83, 9, 0.1)',
+                        color: '#b45309',
+                        padding: '0.2rem 0.4rem',
                         borderRadius: '0.25rem',
-                        fontSize: '0.65rem',
+                        fontSize: '0.7rem',
                         fontWeight: 700,
                         textAlign: 'center',
                         textTransform: 'uppercase',
-                        fontStyle: pago.numero_comprobante ? 'normal' : 'italic'
+                        fontStyle: (pago as any).recibido_por ? 'normal' : 'italic'
                       }}>
-                        {pago.numero_comprobante || 'N/A'}
+                        {(pago as any).recibido_por || 'SECRETARIA'}
                       </div>
                     </div>
+                  )}
 
-                    {/* Recibido por - Solo para efectivo */}
-                    {pago.metodo_pago === 'efectivo' && (
-                      <div>
-                        <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>Recibido por</div>
-                        <div style={{
-                          background: 'rgba(180, 83, 9, 0.05)',
-                          border: '1px solid rgba(180, 83, 9, 0.1)',
-                          color: '#b45309',
-                          padding: '3px 6px',
+                  {/* Comprobante - Botón */}
+                  <div>
+                    <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>Recibo</div>
+                    {pago.numero_comprobante ? (
+                      <button
+                        onClick={() => openComprobanteModal(pago)}
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.05)',
+                          border: '1px solid rgba(16, 185, 129, 0.15)',
+                          color: '#10b981',
+                          padding: '0.2rem 0.5rem',
                           borderRadius: '0.25rem',
-                          fontSize: '0.65rem',
+                          cursor: 'pointer',
+                          fontSize: '0.7rem',
                           fontWeight: 700,
-                          textAlign: 'center',
-                          textTransform: 'uppercase',
-                          fontStyle: (pago as any).recibido_por ? 'normal' : 'italic'
-                        }}>
-                          {(pago as any).recibido_por || 'SECRETARIA'}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Comprobante - Botón */}
-                    <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginBottom: '0.125rem', fontWeight: 500 }}>Recibo</div>
-                      {pago.numero_comprobante ? (
-                        <button
-                          onClick={() => openComprobanteModal(pago)}
-                          style={{
-                            background: 'rgba(16, 185, 129, 0.05)',
-                            border: '1px solid rgba(16, 185, 129, 0.15)',
-                            color: '#10b981',
-                            padding: '3px 0.75rem',
-                            borderRadius: '0.25rem',
-                            cursor: 'pointer',
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            width: '100%',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
-                        >
-                          <Download size={12} /> Ver Comprobante
-                        </button>
-                      ) : (
-                        <div style={{
-                          background: 'rgba(107, 114, 128, 0.05)',
-                          border: '1px solid rgba(107, 114, 128, 0.1)',
-                          color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
-                          padding: '3px 6px',
-                          borderRadius: '0.25rem',
-                          fontSize: '0.65rem',
-                          fontWeight: 500,
-                          textAlign: 'center',
-                          fontStyle: 'italic',
                           display: 'flex',
                           alignItems: 'center',
+                          gap: '0.25rem',
+                          width: '100%',
                           justifyContent: 'center',
-                          gap: '0.25rem'
-                        }}>
-                          <ImageOff size={11} /> Sin archivo
-                        </div>
-                      )}
-                    </div>
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
+                      >
+                        <Download size={13} /> Ver Comprobante
+                      </button>
+                    ) : (
+                      <div style={{
+                        background: 'rgba(107, 114, 128, 0.05)',
+                        border: '1px solid rgba(107, 114, 128, 0.1)',
+                        color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 500,
+                        textAlign: 'center',
+                        fontStyle: 'italic',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.25rem'
+                      }}>
+                        <ImageOff size={13} /> Sin archivo
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1793,8 +1793,8 @@ const GestionPagosEstudiante = () => {
                 <div style={{
                   display: 'flex',
                   justifyContent: 'flex-end',
-                  gap: '0.375rem',
-                  marginTop: '0.125rem'
+                  gap: '0.3rem',
+                  marginTop: '0'
                 }}>
                   <button
                     onClick={() => {
@@ -1806,18 +1806,18 @@ const GestionPagosEstudiante = () => {
                       background: pick('rgba(59, 130, 246, 0.06)', 'rgba(59, 130, 246, 0.1)'),
                       border: '1px solid rgba(59, 130, 246, 0.15)',
                       color: '#3b82f6',
-                      padding: '2px 0.75rem',
+                      padding: '0.25rem 0.5rem',
                       borderRadius: '0.35rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.25rem',
-                      fontSize: '0.6rem',
+                      fontSize: '0.7rem',
                       fontWeight: 700,
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <Eye size={12} /> Ver
+                    <Eye size={13} /> Ver
                   </button>
                   {pago.numero_comprobante && pago.estado !== 'verificado' && (
                     <>
@@ -1828,18 +1828,18 @@ const GestionPagosEstudiante = () => {
                           background: 'rgba(16, 185, 129, 0.1)',
                           border: '1px solid rgba(16, 185, 129, 0.2)',
                           color: '#10b981',
-                          padding: '2px 0.75rem',
+                          padding: '0.25rem 0.5rem',
                           borderRadius: '0.35rem',
                           cursor: procesando ? 'not-allowed' : 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.25rem',
                           opacity: procesando ? 0.6 : 1,
-                          fontSize: '0.6rem',
+                          fontSize: '0.7rem',
                           fontWeight: 700
                         }}
                       >
-                        <Check size={12} /> Aprobar
+                        <Check size={13} /> Aprobar
                       </button>
                       <button
                         onClick={() => handleRechazarPago(pago)}
@@ -1848,18 +1848,18 @@ const GestionPagosEstudiante = () => {
                           background: 'rgba(239, 68, 68, 0.1)',
                           border: '1px solid rgba(239, 68, 68, 0.2)',
                           color: RedColorPalette.primary,
-                          padding: '2px 0.75rem',
+                          padding: '0.25rem 0.5rem',
                           borderRadius: '0.35rem',
                           cursor: procesando ? 'not-allowed' : 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.25rem',
                           opacity: procesando ? 0.6 : 1,
-                          fontSize: '0.6rem',
+                          fontSize: '0.7rem',
                           fontWeight: 700
                         }}
                       >
-                        <X size={12} /> Rechazar
+                        <X size={13} /> Rechazar
                       </button>
                     </>
                   )}
@@ -2170,7 +2170,7 @@ const GestionPagosEstudiante = () => {
                       {selectedPago.fecha_verificacion && (
                         <div style={{
                           color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
-                          fontSize: '0.7rem',
+                          fontSize: '0.65rem',
                           marginTop: '0.2rem'
                         }}>
                           {formatearFecha(selectedPago.fecha_verificacion)}
@@ -2347,7 +2347,7 @@ const GestionPagosEstudiante = () => {
                         <div>
                           <div style={{
                             color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             marginBottom: '0.25rem'
                           }}>
                             Recibido por
@@ -2365,7 +2365,7 @@ const GestionPagosEstudiante = () => {
                         <div>
                           <div style={{
                             color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             marginBottom: '0.25rem'
                           }}>
                             Número de Comprobante

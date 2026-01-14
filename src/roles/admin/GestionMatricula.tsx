@@ -58,6 +58,7 @@ type Solicitud = {
   documento_identificacion_url?: string;
   documento_estatus_legal_url?: string;
   certificado_cosmetologia_url?: string;
+  contacto_emergencia?: string;
 };
 
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
@@ -151,19 +152,6 @@ const GestionMatricula = () => {
   };
 
 
-  const neutralBadgeTokens = {
-    bg: theme.chipMutedBg,
-    border: theme.chipMutedBorder,
-    text: theme.chipMutedText
-  };
-
-  const excelButtonBackground = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
-  const excelButtonHoverBackground = `linear-gradient(135deg, ${RedColorPalette.primaryDark}, ${RedColorPalette.primary})`;
-  const excelButtonTextColor = '#ffffff';
-
-  const refreshButtonBackground = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
-  const refreshButtonHoverBackground = `linear-gradient(135deg, ${RedColorPalette.primaryDark}, ${RedColorPalette.primary})`;
-  const refreshButtonDisabledBackground = pick('rgba(239,68,68,0.25)', 'rgba(239,68,68,0.3)');
 
   const emptyStateTokens = {
     background: pick(
@@ -191,17 +179,6 @@ const GestionMatricula = () => {
     reject: '#ef4444'
   } as const;
 
-  const paginationActiveBg = pick('linear-gradient(135deg, #ef4444, #dc2626)', 'linear-gradient(135deg, #ef4444, #dc2626)');
-  const paginationActiveText = pick('#fff', '#fff');
-
-  const paginationButtonTokens = {
-    defaultBg: pick('rgba(248,250,252,0.92)', 'rgba(255,255,255,0.08)'),
-    border: theme.surfaceBorder,
-    text: theme.textPrimary,
-    disabledBg: pick('rgba(237,242,247,0.6)', 'rgba(255,255,255,0.05)'),
-    disabledText: theme.paginationInactiveText,
-    hoverBg: pick('rgba(255,255,255,0.98)', 'rgba(255,255,255,0.12)')
-  };
 
 
   const getEstadoTokens = (estado: Solicitud['estado']) => estadoTokens[estado] ?? estadoTokens.pendiente;
@@ -224,9 +201,12 @@ const GestionMatricula = () => {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [approvalData, setApprovalData] = useState<Solicitud | null>(null);
   const [generatedUsername, setGeneratedUsername] = useState<string>('');
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [rejectionData, setRejectionData] = useState<Solicitud | null>(null);
+  const [rejectionObservations, setRejectionObservations] = useState('');
   const [cursos, setCursos] = useState<Array<{ id_curso: number; nombre: string; estado: string }>>([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
 
   useSocket({
@@ -313,6 +293,33 @@ const GestionMatricula = () => {
       const res = await fetch(`${API_BASE}/api/solicitudes/${id}`);
       if (!res.ok) throw new Error('No se pudo obtener la solicitud');
       const data = await res.json();
+
+      // Si es estudiante existente, cargar datos del perfil para completar información faltante
+      if (data.id_estudiante_existente) {
+        try {
+          const token = sessionStorage.getItem('auth_token');
+          // Intentamos obtener los datos del estudiante usando el endpoint específico
+          const userRes = await fetch(`${API_BASE}/api/estudiantes/${data.id_estudiante_existente}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            // Rellenar datos si faltan en la solicitud
+            if (!data.fecha_nacimiento_solicitante) data.fecha_nacimiento_solicitante = userData.fecha_nacimiento;
+            // Mapear campos que pueden tener nombres diferentes o ser directos
+            if (!data.direccion_solicitante) data.direccion_solicitante = userData.direccion;
+            if (!data.genero_solicitante) data.genero_solicitante = userData.genero;
+            if (!data.telefono_solicitante) data.telefono_solicitante = userData.telefono;
+
+            // Campos adicionales no presentes en la solicitud estandar
+            data.contacto_emergencia = userData.contacto_emergencia;
+          }
+        } catch (err) {
+          console.error("Error cargando datos extra del estudiante", err);
+        }
+      }
+
       setSelected(data);
       setShowModal(true);
     } catch (e: any) {
@@ -362,6 +369,13 @@ const GestionMatricula = () => {
     setGeneratedUsername(username);
 
     setShowApprovalModal(true);
+  };
+
+  const openRejectionModal = (sol: Solicitud) => {
+    const template = `Estimado ${sol.nombre_solicitante} ${sol.apellido_solicitante}, con identificación ${sol.identificacion_solicitante || ''}, se rechazó su solicitud de matrícula por inconsistencias de información o pago. Si cree que es un error, por favor acérquese a la escuela Jessica Vélez.`;
+    setRejectionData(sol);
+    setRejectionObservations(template);
+    setShowRejectionModal(true);
   };
 
   // Función para crear estudiante desde solicitud aprobada
@@ -662,7 +676,7 @@ const GestionMatricula = () => {
             />
             <input
               type="text"
-              placeholder="Buscar por nombre, email o cédula..."
+              placeholder="Buscar por nombre, email o identificación..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -882,13 +896,13 @@ const GestionMatricula = () => {
                   background: tableHeaderBg
                 }}>
                   <tr>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Código</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Solicitante</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Identificación</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Detalles Curso</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Comprobante</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Estado</th>
-                    <th style={{ padding: '0.5rem 0.75rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.7rem' }}>Acciones</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Código</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Solicitante</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Identificación</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Detalles Curso</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Comprobante</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Estado</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -907,22 +921,22 @@ const GestionMatricula = () => {
                         onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
-                        <td style={{ padding: '0.5rem 0.75rem', color: theme.textMuted, fontWeight: 500, verticalAlign: 'middle' }}>{sol.codigo_solicitud}</td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                          <div style={{ fontWeight: 600, color: theme.textPrimary }}>{sol.apellido_solicitante}, {sol.nombre_solicitante}</div>
-                          <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>{sol.email_solicitante}</div>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textMuted, fontWeight: 500, verticalAlign: 'middle', fontSize: '0.7rem' }}>{sol.codigo_solicitud}</td>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                          <div style={{ fontWeight: 600, color: theme.textPrimary, fontSize: '0.7rem' }}>{sol.apellido_solicitante}, {sol.nombre_solicitante}</div>
+                          <div style={{ fontSize: '0.65rem', color: theme.textSecondary }}>{sol.email_solicitante}</div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: theme.textPrimary, verticalAlign: 'middle' }}>{sol.identificacion_solicitante}</td>
-                        <td style={{ padding: '0.5rem 0.75rem', verticalAlign: 'middle' }}>
-                          <div style={{ fontWeight: 500, color: theme.textPrimary }}>{(sol as any).tipo_curso_nombre || 'N/A'}</div>
-                          <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>{formatearFecha(sol.fecha_solicitud)}</div>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, verticalAlign: 'middle', fontSize: '0.7rem' }}>{sol.identificacion_solicitante}</td>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                          <div style={{ fontWeight: 500, color: theme.textPrimary, fontSize: '0.7rem' }}>{(sol as any).tipo_curso_nombre || 'N/A'}</div>
+                          <div style={{ fontSize: '0.65rem', color: theme.textSecondary }}>{formatearFecha(sol.fecha_solicitud)}</div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <button
                             onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
                             title="Ver comprobante"
                             style={{
-                              padding: '0.375rem',
+                              padding: '0.25rem',
                               borderRadius: '0.5rem',
                               border: '1px solid #10b981',
                               backgroundColor: 'transparent',
@@ -939,14 +953,14 @@ const GestionMatricula = () => {
                               e.currentTarget.style.color = '#10b981';
                             }}
                           >
-                            <Download style={{ width: '1rem', height: '1rem' }} />
+                            <Download style={{ width: '0.85rem', height: '0.85rem' }} />
                           </button>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <span style={{
                             padding: '2px 8px',
                             borderRadius: '999px',
-                            fontSize: '0.7rem',
+                            fontSize: '0.65rem',
                             fontWeight: 700,
                             textTransform: 'uppercase',
                             background: estadoVisual.bg,
@@ -956,13 +970,13 @@ const GestionMatricula = () => {
                             {sol.estado}
                           </span>
                         </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', justifyContent: 'center' }}>
                             <button
                               onClick={() => openModal(sol.id_solicitud)}
                               title="Ver Detalles"
                               style={{
-                                padding: '0.375rem',
+                                padding: '0.25rem',
                                 borderRadius: '0.5rem',
                                 border: '1px solid #3b82f6',
                                 backgroundColor: 'transparent',
@@ -979,7 +993,7 @@ const GestionMatricula = () => {
                                 e.currentTarget.style.color = '#3b82f6';
                               }}
                             >
-                              <Eye style={{ width: '1rem', height: '1rem' }} />
+                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
                             {sol.estado === 'pendiente' && (
                               <>
@@ -988,7 +1002,7 @@ const GestionMatricula = () => {
                                   disabled={decidiendo}
                                   title="Aprobar"
                                   style={{
-                                    padding: '0.375rem',
+                                    padding: '0.25rem',
                                     borderRadius: '0.5rem',
                                     border: '1px solid #10b981',
                                     backgroundColor: 'transparent',
@@ -1008,14 +1022,14 @@ const GestionMatricula = () => {
                                     e.currentTarget.style.color = '#10b981';
                                   }}
                                 >
-                                  <Check style={{ width: '1rem', height: '1rem' }} />
+                                  <Check style={{ width: '0.85rem', height: '0.85rem' }} />
                                 </button>
                                 <button
-                                  onClick={() => handleDecision('rechazado', undefined, sol.id_solicitud)}
+                                  onClick={() => openRejectionModal(sol)}
                                   disabled={decidiendo}
                                   title="Rechazar"
                                   style={{
-                                    padding: '0.375rem',
+                                    padding: '0.25rem',
                                     borderRadius: '0.5rem',
                                     border: '1px solid #ef4444',
                                     backgroundColor: 'transparent',
@@ -1035,7 +1049,7 @@ const GestionMatricula = () => {
                                     e.currentTarget.style.color = '#ef4444';
                                   }}
                                 >
-                                  <XCircle style={{ width: '1rem', height: '1rem' }} />
+                                  <XCircle style={{ width: '0.85rem', height: '0.85rem' }} />
                                 </button>
                               </>
                             )}
@@ -1161,7 +1175,7 @@ const GestionMatricula = () => {
                     </div>
                     <div>
                       <div style={fieldLabelStyle}>Email</div>
-                      <div style={fieldValueStyle}>{sol.email_solicitante}</div>
+                      <div style={fieldValueStyle} title={sol.email_solicitante}>{sol.email_solicitante}</div>
                     </div>
                     <div>
                       <div style={fieldLabelStyle}>Fecha de Solicitud</div>
@@ -1501,24 +1515,34 @@ const GestionMatricula = () => {
                   <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Teléfono</div>
                   <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{selected.telefono_solicitante || '-'}</div>
                 </div>
-                {selected.fecha_nacimiento_solicitante && (
-                  <div>
-                    <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Nacimiento</div>
-                    <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
-                      {(() => {
+                <div>
+                  <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Nacimiento</div>
+                  <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
+                    {(() => {
+                      if (!selected.fecha_nacimiento_solicitante) return 'No especificado';
+                      try {
+                        // Handle both ISO string and simple date string
+                        const dateStr = selected.fecha_nacimiento_solicitante.toString().split('T')[0];
+                        const parts = dateStr.split('-');
+                        if (parts.length === 3) {
+                          const year = parts[0];
+                          const month = parseInt(parts[1]);
+                          const day = parts[2];
+                          const meses = [
+                            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                          ];
+                          return `${day}/${meses[month - 1]}/${year}`;
+                        }
+                        // Fallback to Date object if format is unexpected
                         const fecha = new Date(selected.fecha_nacimiento_solicitante);
-                        const meses = [
-                          'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                        ];
-                        const dia = fecha.getDate();
-                        const mes = meses[fecha.getMonth()];
-                        const año = fecha.getFullYear();
-                        return `${dia}/${mes}/${año}`;
-                      })()}
-                    </div>
+                        return fecha.toLocaleDateString();
+                      } catch (e) {
+                        return 'Fecha inválida';
+                      }
+                    })()}
                   </div>
-                )}
+                </div>
                 {selected.genero_solicitante && (
                   <div>
                     <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Género</div>
@@ -1532,7 +1556,7 @@ const GestionMatricula = () => {
                 {/* Added emergency contact display */}
                 <div>
                   <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Contacto de Emergencia</div>
-                  <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{(selected as any).contacto_emergencia || '-'}</div>
+                  <div style={{ color: 'var(--admin-text-primary, #fff)' }}>{selected.contacto_emergencia || '-'}</div>
                 </div>
                 <div>
                   <div style={{ color: 'var(--admin-text-secondary, rgba(255,255,255,0.6))', fontSize: '0.75rem', marginBottom: 3 }}>Fecha de Solicitud</div>
@@ -1939,7 +1963,7 @@ const GestionMatricula = () => {
                         </p>
                       </div>
                       <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                        <button onClick={() => handleDecision('rechazado')} disabled={decidiendo} style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '10px 1rem', borderRadius: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                        <button onClick={() => openRejectionModal(selected)} disabled={decidiendo} style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '10px 1rem', borderRadius: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                           <XCircle size={16} /> Rechazar
                         </button>
                       </div>
@@ -1995,7 +2019,7 @@ const GestionMatricula = () => {
                     marginTop: isMobile ? 20 : 24
                   }}>
                     <button
-                      onClick={() => handleDecision('rechazado')}
+                      onClick={() => openRejectionModal(selected)}
                       disabled={decidiendo}
                       style={{
                         background: 'rgba(239, 68, 68, 0.15)',
@@ -2559,6 +2583,176 @@ const GestionMatricula = () => {
                 }
               }
             `}</style>
+            </div>
+          </div>,
+          document.body
+        )
+      }
+
+      {/* Modal de Rechazo */}
+      {
+        showRejectionModal && rejectionData && createPortal(
+          <div
+            className="modal-overlay"
+            onClick={() => setShowRejectionModal(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100vw',
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 99999,
+              padding: isMobile ? '1rem' : '2rem',
+              backdropFilter: 'blur(8px)',
+              background: 'rgba(0, 0, 0, 0.65)',
+            }}
+          >
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'relative',
+                background: pick('#ffffff', 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)'),
+                border: `1px solid ${pick('rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.3)')}`,
+                borderRadius: '16px',
+                width: isMobile ? '92vw' : '600px',
+                padding: '2rem',
+                color: theme.textPrimary,
+                boxShadow: darkMode ? '0 25px 50px -12px rgba(0, 0, 0, 0.8)' : '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+                animation: 'scaleIn 0.3s ease-out'
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '1rem',
+                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                paddingBottom: '0.75rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <XCircle size={20} style={{ color: '#ef4444' }} />
+                  <h3 style={{ margin: 0, color: '#ef4444', fontSize: '1.1rem', fontWeight: '600' }}>
+                    Rechazar Solicitud
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowRejectionModal(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: theme.textMuted,
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '4px',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <p style={{ color: theme.textSecondary, fontSize: '0.95rem', marginBottom: '1.25rem', lineHeight: '1.5', opacity: 0.9 }}>
+                  Se enviará un correo electrónico al estudiante notificando el rechazo con el siguiente mensaje:
+                </p>
+                <div style={{ marginBottom: '0.625rem', fontSize: '0.85rem', color: theme.textSecondary, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.025em' }}>Motivo de rechazo:</div>
+                <textarea
+                  value={rejectionObservations}
+                  onChange={(e) => setRejectionObservations(e.target.value)}
+                  style={{
+                    width: '100%',
+                    minHeight: '140px',
+                    background: pick('rgba(0, 0, 0, 0.03)', 'rgba(255, 255, 255, 0.04)'),
+                    border: `1px solid ${pick('rgba(0, 0, 0, 0.1)', 'rgba(255, 255, 255, 0.1)')}`,
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    color: theme.textPrimary,
+                    fontSize: '0.95rem',
+                    lineHeight: '1.6',
+                    resize: 'none',
+                    outline: 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#ef4444';
+                    e.currentTarget.style.background = pick('rgba(0, 0, 0, 0.01)', 'rgba(255, 255, 255, 0.06)');
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = pick('rgba(0, 0, 0, 0.1)', 'rgba(255, 255, 255, 0.1)');
+                    e.currentTarget.style.background = pick('rgba(0, 0, 0, 0.03)', 'rgba(255, 255, 255, 0.04)');
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setShowRejectionModal(false)}
+                  style={{
+                    background: pick('rgba(0, 0, 0, 0.05)', 'rgba(255, 255, 255, 0.08)'),
+                    border: `1px solid ${pick('rgba(0, 0, 0, 0.1)', 'rgba(255, 255, 255, 0.1)')}`,
+                    color: theme.textPrimary,
+                    padding: '12px 1.5rem',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = pick('rgba(0, 0, 0, 0.08)', 'rgba(255, 255, 255, 0.12)');
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = pick('rgba(0, 0, 0, 0.05)', 'rgba(255, 255, 255, 0.08)');
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={async () => {
+                    await handleDecision('rechazado', rejectionObservations, rejectionData.id_solicitud);
+                    setShowRejectionModal(false);
+                  }}
+                  disabled={decidiendo || !rejectionObservations.trim()}
+                  style={{
+                    background: '#ef4444',
+                    border: 'none',
+                    color: '#fff',
+                    padding: '12px 1.75rem',
+                    borderRadius: '10px',
+                    cursor: decidiendo ? 'not-allowed' : 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    transition: 'all 0.2s ease',
+                    opacity: (decidiendo || !rejectionObservations.trim()) ? 0.6 : 1,
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!decidiendo && rejectionObservations.trim()) {
+                      e.currentTarget.style.background = '#dc2626';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.35)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.25)';
+                  }}
+                >
+                  Confirmar Rechazo
+                </button>
+              </div>
             </div>
           </div>,
           document.body

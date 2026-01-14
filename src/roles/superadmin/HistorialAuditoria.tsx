@@ -223,6 +223,11 @@ const HistorialAuditoria: React.FC = () => {
     return iconMap[tabla] || <Database size={18} />;
   };
 
+  const cleanDescription = (text: string) => {
+    if (!text) return '';
+    return text.replace(' - Resultado: N/A', '').replace('Resultado: N/A', '');
+  };
+
   const getOperacionBadge = (operacion: string) => {
     const badges: Record<string, { bg: string; text: string; label: string }> = {
       INSERT: {
@@ -1052,7 +1057,7 @@ const HistorialAuditoria: React.FC = () => {
                               lineHeight: '1.4',
                             }}
                           >
-                            {auditoria.descripcion}
+                            {cleanDescription(auditoria.descripcion)}
                           </p>
                           <div
                             style={{
@@ -1329,7 +1334,7 @@ const HistorialAuditoria: React.FC = () => {
                       Detalle de Auditoría
                     </h3>
                     <p style={{ margin: 0, fontSize: isMobile ? '0.75rem' : '0.8125rem', color: theme.textSecondary, lineHeight: 1.4 }}>
-                      {modalDetalle.descripcion}
+                      {cleanDescription(modalDetalle.descripcion)}
                     </p>
                   </div>
                 </div>
@@ -1381,7 +1386,7 @@ const HistorialAuditoria: React.FC = () => {
                       {modalDetalle.usuario.nombre.toUpperCase()} {modalDetalle.usuario.apellido.toUpperCase()}
                     </p>
                     <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: theme.textMuted }}>
-                      {modalDetalle.usuario.email}
+                      {modalDetalle.usuario.email.toLowerCase()}
                     </p>
                   </div>
 
@@ -1524,7 +1529,7 @@ const HistorialAuditoria: React.FC = () => {
                           overflow: 'hidden',
                         }}
                       >
-                        {detallesFiltrados.map(([key, value], index) => {
+                        {detallesFiltrados.filter(([_, value]) => value !== null && value !== 'NULL' && value !== 'null').map(([key, value], index) => {
                           // Detectar si el campo es un nombre de usuario
                           const isNombreUsuario = key.toLowerCase().includes('nombre') ||
                             key.toLowerCase().includes('usuario') ||
@@ -1574,9 +1579,11 @@ const HistorialAuditoria: React.FC = () => {
                                 lineHeight: 1.4,
                                 textTransform: isNombreUsuario ? 'uppercase' : 'none',
                               }}>
-                                {isNombreUsuario && typeof value === 'string'
-                                  ? value.toUpperCase()
-                                  : formatearValor(value)}
+                                {isNombreUsuario
+                                  ? String(value).toUpperCase()
+                                  : key.toLowerCase().includes('email') && typeof value === 'string'
+                                    ? value.toLowerCase()
+                                    : formatearValor(value)}
                               </p>
                             </div>
                           );
