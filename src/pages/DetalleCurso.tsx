@@ -61,7 +61,7 @@ interface AnimatedButtonProps {
 const detallesCursos: DetallesCursos = {
   cosmetologia: {
     titulo: 'Cosmetología',
-    descripcion: 'Domina las técnicas profesionales de cuidado facial, corporal y estética. Un programa completo que te prepara para ser un experto en el mundo de la belleza.',
+    descripcion: 'Domina las técnicas profesionales de cuidado facial, corporal y estética. Un programa completo que te prepara para ser un experto en el mundo de la belleza. Todas las clases son 100% presenciales y prácticas.',
     duracion: '12 meses',
     requisitos: [
       'Edad mínima: 16 años',
@@ -91,7 +91,7 @@ const detallesCursos: DetallesCursos = {
   },
   cosmiatria: {
     titulo: 'Cosmiatría',
-    descripcion: 'Especialízate en tratamientos estéticos avanzados con equipos de última tecnología. Programa exclusivo para cosmetólogas graduadas.',
+    descripcion: 'Especialízate en tratamientos estéticos avanzados con equipos de última tecnología. Programa exclusivo para cosmetólogas graduadas. Todas las clases son 100% presenciales y prácticas.',
     duracion: '7 meses',
     requisitos: [
       'Edad mínima: 17 años',
@@ -121,7 +121,7 @@ const detallesCursos: DetallesCursos = {
   },
   integral: {
     titulo: 'Belleza Integral',
-    descripcion: 'El programa más completo que combina cosmetología, peluquería y técnicas avanzadas de belleza. Conviértete en un profesional integral.',
+    descripcion: 'El programa más completo que combina cosmetología, peluquería y técnicas avanzadas de belleza. Conviértete en un profesional integral. Todas las clases son 100% presenciales y prácticas.',
     duracion: '12 meses',
     requisitos: [
       'Edad mínima recomendada: 16 años',
@@ -154,8 +154,8 @@ const detallesCursos: DetallesCursos = {
   },
   unas: {
     titulo: 'Técnica de Uñas',
-    descripcion: 'Especialízate en el arte del nail art y técnicas profesionales de manicure. Un programa intensivo con modalidad de pago flexible.',
-    duracion: '16 clases (8 semanas)',
+    descripcion: 'Plan por clases: el curso inicia con un pago inicial de $50 y continúa con 15 pagos de $15,40, correspondientes a las clases restantes. Se imparten 2 clases por semana, completando un total de 16 clases. Inversión total del curso: $280. Todas las clases son 100% presenciales y prácticas.',
+    duracion: '16 clases (8 semanas) • $50 inicio + 15×$15,40',
     requisitos: [
       'Sin límite de edad',
       'Si es menor de 14 años: autorización escrita del tutor',
@@ -173,22 +173,23 @@ const detallesCursos: DetallesCursos = {
       'Atención al cliente especializada'
     ],
     promociones: [
-      'Primer pago: $50 USD',
-      'Clases restantes: $15.40 cada una',
+      'Pago inicial: $50 USD',
+      '15 clases restantes: $15,40 cada una',
       '2 clases por semana - Horarios flexibles',
+      'Inversión total aproximada: $280 USD',
       'Kit de herramientas incluido'
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758902047/una_yzabr3.jpg',
     rating: 4.8,
     estudiantes: 420,
     instructor: 'Especialista en Nail Art',
-    precio: '$50 matrícula + $15.40/clase',
+    precio: '$50 inicio + $15,40 por 15 clases (≈$280 total)',
     certificacion: 'Certificado en Técnica de Uñas'
   },
   lashista: {
     titulo: 'Lashista Profesional',
-    descripcion: 'Conviértete en experta en extensiones de pestañas con las técnicas más avanzadas del mercado. Programa intensivo y práctico.',
-    duracion: '6 clases (6 semanas)',
+    descripcion: 'Plan por clases: el curso inicia con un pago inicial de $50 y continúa con 5 pagos de $26, uno por cada clase restante. Se imparte 1 clase por semana, completando un total de 6 clases. Inversión total del curso: $180. Todas las clases son 100% presenciales y prácticas.',
+    duracion: '6 clases (6 semanas) • $50 inicio + 5×$26',
     requisitos: [
       'Edad mínima: 15 años',
       'Destreza manual',
@@ -205,21 +206,22 @@ const detallesCursos: DetallesCursos = {
       'Atención especializada al cliente'
     ],
     promociones: [
-      'Primer pago: $50 USD',
-      'Clases restantes: $26 cada una',
+      'Pago inicial: $50 USD',
+      '5 clases restantes: $26 cada una',
       '1 clase por semana',
+      'Inversión total aproximada: $180 USD',
       'Kit profesional incluido'
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758900822/lashi_vuiiiv.jpg',
     rating: 4.9,
     estudiantes: 280,
     instructor: 'Lashista Certificada Internacional',
-    precio: '$50 matrícula + $26/clase',
+    precio: '$50 inicio + $26 por 5 clases (≈$180 total)',
     certificacion: 'Certificado Profesional Lashista'
   },
   maquillaje: {
     titulo: 'Maquillaje Profesional',
-    descripcion: 'Domina el arte del maquillaje desde lo básico hasta técnicas avanzadas. Ideal para emprender o trabajar en el mundo de la belleza.',
+    descripcion: 'Domina el arte del maquillaje desde lo básico hasta técnicas avanzadas. Ideal para emprender o trabajar en el mundo de la belleza. Todas las clases son 100% presenciales y prácticas.',
     duracion: '6 meses',
     requisitos: [
       'Edad mínima: 18 años',
@@ -251,7 +253,7 @@ const detallesCursos: DetallesCursos = {
   },
   facial: {
     titulo: 'Cosmetología',
-    descripcion: 'Domina las técnicas profesionales de cuidado facial, corporal y estética. Un programa completo que te prepara para ser un experto en el mundo de la belleza.',
+    descripcion: 'Domina las técnicas profesionales de cuidado facial, corporal y estética. Un programa completo que te prepara para ser un experto en el mundo de la belleza. Todas las clases son 100% presenciales y prácticas.',
     duracion: '12 meses',
     requisitos: [
       'Ser mayor de 16 años',
@@ -282,7 +284,7 @@ const detallesCursos: DetallesCursos = {
   },
   'alta-peluqueria': {
     titulo: 'Alta Peluquería',
-    descripcion: 'Formación premium en cortes avanzados, colorimetría, balayage, mechas y peinados de alta moda. Orientado a quienes buscan destacar en salones profesionales.',
+    descripcion: 'Formación premium en cortes avanzados, colorimetría, balayage, mechas y peinados de alta moda. Orientado a quienes buscan destacar en salones profesionales. Todas las clases son 100% presenciales y prácticas.',
     duracion: '8 meses',
     requisitos: [
       'Edad mínima: 16 años',
@@ -312,13 +314,13 @@ const detallesCursos: DetallesCursos = {
     certificacion: 'Certificado Profesional en Alta Peluquería'
   },
   'moldin-queen': {
-    titulo: 'Moldin Queen',
-    descripcion: 'Técnicas especializadas de modelado y estilizado con enfoque en precisión, simetría y acabado impecable. Ideal para elevar tu portafolio profesional.',
-    duracion: '6 meses',
+    titulo: 'Molding Queen',
+    descripcion: 'Técnicas especializadas de modelado y estilizado con enfoque en precisión, simetría y acabado impecable. Técnica propia y exclusiva de la Escuela Jessica Vélez, creada por su fundadora Jessica Vélez. Curso completo: tiene un costo total de $100 e incluye 3 clases, impartidas a razón de 1 clase por semana. Requisito: ser cosmetóloga. Todas las clases son 100% presenciales y prácticas.',
+    duracion: '3 clases (3 semanas) • $100 total',
     requisitos: [
-      'Edad mínima: 16 años',
-      'Destreza manual',
-      'Atención al detalle'
+      'Ser cosmetóloga graduada (requisito obligatorio)',
+      'Edad mínima recomendada: 18 años',
+      'Destreza manual y atención al detalle'
     ],
     malla: [
       'Fundamentos de modelado profesional',
@@ -327,20 +329,20 @@ const detallesCursos: DetallesCursos = {
       'Estilos contemporáneos',
       'Técnicas avanzadas de moldeado',
       'Productos profesionales especializados',
-      'Prácticas supervisadas',
-      'Portfolio profesional'
+      'Prácticas intensivas en 3 sesiones',
+      'Construcción de portfolio profesional'
     ],
     promociones: [
-      'Pago mensual de $90 USD',
-      'Materiales especializados incluidos',
-      'Certificación profesional'
+      'Inversión única: $100 USD (curso completo)',
+      'Incluye materiales especializados para las 3 clases',
+      'Certificación profesional Molding Queen'
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758915245/mold_o5qksq.png',
     rating: 4.8,
     estudiantes: 540,
     instructor: 'Especialista en Modelado',
-    precio: '$90/mes',
-    certificacion: 'Certificado Profesional Moldin Queen'
+    precio: '$100 curso completo (3 clases)',
+    certificacion: 'Certificado Profesional Molding Queen'
   }
 };
 

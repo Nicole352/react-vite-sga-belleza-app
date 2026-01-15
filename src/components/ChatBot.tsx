@@ -125,7 +125,7 @@ const ChatBot: React.FC = () => {
         '• Maquillaje Profesional - 6 meses de arte\n' +
         '• Belleza Integral - 12 meses completos\n' +
         '• Alta Peluquería - 8 meses de maestría\n' +
-        '• Moldin Queen - 6 meses de perfección\n\n' +
+        '• Molding Queen - 3 clases intensivas (técnica exclusiva de la escuela)\n\n' +
         '✨ **Cursos Especializados:**\n' +
         '• Lashista: $50 inicio + $26/clase (6 clases)\n' +
         '• Técnico en Uñas: $50 inicio + $15.40/clase (16 clases)\n\n' +
@@ -224,8 +224,8 @@ const ChatBot: React.FC = () => {
       link: '/detalle-curso?curso=alta-peluqueria'
     },
     {
-      name: 'Moldin Queen',
-      description: '6 meses • $90/mes',
+      name: 'Molding Queen',
+      description: '3 clases • $100 (técnica exclusiva)',
       icon: <Crown size={20} color="#000" />,
       link: '/detalle-curso?curso=moldin-queen'
     }

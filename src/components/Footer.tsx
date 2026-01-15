@@ -198,7 +198,7 @@ const Footer = () => {
 
             <p style={descriptionStyle} className="footer-description" data-aos="fade-up" data-aos-delay="100">
               Líder en la formación de esteticistas profesionales en Ecuador, con 6 años impulsando el crecimiento
-              de mujeres que desean transformar su futuro a través de la estética.
+              de personas que desean transformar su futuro a través de la estética.
             </p>
           </div>
 

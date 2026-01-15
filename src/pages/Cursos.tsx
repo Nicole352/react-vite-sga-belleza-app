@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, ReactElement } from 'react';
+
 import { Link } from 'react-router-dom';
 import {
   Sparkles,
@@ -26,7 +27,7 @@ type Curso = {
   duracion: string;
   estudiantes: number;
   rating: number;
-  icon: React.ReactNode;
+  icon: ReactElement;
   color: string;
   categoria: string;
   certificacion?: string;
@@ -36,7 +37,7 @@ const cursosData: Curso[] = [
   {
     id: 1,
     titulo: 'Cosmetología',
-    descripcion: 'Programa integral de 12 meses. ¡Inscríbete y recibe 2 meses GRATIS de Maquillaje Profesional! Además, MATRÍCULA GRATIS si pagas por adelantado. ¡Empieza hoy mismo!',
+    descripcion: 'Programa integral de 12 meses. ¡Inscríbete y recibe 2 meses GRATIS de Maquillaje Profesional! Además, MATRÍCULA GRATIS si pagas por adelantado. ¡Empieza hoy mismo! Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908042/cosme1_cjsu3k.jpg',
     enlace: '/detalle-curso?curso=cosmetologia',
     duracion: '12 meses • $90/mes',
@@ -49,7 +50,7 @@ const cursosData: Curso[] = [
   {
     id: 2,
     titulo: 'Cosmiatría',
-    descripcion: 'Especialización con aparatología. ¡Aprovecha MATRÍCULA GRATIS al pagar por adelantado! Requisito: ser Cosmetóloga graduada.',
+    descripcion: 'Especialización con aparatología. ¡Aprovecha MATRÍCULA GRATIS al pagar por adelantado! Requisito: ser Cosmetóloga graduada. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758901284/cosmeto_cy3e36.jpg',
     enlace: '/detalle-curso?curso=cosmiatria',
     duracion: '7 meses • $90/mes',
@@ -62,7 +63,7 @@ const cursosData: Curso[] = [
   {
     id: 3,
     titulo: 'Maquillaje Profesional',
-    descripcion: 'De básico a avanzado en 6 meses. Modalidad: $90/mes. Sin inscripción, inicia con tu primer pago.',
+    descripcion: 'De básico a avanzado en 6 meses. Modalidad: $90/mes. Sin inscripción, inicia con tu primer pago. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758899626/eff_rxclz1.jpg',
     enlace: '/detalle-curso?curso=maquillaje',
     duracion: '6 meses • $90/mes',
@@ -75,7 +76,7 @@ const cursosData: Curso[] = [
   {
     id: 4,
     titulo: 'Lashista Profesional',
-    descripcion: 'Plan por clases: inicia con $50 y paga $26 por cada una de las 5 clases restantes. 1 clase por semana (6 en total).',
+    descripcion: 'Plan por clases: el curso inicia con un pago inicial de $50 y continúa con 5 pagos de $26, uno por cada clase restante. Se imparte 1 clase por semana, completando un total de 6 clases. Inversión total del curso: $180. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758900822/lashi_vuiiiv.jpg',
     enlace: '/detalle-curso?curso=lashista',
     duracion: '6 clases • $50 inicio + $26/clase',
@@ -88,7 +89,7 @@ const cursosData: Curso[] = [
   {
     id: 5,
     titulo: 'Técnico en Uñas',
-    descripcion: 'Plan por clases: inicia con $50 y paga $15.40 por cada una de las 15 clases restantes. 2 clases por semana (16 en total).',
+    descripcion: 'Plan por clases: el curso inicia con un pago inicial de $50 y continúa con 15 pagos de $15,40, correspondientes a las clases restantes. Se imparten 2 clases por semana, completando un total de 16 clases. Inversión total del curso: $280. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758902047/una_yzabr3.jpg',
     enlace: '/detalle-curso?curso=unas',
     duracion: '16 clases • $50 inicio + $15.40/clase',
@@ -101,7 +102,7 @@ const cursosData: Curso[] = [
   {
     id: 6,
     titulo: 'Belleza Integral',
-    descripcion: 'Programa completo 12 meses. Modalidad mensual $90 (sin inscripción). Incluye cosmetología, maquillaje, uñas y más.',
+    descripcion: 'Programa completo 12 meses. Modalidad mensual $90 (sin inscripción). Incluye cosmetología, maquillaje, uñas y más. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908293/cos2_se1xyb.jpg',
     enlace: '/detalle-curso?curso=integral',
     duracion: '12 meses • $90/mes',
@@ -115,7 +116,7 @@ const cursosData: Curso[] = [
   {
     id: 7,
     titulo: 'Alta Peluquería',
-    descripcion: 'Formación premium en cortes avanzados, colorimetría, balayage, mechas y peinados de alta moda. Orientado a quienes buscan destacar en salones profesionales.',
+    descripcion: 'Formación premium en cortes avanzados, colorimetría, balayage, mechas y peinados de alta moda. Orientado a quienes buscan destacar en salones profesionales. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758920782/pelu_hvfyfn.png',
     enlace: '/detalle-curso?curso=alta-peluqueria',
     duracion: '8 meses • $90/mes',
@@ -128,11 +129,11 @@ const cursosData: Curso[] = [
   },
   {
     id: 8,
-    titulo: 'Moldin Queen',
-    descripcion: 'Técnicas especializadas de modelado y estilizado con enfoque en precisión, simetría y acabado impecable. Ideal para elevar tu portafolio profesional.',
+    titulo: 'Molding Queen',
+    descripcion: 'Técnicas especializadas de modelado y estilizado con enfoque en precisión, simetría y acabado impecable. Técnica propia y exclusiva de la Escuela Jessica Vélez, creada por su fundadora Jessica Vélez. Curso completo: tiene un costo total de $100 e incluye 3 clases, impartidas a razón de 1 clase por semana. Requisito: ser cosmetóloga. Todas las clases son 100% presenciales y prácticas.',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758915245/mold_o5qksq.png',
     enlace: '/detalle-curso?curso=moldin-queen',
-    duracion: '6 meses • $90/mes',
+    duracion: '3 clases • $100',
     estudiantes: 540,
     rating: 4.8,
     icon: <Hand size={24} />,
@@ -174,6 +175,7 @@ const Cursos = () => {
 
     return (
       <div
+        className="curso-card"
         data-aos="zoom-in-up"
         data-aos-delay={index * 140}
         data-aos-duration="1100"
@@ -582,33 +584,18 @@ const Cursos = () => {
             </p>
           </div>
 
-          {/* Grid de cursos - primeras 4 cards */}
+          {/* Grid de cursos - todas las cards */}
           <div
             data-aos="fade-up"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-              gap: '1rem',
-              marginBottom: '1.25rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '1.25rem',
+              marginBottom: '2rem'
             }}
           >
-            {cursosData.slice(0, 4).map((curso, index) => (
+            {cursosData.map((curso, index) => (
               <AnimatedCard key={curso.id} curso={curso} index={index} />
-            ))}
-          </div>
-
-          {/* Grid de 4 columnas para las últimas 4 cards */}
-          <div
-            data-aos="fade-up"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-              gap: '1rem',
-              marginBottom: '1.25rem'
-            }}
-          >
-            {cursosData.slice(4).map((curso, index) => (
-              <AnimatedCard key={curso.id} curso={curso} index={index + 4} />
             ))}
           </div>
         </div>

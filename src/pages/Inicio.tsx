@@ -234,7 +234,7 @@ const PaginaInicio: React.FC = () => {
                 </div>
               </div>
               <div className="stat-card" data-aos="fade-up" data-aos-delay="200">
-                <div className="stat-number">98%</div>
+                <div className="stat-number">100%</div>
                 <div className="stat-text">
                   <Star size={16} />
                   Empleabilidad
@@ -263,7 +263,7 @@ const PaginaInicio: React.FC = () => {
             <div className="video-content">
               <div className="video-text" data-aos="fade-right">
                 <h2 className="video-title">
-                  Conoce la
+                  Conoce
                   <span className="gradient-text">Escuela Jessica Vélez</span>
                 </h2>
                 <p className="video-description">
@@ -271,7 +271,7 @@ const PaginaInicio: React.FC = () => {
                   dedicado a formar profesionales altamente competentes en el área. Nuestra escuela se
                   destaca por su metodología práctica, acompañamiento personalizado, instructores especializados
                   y espacios modernos equipados con tecnología actual para fortalecer el aprendizaje.
-                  En la Escuela Jessica Vélez impulsamos el crecimiento de nuestras estudiantes mediante
+                  En Escuela Jessica Vélez impulsamos el crecimiento de nuestras estudiantes mediante
                   formación de calidad, disciplina y excelencia educativa.
                 </p>
                 <Link to="/sobre-nosotros" className="video-cta-button">
@@ -302,11 +302,11 @@ const PaginaInicio: React.FC = () => {
       <section className="features-section">
         <div className="content">
           <h2 className="section-title" data-aos="fade-up">
-            ¿Por qué elegir la
+            ¿Por qué elegir
             <span className="gradient-text"> Escuela Jessica Vélez?</span>
           </h2>
           <p className="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-            Líder en formación de esteticistas profesionales con más de 10 años de experiencia
+            Líder en formación de esteticistas profesionales con más de 5 años de experiencia
           </p>
 
           <div className="features-grid" data-aos="fade-up" data-aos-delay="150">
@@ -317,8 +317,7 @@ const PaginaInicio: React.FC = () => {
               </div>
               <h3 className="feature-title">Atención Personalizada</h3>
               <p className="feature-description">
-                Grupos reducidos y atención individual para garantizar el mejor aprendizaje.
-                Cada estudiante recibe seguimiento personalizado durante todo el proceso.
+                Grupos diversificados adaptados a cada capacitación ofreciéndote atención personalizada durante todo el proceso.
               </p>
             </div>
 
@@ -330,7 +329,7 @@ const PaginaInicio: React.FC = () => {
               <h3 className="feature-title">Técnicas Avanzadas</h3>
               <p className="feature-description">
                 Aprende las últimas técnicas en tratamientos faciales, corporales,
-                depilación láser y medicina estética con equipos de última generación.
+                depilación láser, belleza y estética integral con equipos de última generación.
               </p>
             </div>
 
@@ -341,7 +340,7 @@ const PaginaInicio: React.FC = () => {
               </div>
               <h3 className="feature-title">Certificación Profesional</h3>
               <p className="feature-description">
-                Obtén tu certificación reconocida nacionalmente y accede a oportunidades
+                Obtén tu certificación reconocida nacionalmente y con marca registradaaccede a oportunidades
                 laborales en los mejores spas y centros estéticos del país.
               </p>
             </div>

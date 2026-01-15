@@ -149,7 +149,7 @@ const SobreNosotros: React.FC = () => {
       nombre: 'Jessica Vélez',
       cargo: 'Directora y Fundadora',
       especializacion: 'Cosmetología Avanzada',
-      experiencia: '+15 años',
+      experiencia: '+10 años',
       descripcion: 'Pionera en la formación de esteticistas profesionales, con especialización en técnicas avanzadas de rejuvenecimiento facial',
       imagen: 'https://www.lahora.com.ec/__export/1753063265364/sites/lahora/img/2025/07/20/jexssica_vexlez.jpeg_1981115046.jpeg'
     }
@@ -157,9 +157,9 @@ const SobreNosotros: React.FC = () => {
 
   const logros: Logro[] = [
     { numero: '1,200+', texto: 'Estudiantes Graduadas', icono: <Users size={24} /> },
-    { numero: '98%', texto: 'Tasa de Empleabilidad', icono: <Trophy size={24} /> },
-    { numero: '15', texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
-    { numero: '4', texto: 'Certificaciones Oficiales', icono: <Award size={24} /> }
+    { numero: '100%', texto: 'Tasa de Empleabilidad', icono: <Trophy size={24} /> },
+    { numero: '6', texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
+    { numero: '3', texto: 'Certificaciones Oficiales', icono: <Award size={24} /> }
   ];
 
   const certificates: Certificate[] = [
@@ -749,7 +749,7 @@ const SobreNosotros: React.FC = () => {
               }}
             >
               Transformamos vidas a través de la educación en belleza y estética,
-              formando profesionales de excelencia con más de 15 años de experiencia
+              formando profesionales de excelencia con más de 5 años de experiencia
             </p>
 
             {/* Estadísticas destacadas */}
@@ -885,7 +885,7 @@ const SobreNosotros: React.FC = () => {
                     </h2>
 
                     <p style={paragraphStyle}>
-                      Ser la institución líder en Ecuador en formación de profesionales
+                      Ser la institución líder en Ecuadoren formación de profesionales
                       en estética y belleza, reconocida por nuestra excelencia académica,
                       innovación tecnológica y compromiso social, expandiendo nuestro impacto
                       a nivel regional e internacional.

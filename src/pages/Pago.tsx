@@ -218,7 +218,7 @@ const detallesCursos: DetallesCursos = {
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758920782/pelu_hvfyfn.png'
   },
   'moldin-queen': {
-    titulo: 'Moldin Queen',
+    titulo: 'Molding Queen',
     precio: 100,
     duracion: 'Matrícula $50 + 2 pagos de $25 (Total $100)',
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758915245/mold_o5qksq.png'
