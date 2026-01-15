@@ -1692,7 +1692,7 @@ const ModalDetalle = ({
                       borderRadius: '0.625rem',
                       border: `1px solid ${sesion.activa ? theme.sessionActiveBorder : theme.sessionInactiveBorder}`,
                       background: sesion.activa
-                        ? (darkMode ? 'rgba(16,185,129,0.16)' : 'rgba(187,247,208,0.55)')
+                        ? (darkMode ? 'rgba(255, 255, 255, 0.03)' : '#ffffff')
                         : theme.surface,
                       transition: 'all 0.3s ease'
                     }}>
@@ -1842,10 +1842,10 @@ const ModalDetalle = ({
                         const detalles = accion.detalles && typeof accion.detalles === 'object' ? accion.detalles : {};
                         let iconoConfig = {
                           icono: Activity,
-                          color: '#0ea5e9',
-                          surface: darkMode ? 'rgba(14,165,233,0.18)' : 'rgba(191,219,254,0.55)',
-                          border: darkMode ? 'rgba(14,165,233,0.34)' : 'rgba(59,130,246,0.25)',
-                          badgeBg: darkMode ? 'rgba(14,165,233,0.22)' : 'rgba(191,219,254,0.32)',
+                          color: '#ef4444',
+                          surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                          border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                          badgeBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(254,226,226,0.5)',
                           label: 'Acción'
                         };
 
@@ -1855,63 +1855,63 @@ const ModalDetalle = ({
                           iconoConfig = {
                             icono: Lock,
                             color: '#f59e0b',
-                            surface: darkMode ? 'rgba(245,158,11,0.22)' : 'rgba(253,230,138,0.55)',
-                            border: darkMode ? 'rgba(245,158,11,0.32)' : 'rgba(251,191,36,0.35)',
-                            badgeBg: darkMode ? 'rgba(245,158,11,0.18)' : 'rgba(253,230,138,0.5)',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(245,158,11,0.15)' : 'rgba(254,243,199,0.5)',
                             label: 'Contraseña'
                           };
                         } else if (tipoAccion.includes('foto') || tipoAccion.includes('perfil')) {
                           iconoConfig = {
                             icono: UserCircle,
-                            color: '#8b5cf6',
-                            surface: darkMode ? 'rgba(139,92,246,0.22)' : 'rgba(221,214,254,0.55)',
-                            border: darkMode ? 'rgba(139,92,246,0.28)' : 'rgba(167,139,250,0.35)',
-                            badgeBg: darkMode ? 'rgba(139,92,246,0.2)' : 'rgba(196,181,253,0.45)',
+                            color: '#ef4444',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(254,226,226,0.5)',
                             label: 'Perfil'
                           };
                         } else if (tipoAccion.includes('pago')) {
                           iconoConfig = {
                             icono: DollarSign,
                             color: '#10b981',
-                            surface: darkMode ? 'rgba(16,185,129,0.22)' : 'rgba(187,247,208,0.6)',
-                            border: darkMode ? 'rgba(16,185,129,0.35)' : 'rgba(16,185,129,0.28)',
-                            badgeBg: darkMode ? 'rgba(16,185,129,0.22)' : 'rgba(134,239,172,0.5)',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(16,185,129,0.15)' : 'rgba(220,252,231,0.5)',
                             label: 'Pago'
                           };
                         } else if (tipoAccion.includes('tarea') || tipoAccion.includes('entrega')) {
                           iconoConfig = {
                             icono: FileText,
-                            color: '#2563eb',
-                            surface: darkMode ? 'rgba(37,99,235,0.2)' : 'rgba(191,219,254,0.55)',
-                            border: darkMode ? 'rgba(37,99,235,0.32)' : 'rgba(37,99,235,0.24)',
-                            badgeBg: darkMode ? 'rgba(37,99,235,0.22)' : 'rgba(191,219,254,0.45)',
+                            color: '#ef4444',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(254,226,226,0.5)',
                             label: 'Tarea'
                           };
                         } else if (tipoAccion.includes('calificación') || tipoAccion.includes('nota')) {
                           iconoConfig = {
                             icono: CheckCircle,
                             color: '#22c55e',
-                            surface: darkMode ? 'rgba(34,197,94,0.22)' : 'rgba(187,247,208,0.6)',
-                            border: darkMode ? 'rgba(34,197,94,0.28)' : 'rgba(134,239,172,0.35)',
-                            badgeBg: darkMode ? 'rgba(34,197,94,0.2)' : 'rgba(187,247,208,0.45)',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(34,197,94,0.15)' : 'rgba(220,252,231,0.5)',
                             label: 'Calificación'
                           };
                         } else if (tipoAccion.includes('módulo')) {
                           iconoConfig = {
                             icono: BookOpen,
                             color: '#f97316',
-                            surface: darkMode ? 'rgba(249,115,22,0.22)' : 'rgba(254,215,170,0.6)',
-                            border: darkMode ? 'rgba(249,115,22,0.32)' : 'rgba(248,153,102,0.35)',
-                            badgeBg: darkMode ? 'rgba(249,115,22,0.2)' : 'rgba(254,215,170,0.45)',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(249,115,22,0.15)' : 'rgba(255,237,213,0.5)',
                             label: 'Módulo'
                           };
                         } else if (tipoAccion.includes('matrícula') || tipoAccion.includes('inscripción')) {
                           iconoConfig = {
                             icono: GraduationCap,
-                            color: '#8b5cf6',
-                            surface: darkMode ? 'rgba(139,92,246,0.22)' : 'rgba(221,214,254,0.55)',
-                            border: darkMode ? 'rgba(139,92,246,0.28)' : 'rgba(167,139,250,0.35)',
-                            badgeBg: darkMode ? 'rgba(139,92,246,0.2)' : 'rgba(196,181,253,0.45)',
+                            color: '#ef4444',
+                            surface: darkMode ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                            border: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+                            badgeBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(254,226,226,0.5)',
                             label: 'Matrícula'
                           };
                         }

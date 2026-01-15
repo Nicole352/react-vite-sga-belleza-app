@@ -78,11 +78,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
         border: 'var(--admin-border, rgba(255,255,255,0.12))',
         text: 'var(--admin-text-primary, #fff)',
         placeholder: 'var(--admin-text-secondary, rgba(255,255,255,0.6))',
-        dropdownBg: darkMode ? '#1e293b' : '#ffffff', // Fondo sólido para el menú desplegable
+        dropdownBg: darkMode ? '#1a1a1a' : '#ffffff', // Fondo sólido para el menú desplegable
         dropdownBorder: darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
         hoverBg: darkMode ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
-        selectedBg: darkMode ? 'rgba(59, 130, 246, 0.2)' : '#eff6ff',
-        selectedText: darkMode ? '#60a5fa' : '#3b82f6'
+        selectedBg: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9',
+        selectedText: darkMode ? '#ffffff' : '#0f172a'
     };
 
     return (
@@ -119,7 +119,7 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
                     alignItems: 'center',
                     opacity: disabled ? 0.6 : 1,
                     transition: 'all 0.2s ease',
-                    boxShadow: isOpen ? `0 0 0 2px ${darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.2)'}` : 'none'
+                    boxShadow: isOpen ? `0 0 0 2px ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(99, 102, 241, 0.2)'}` : 'none'
                 }}
             >
                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
