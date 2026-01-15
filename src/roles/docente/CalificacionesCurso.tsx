@@ -106,7 +106,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       result = result.filter(
         (est) =>
           est.nombre.toLowerCase().includes(term) ||
-          est.apellido.toLowerCase().includes(term),
+          est.apellido.toLowerCase().includes(term) ||
+          (est.identificacion && est.identificacion.toLowerCase().includes(term)),
       );
     }
 
@@ -377,8 +378,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
           } else {
             // Columna # (índice 0)
             if (colIdx === 0) finalWidth = 6;
-            // Apellido y Nombre (índice 1 y 2)
-            else if (colIdx === 1 || colIdx === 2) {
+            // Identificación, Apellido y Nombre (índice 1, 2 y 3)
+            else if (colIdx === 1 || colIdx === 2 || colIdx === 3) {
               const limit = customOptions.maxNameWidth || 30;
               if (finalWidth > limit) finalWidth = limit;
               if (finalWidth < 18) finalWidth = 18;
@@ -437,16 +438,17 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       });
 
       // Fila 1, 2 y 3: Encabezados modulares
-      const row1 = wsDetalle.addRow(['#', 'APELLIDO', 'NOMBRE']); // Módulos
-      const row2 = wsDetalle.addRow(['', '', '']); // Categorías (MERGED)
-      const row3 = wsDetalle.addRow(['', '', '']); // Tareas
+      const row1 = wsDetalle.addRow(['#', 'IDENTIFICACIÓN', 'APELLIDO', 'NOMBRE']); // Módulos
+      const row2 = wsDetalle.addRow(['', '', '', '']); // Categorías (MERGED)
+      const row3 = wsDetalle.addRow(['', '', '', '']); // Tareas
 
-      // Combinar #, Apellido y Nombre (Fila 4, 5 y 6)
+      // Combinar #, Identificación, Apellido y Nombre (Fila 4, 5 y 6)
       wsDetalle.mergeCells(4, 1, 6, 1); // #
-      wsDetalle.mergeCells(4, 2, 6, 2); // Apellido
-      wsDetalle.mergeCells(4, 3, 6, 3); // Nombre
+      wsDetalle.mergeCells(4, 2, 6, 2); // Identificación
+      wsDetalle.mergeCells(4, 3, 6, 3); // Apellido
+      wsDetalle.mergeCells(4, 4, 6, 4); // Nombre
 
-      let colIndex = 4;
+      let colIndex = 5;
 
       // Columnas de Tareas (Agrupadas por Módulo)
       // Usar el orden de 'modulos' (que viene del backend ordenado por ID)
@@ -602,7 +604,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
       // 3. Datos de Estudiantes
       estudiantes.forEach((est, index) => {
-        const rowData: any[] = [index + 1, est.apellido.toUpperCase(), est.nombre.toUpperCase()]; // Agregar índice numérico
+        const rowData: any[] = [index + 1, (est.identificacion || '').toUpperCase(), est.apellido.toUpperCase(), est.nombre.toUpperCase()]; // Agregar índice numérico e identificación
 
         // Calificaciones
         modulosConTareas.forEach((moduloNombre) => {
@@ -632,7 +634,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
         row.eachCell((cell, colNumber) => {
           cell.border = { top: { style: 'thin', color: { argb: 'FF000000' } }, left: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } }, right: { style: 'thin', color: { argb: 'FF000000' } } };
-          cell.alignment = { vertical: 'middle', horizontal: colNumber === 1 ? 'center' : (colNumber <= 3 ? 'left' : 'center'), wrapText: true };
+          cell.alignment = { vertical: 'middle', horizontal: (colNumber === 1 || colNumber === 2) ? 'center' : (colNumber <= 4 ? 'left' : 'center'), wrapText: true };
           cell.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
 
           // Formato numérico para columna # (índice)
@@ -640,7 +642,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             cell.numFmt = '0'; // Número entero sin decimales
           }
           // Formato numérico para calificaciones y promedios
-          else if (colNumber > 3 && typeof cell.value === 'number') {
+          else if (colNumber > 4 && typeof cell.value === 'number') {
             cell.numFmt = '0.00'; // Dos decimales
           }
         });
@@ -685,7 +687,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       wsModulos.getRow(1).height = 25;
       wsModulos.getRow(2).height = 35;
 
-      const headersModulos = ['#', 'APELLIDO', 'NOMBRE', ...modulos.map(m => `${m.toUpperCase()} (/10.00PTS)`), 'PROMEDIO GLOBAL (/10PTS)'];
+      const headersModulos = ['#', 'IDENTIFICACIÓN', 'APELLIDO', 'NOMBRE', ...modulos.map(m => `${m.toUpperCase()} (/10.00PTS)`), 'PROMEDIO GLOBAL (/10PTS)'];
       const totalColsModulos = headersModulos.length;
 
       // Fila 1: Título Merge Dinámico
@@ -716,7 +718,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
       rowHeaderMod.height = 30; // Altura extra para encabezados largos
 
       estudiantes.forEach((est, index) => {
-        const rowData = [index + 1, est.apellido.toUpperCase(), est.nombre.toUpperCase()]; // Agregar índice numérico
+        const rowData = [index + 1, (est.identificacion || '').toUpperCase(), est.apellido.toUpperCase(), est.nombre.toUpperCase()]; // Agregar índice numérico e identificación
         modulos.forEach(modulo => {
           const moduloDetalle = est.modulos_detalle?.find((m) => m.nombre_modulo === modulo);
           const promedioModulo = moduloDetalle ? parseFloat(String(moduloDetalle.promedio_modulo_sobre_10)) : 0;
@@ -728,8 +730,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
         const row = wsModulos.addRow(rowData);
         row.eachCell((cell, colNumber) => {
           cell.border = { top: { style: 'thin', color: { argb: 'FF000000' } }, bottom: { style: 'thin', color: { argb: 'FF000000' } }, left: { style: 'thin', color: { argb: 'FF000000' } }, right: { style: 'thin', color: { argb: 'FF000000' } } };
-          if (colNumber === 1) cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-          else if (colNumber <= 3) cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+          if (colNumber === 1 || colNumber === 2) cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+          else if (colNumber <= 4) cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
           else cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
 
           cell.font = { size: 10, name: 'Calibri', color: { argb: 'FF000000' } };
@@ -739,7 +741,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             cell.numFmt = '0'; // Número entero sin decimales
           }
           // Formato numérico para promedios
-          else if (colNumber > 3 && typeof cell.value === 'number') {
+          else if (colNumber > 4 && typeof cell.value === 'number') {
             cell.numFmt = '0.00'; // Dos decimales
           }
         });
@@ -1583,32 +1585,69 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               borderBottom: `2px solid ${theme.border}`,
                             }}
                           >
-                            {tareasFiltradas.map((tarea) => (
-                              <th
-                                key={tarea.id_tarea}
-                                style={{
-                                  padding: "0.35rem 0.6rem",
-                                  textAlign: "center",
-                                  color: theme.textPrimary,
-                                  fontWeight: "700",
-                                  minWidth: "5rem",
-                                  fontSize: '0.75rem'
-                                }}
-                              >
-                                <div style={{ marginBottom: "0.15rem" }}>
-                                  {tarea.titulo.toUpperCase()}
-                                </div>
-                                <div
-                                  style={{
-                                    fontSize: "0.65rem",
-                                    color: theme.textSecondary,
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  /{tarea.nota_maxima}
-                                </div>
-                              </th>
-                            ))}
+                            {(() => {
+                              // Agrupar tareas por categoría para calcular pesos individuales
+                              const tasksByCategory = tareasFiltradas.reduce((acc: any, t) => {
+                                const key = t.categoria_nombre || 'Sin Categoría';
+                                if (!acc[key]) acc[key] = [];
+                                acc[key].push(t);
+                                return acc;
+                              }, {});
+
+                              return tareasFiltradas.map((tarea) => {
+                                // Calcular peso individual de esta tarea
+                                const categoryTasks = tasksByCategory[tarea.categoria_nombre || 'Sin Categoría'] || [];
+                                const categoryWeight = tarea.categoria_ponderacion || 0;
+                                const individualWeight = categoryTasks.length > 0 ? categoryWeight / categoryTasks.length : 0;
+
+                                return (
+                                  <th
+                                    key={tarea.id_tarea}
+                                    style={{
+                                      padding: "0.35rem 0.6rem",
+                                      textAlign: "center",
+                                      color: theme.textPrimary,
+                                      fontWeight: "700",
+                                      minWidth: "5rem",
+                                      fontSize: '0.75rem'
+                                    }}
+                                  >
+                                    <div style={{ marginBottom: "0.15rem" }}>
+                                      {tarea.titulo.toUpperCase()}
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: "0.65rem",
+                                        color: theme.textMuted,
+                                        fontWeight: "500",
+                                        marginTop: "0.1rem",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: "0.2rem"
+                                      }}
+                                    >
+                                      <svg
+                                        width="10"
+                                        height="10"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <path d="M12 3v18" />
+                                        <path d="M3 12h18" />
+                                        <path d="M8 8l-4 4 4 4" />
+                                        <path d="M16 8l4 4-4 4" />
+                                      </svg>
+                                      {individualWeight.toFixed(2)}
+                                    </div>
+                                  </th>
+                                );
+                              });
+                            })()}
                           </tr>
                         </>
                       ) : (
@@ -1725,7 +1764,19 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               borderRight: `1px solid ${theme.border}`
                             }}
                           >
-                            {estudiante.apellido}, {estudiante.nombre}
+                            <div>
+                              {estudiante.apellido}, {estudiante.nombre}
+                            </div>
+                            {estudiante.identificacion && (
+                              <div style={{
+                                fontSize: '0.65rem',
+                                color: theme.textMuted,
+                                fontWeight: '500',
+                                marginTop: '0.1rem'
+                              }}>
+                                ID: {estudiante.identificacion}
+                              </div>
+                            )}
                           </td>
                           {moduloActivo !== "todos" && tareasFiltradas.map((tarea) => {
                             const notaVal = estudiante.calificaciones[tarea.id_tarea];
