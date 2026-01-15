@@ -856,13 +856,18 @@ const AdministradoresPanel: React.FC = () => {
                 width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
                 background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
                 border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-                color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontSize: '0.85rem'
-              }}
+                color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b',
+                fontSize: '0.85rem',
+                colorScheme: darkMode ? 'dark' : 'light',
+                WebkitAppearance: 'menulist',
+                MozAppearance: 'menulist',
+                appearance: 'menulist'
+              } as React.CSSProperties}
             >
-              <option value="">Seleccionar</option>
-              <option value="masculino">Masculino</option>
-              <option value="femenino">Femenino</option>
-              <option value="otro">Otro</option>
+              <option value="" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Seleccionar</option>
+              <option value="masculino" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Masculino</option>
+              <option value="femenino" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Femenino</option>
+              <option value="otro" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Otro</option>
             </select>
           </div>
 
@@ -1021,13 +1026,18 @@ const AdministradoresPanel: React.FC = () => {
               width: '100%', padding: '0.5rem', borderRadius: '0.625rem',
               background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
               border: darkMode ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.15)',
-              color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', fontSize: '0.85rem'
-            }}
+              color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b',
+              fontSize: '0.85rem',
+              colorScheme: darkMode ? 'dark' : 'light',
+              WebkitAppearance: 'menulist',
+              MozAppearance: 'menulist',
+              appearance: 'menulist'
+            } as React.CSSProperties}
           >
-            <option value="">Seleccionar</option>
-            <option value="masculino">Masculino</option>
-            <option value="femenino">Femenino</option>
-            <option value="otro">Otro</option>
+            <option value="" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Seleccionar</option>
+            <option value="masculino" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Masculino</option>
+            <option value="femenino" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Femenino</option>
+            <option value="otro" style={{ background: darkMode ? '#1a1a1a' : '#fff', color: darkMode ? '#fff' : '#1e293b' }}>Otro</option>
           </select>
         </div>
 

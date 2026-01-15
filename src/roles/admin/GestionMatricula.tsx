@@ -361,7 +361,32 @@ const GestionMatricula = () => {
   };
 
   // Función para abrir modal de aprobación
-  const openApprovalModal = (solicitud: Solicitud) => {
+  const openApprovalModal = async (solicitud: Solicitud) => {
+    console.log('Solicitud completa:', solicitud);
+    console.log('Fecha de nacimiento:', solicitud.fecha_nacimiento_solicitante);
+
+    // Si es estudiante existente, cargar datos del perfil para completar información faltante
+    if (solicitud.id_estudiante_existente) {
+      try {
+        const token = sessionStorage.getItem('auth_token');
+        const userRes = await fetch(`${API_BASE}/api/estudiantes/${solicitud.id_estudiante_existente}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          // Rellenar datos si faltan en la solicitud
+          if (!solicitud.fecha_nacimiento_solicitante) solicitud.fecha_nacimiento_solicitante = userData.fecha_nacimiento;
+          if (!solicitud.direccion_solicitante) solicitud.direccion_solicitante = userData.direccion;
+          if (!solicitud.genero_solicitante) solicitud.genero_solicitante = userData.genero;
+          if (!solicitud.telefono_solicitante) solicitud.telefono_solicitante = userData.telefono;
+          solicitud.contacto_emergencia = userData.contacto_emergencia;
+        }
+      } catch (err) {
+        console.error("Error cargando datos extra del estudiante", err);
+      }
+    }
+
     setApprovalData(solicitud);
 
     // Generar username automáticamente
@@ -2425,6 +2450,9 @@ const GestionMatricula = () => {
                       try {
                         if (approvalData?.fecha_nacimiento_solicitante && approvalData.fecha_nacimiento_solicitante.trim()) {
                           const fecha = new Date(approvalData.fecha_nacimiento_solicitante);
+                          // Ajustar por timezone UTC
+                          fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+
                           if (!isNaN(fecha.getTime())) {
                             const meses = [
                               'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -2471,26 +2499,57 @@ const GestionMatricula = () => {
 
               {/* Usuario Generado - Solo mostrar si NO es estudiante existente */}
               {!approvalData?.id_estudiante_existente && (
-                <div style={{ marginTop: 16, background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: 12, padding: 16 }}>
-                  <h4 style={{ margin: '0 0 0.75rem 0', color: 'var(--admin-text-primary, #fff)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <GraduationCap size={18} color="#10b981" />
+                <div style={{
+                  marginTop: 16,
+                  background: darkMode
+                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(209, 250, 229, 0.8) 0%, rgba(220, 252, 231, 0.6) 100%)',
+                  border: darkMode
+                    ? '1px solid rgba(16, 185, 129, 0.25)'
+                    : '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: 12,
+                  padding: 16,
+                  boxShadow: darkMode
+                    ? '0 4px 12px rgba(16, 185, 129, 0.1)'
+                    : '0 2px 8px rgba(16, 185, 129, 0.08)'
+                }}>
+                  <h4 style={{
+                    margin: '0 0 0.75rem 0',
+                    color: darkMode ? '#34d399' : '#059669',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '1rem',
+                    fontWeight: '700'
+                  }}>
+                    <GraduationCap size={20} color={darkMode ? '#34d399' : '#059669'} />
                     Usuario Generado Automáticamente
                   </h4>
                   <div style={{
-                    color: '#10b981',
+                    color: darkMode ? '#10b981' : '#047857',
                     fontSize: '1.2rem',
                     fontWeight: '700',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    padding: '8px 0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid rgba(16, 185, 129, 0.2)',
-                    marginBottom: '0.5rem'
+                    background: darkMode
+                      ? 'rgba(16, 185, 129, 0.15)'
+                      : 'rgba(16, 185, 129, 0.12)',
+                    padding: '10px 0.875rem',
+                    borderRadius: '0.625rem',
+                    border: darkMode
+                      ? '1px solid rgba(16, 185, 129, 0.3)'
+                      : '1px solid rgba(16, 185, 129, 0.25)',
+                    marginBottom: '0.625rem',
+                    letterSpacing: '0.5px',
+                    boxShadow: darkMode
+                      ? '0 2px 6px rgba(16, 185, 129, 0.15)'
+                      : '0 1px 4px rgba(16, 185, 129, 0.1)'
                   }}>
                     {generatedUsername}
                   </div>
                   <div style={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.85rem'
+                    color: darkMode ? 'rgba(255,255,255,0.75)' : '#065f46',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    lineHeight: '1.5'
                   }}>
                     Generado a partir de las iniciales del nombre + primer apellido
                   </div>
@@ -2501,23 +2560,44 @@ const GestionMatricula = () => {
               {approvalData?.id_estudiante_existente && (
                 <div style={{
                   marginTop: 16,
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  background: darkMode
+                    ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(219, 234, 254, 0.8) 0%, rgba(224, 231, 255, 0.6) 100%)',
+                  border: darkMode
+                    ? '1px solid rgba(59, 130, 246, 0.3)'
+                    : '1px solid rgba(59, 130, 246, 0.25)',
                   borderRadius: 12,
-                  padding: 16
+                  padding: 16,
+                  boxShadow: darkMode
+                    ? '0 4px 12px rgba(59, 130, 246, 0.1)'
+                    : '0 2px 8px rgba(59, 130, 246, 0.08)'
                 }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <CheckCircle2 size={18} color="#3b82f6" />
+                  <h4 style={{
+                    margin: '0 0 0.5rem 0',
+                    color: darkMode ? '#60a5fa' : '#2563eb',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    fontSize: '1rem',
+                    fontWeight: '700'
+                  }}>
+                    <CheckCircle2 size={20} color={darkMode ? '#60a5fa' : '#2563eb'} />
                     Estudiante Existente
                   </h4>
                   <div style={{
-                    color: 'rgba(255,255,255,0.8)',
+                    color: darkMode ? 'rgba(255,255,255,0.85)' : '#1e40af',
                     fontSize: '0.9rem',
-                    lineHeight: '1.5'
+                    lineHeight: '1.6',
+                    fontWeight: '500'
                   }}>
                     Este estudiante ya está registrado en el sistema. Solo se creará la matrícula para el nuevo curso.
                     <br />
-                    <strong style={{ color: '#3b82f6' }}>No se generarán nuevas credenciales.</strong>
+                    <strong style={{
+                      color: darkMode ? '#60a5fa' : '#2563eb',
+                      fontWeight: '700',
+                      marginTop: '0.25rem',
+                      display: 'inline-block'
+                    }}>No se generarán nuevas credenciales.</strong>
                   </div>
                 </div>
               )}
