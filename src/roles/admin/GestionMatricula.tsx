@@ -90,7 +90,7 @@ const GestionMatricula = () => {
     ),
     contentBackground: pick(
       '#ffffff',
-      '#1e293b'
+      '#0f172a'
     ),
     surface: pick('rgba(255,255,255,0.94)', 'rgba(12,12,24,0.94)'),
     surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
@@ -174,7 +174,7 @@ const GestionMatricula = () => {
   const toggleInactiveText = pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)');
 
   const actionColors = {
-    view: '#3b82f6',
+    view: RedColorPalette.primary,
     approve: '#10b981',
     reject: '#ef4444'
   } as const;
@@ -1131,16 +1131,36 @@ const GestionMatricula = () => {
                 <div
                   key={sol.id_solicitud}
                   style={{
-                    background: theme.contentBackground,
-                    border: `1px solid ${theme.surfaceBorder}`,
-                    borderRadius: '0.625rem',
-                    padding: '0.5rem 0.75rem',
-                    boxShadow: darkMode ? '0 2px 8px rgba(0, 0, 0, 0.2)' : '0 2px 8px rgba(15, 23, 42, 0.05)',
-                    transition: 'all 0.2s ease',
+                    background: pick(
+                      '#ffffff',
+                      'linear-gradient(135deg, rgba(8, 8, 12, 0.96) 0%, rgba(18, 18, 26, 0.98) 100%)'
+                    ),
+                    border: `1px solid ${pick('rgba(15,23,42,0.08)', 'rgba(239, 68, 68, 0.22)')}`,
+                    borderRadius: '0.875rem',
+                    padding: '0.625rem 0.875rem',
+                    boxShadow: darkMode
+                      ? '0 4px 20px -5px rgba(0, 0, 0, 0.7)'
+                      : '0 4px 12px -2px rgba(15, 23, 42, 0.08)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '0.5rem',
-                    position: 'relative'
+                    gap: '0.625rem',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.borderColor = pick('rgba(239, 68, 68, 0.25)', 'rgba(239, 68, 68, 0.45)');
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? '0 12px 25px -8px rgba(0, 0, 0, 0.8)'
+                      : '0 8px 20px -4px rgba(15, 23, 42, 0.12)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.borderColor = pick('rgba(15,23,42,0.08)', 'rgba(239, 68, 68, 0.22)');
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? '0 4px 20px -5px rgba(0, 0, 0, 0.7)'
+                      : '0 4px 12px -2px rgba(15, 23, 42, 0.08)';
                   }}
                 >
                   {/* Header Row: Código y Estado */}
@@ -1186,7 +1206,7 @@ const GestionMatricula = () => {
                     </h3>
                   </div>
 
-                  <div style={{ width: '100%', height: '1px', background: theme.divider, opacity: 0.5 }} />
+                  <div style={{ width: '100%', height: '1px', background: pick('rgba(148,163,184,0.18)', 'rgba(239, 68, 68, 0.15)'), opacity: 0.6 }} />
 
                   {/* Fila de Detalles (4 columnas) */}
                   <div style={{
@@ -1283,23 +1303,27 @@ const GestionMatricula = () => {
                     <button
                       onClick={() => openModal(sol.id_solicitud)}
                       style={{
-                        background: pick('rgba(59, 130, 246, 0.06)', 'rgba(59, 130, 246, 0.1)'),
-                        border: '1px solid rgba(59, 130, 246, 0.15)',
-                        color: actionColors.view,
-                        padding: '2px 0.75rem',
-                        borderRadius: '0.35rem',
-                        fontSize: '0.6rem',
+                        background: pick('rgba(239, 68, 68, 0.06)', 'rgba(239, 68, 68, 0.1)'),
+                        border: `1px solid ${pick('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.25)')}`,
+                        color: RedColorPalette.primary,
+                        padding: '3px 0.875rem',
+                        borderRadius: '0.45rem',
+                        fontSize: '0.65rem',
                         fontWeight: 700,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.25rem',
+                        gap: '0.3rem',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.12)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(59, 130, 246, 0.06)'}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = pick('rgba(239, 68, 68, 0.12)', 'rgba(239, 68, 68, 0.18)');
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = pick('rgba(239, 68, 68, 0.06)', 'rgba(239, 68, 68, 0.1)');
+                      }}
                     >
-                      <Eye size={12} /> Ver
+                      <Eye size={13} /> Ver
                     </button>
                   </div>
                 </div>
