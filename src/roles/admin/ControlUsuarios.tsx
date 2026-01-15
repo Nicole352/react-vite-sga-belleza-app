@@ -254,7 +254,7 @@ const ControlUsuarios = () => {
       case 'superadmin':
         return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'docente':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        return 'bg-violet-500/20 text-violet-400 border-violet-500/30';
       case 'estudiante':
         return 'bg-green-500/20 text-green-400 border-green-500/30';
       default:
@@ -755,19 +755,19 @@ const ControlUsuarios = () => {
                             style={{
                               padding: '0.25rem',
                               borderRadius: '0.5rem',
-                              border: '1px solid #3b82f6',
+                              border: `1px solid ${RedColorPalette.primary}`,
                               backgroundColor: 'transparent',
-                              color: '#3b82f6',
+                              color: RedColorPalette.primary,
                               cursor: 'pointer',
                               transition: 'all 0.2s'
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                              e.currentTarget.style.backgroundColor = RedColorPalette.primary;
                               e.currentTarget.style.color = 'white';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#3b82f6';
+                              e.currentTarget.style.color = RedColorPalette.primary;
                             }}
                             title="Ver detalle"
                           >
@@ -1103,7 +1103,7 @@ const ModalDetalle = ({
 
   const theme = {
     modalBackground: darkMode
-      ? 'linear-gradient(135deg, rgba(15,16,28,0.96) 0%, rgba(26,28,44,0.96) 100%)'
+      ? 'linear-gradient(135deg, rgba(8, 8, 12, 0.98) 0%, rgba(18, 18, 26, 0.98) 100%)'
       : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%)',
     modalBorder: darkMode ? 'rgba(239,68,68,0.24)' : 'rgba(248,113,113,0.32)',
     modalShadow: darkMode ? '0 20px 60px -12px rgba(0,0,0,0.6)' : '0 28px 48px -18px rgba(15,23,42,0.22)',
@@ -1164,9 +1164,9 @@ const ModalDetalle = ({
   };
 
   const filtroOptions: Array<{ key: 'todas' | 'administrativas' | 'academicas'; label: string; icon: LucideIcon; activeColor: string }> = [
-    { key: 'todas', label: 'Todas', icon: Zap, activeColor: '#ef4444' },
+    { key: 'todas', label: 'Todas', icon: Zap, activeColor: RedColorPalette.primary },
     { key: 'administrativas', label: 'Administrativas', icon: Shield, activeColor: '#f59e0b' },
-    { key: 'academicas', label: 'Académicas', icon: GraduationCap, activeColor: '#3b82f6' }
+    { key: 'academicas', label: 'Académicas', icon: GraduationCap, activeColor: RedColorPalette.primary }
   ];
 
   const getAccionDescripcion = (accion: Accion) => {
