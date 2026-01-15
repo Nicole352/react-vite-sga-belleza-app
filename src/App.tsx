@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useTheme } from './context/ThemeContext';
 import PaginaInicio from './pages/Inicio';
@@ -128,6 +128,7 @@ const App: React.FC = () => {
             <Route path="/avales" element={<PublicLayout><PaginaAvales /></PublicLayout>} />
             <Route path="/sobre-nosotros" element={<PublicLayout><PaginaSobreNosotros /></PublicLayout>} />
             <Route path="/aula-virtual" element={<PublicLayout><PaginaAulaVirtual /></PublicLayout>} />
+            <Route path="/login" element={<Navigate to="/aula-virtual" replace />} />
             <Route path="/contactenos" element={<PublicLayout><PaginaContactenos /></PublicLayout>} />
             <Route path="/detalle-curso" element={<PublicLayout><DetalleCurso /></PublicLayout>} />
             <Route path="/pago" element={<PublicLayout><Pago /></PublicLayout>} />
