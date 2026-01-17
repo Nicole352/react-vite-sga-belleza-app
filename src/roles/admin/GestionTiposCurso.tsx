@@ -164,7 +164,7 @@ const GestionTiposCurso: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 8;
 
   // Helper: formato de precio consistente
   const formatPrice = (v?: number | null) => {
