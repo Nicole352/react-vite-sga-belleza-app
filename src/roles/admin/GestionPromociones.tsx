@@ -1692,6 +1692,13 @@ const GestionPromociones: React.FC = () => {
                     name="nombre_promocion"
                     placeholder="Ej. Promo Lanzamiento 2025, Black Friday, etc."
                     defaultValue={selected?.nombre_promocion || ''}
+                    onInput={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      const start = target.selectionStart;
+                      const end = target.selectionEnd;
+                      target.value = target.value.toUpperCase();
+                      target.setSelectionRange(start, end);
+                    }}
                     required
                     style={fieldInputStyle}
                   />
@@ -1762,7 +1769,7 @@ const GestionPromociones: React.FC = () => {
                   </label>
                   <StyledSelect
                     name="activa"
-                    defaultValue={selected?.activa ? 'true' : 'false'}
+                    defaultValue={selected?.activa !== undefined ? (selected.activa ? 'true' : 'false') : 'true'}
                     darkMode={darkMode}
                     style={{
                       ...fieldInputStyle

@@ -117,7 +117,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
   const [modalType, setModalType] = useState<'create' | 'edit'>('create');
   const [selectedAsignacion, setSelectedAsignacion] = useState<Asignacion | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>('activa');
+  const [filtroEstado, setFiltroEstado] = useState<EstadoFiltro>('todas');
   const [saving, setSaving] = useState(false);
 
   // Modal de ver detalles
