@@ -63,7 +63,8 @@ const SobreNosotros: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
-  const [currentCertSlide, setCurrentCertSlide] = useState(0);
+  const [shuffleIndex, setShuffleIndex] = useState(0);
+  const [isShuffling, setIsShuffling] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -72,13 +73,8 @@ const SobreNosotros: React.FC = () => {
 
 
 
-  // Auto-scroll del carrusel de certificados cada 4 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentCertSlide((prev) => (prev + 1) % certificates.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  // Card shuffle on hover
+  const [isHovering, setIsHovering] = useState(false);
 
   const valores: Valor[] = [
     {
@@ -165,20 +161,47 @@ const SobreNosotros: React.FC = () => {
   const certificates: Certificate[] = [
     {
       id: 1,
-      imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
-      title: 'Certificación en Cosmetología Avanzada'
+      imageUrl: 'https://res.cloudinary.com/dq8lou9re/image/upload/v1768761814/WhatsApp_Image_2026-01-14_at_10.04.31_AM_lmh4rp.jpg',
+      title: 'Certificación Profesional en Estética'
     },
     {
       id: 2,
-      imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
-      title: 'Diploma en Medicina Estética'
+      imageUrl: 'https://res.cloudinary.com/dq8lou9re/image/upload/v1768761825/WhatsApp_Image_2026-01-14_at_10.20.13_AM_zkjsl2.jpg',
+      title: 'Reconocimiento Ministerial'
     },
     {
       id: 3,
-      imageUrl: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1757103322/36946ae7-49b0-4961-b04d-1e91a6caba02.png',
-      title: 'Reconocimiento Ministerial'
+      imageUrl: 'https://res.cloudinary.com/dq8lou9re/image/upload/v1768764255/images_2_tuwcuw.jpg',
+      title: 'Certificación en Cosmetología Avanzada'
+    },
+    {
+      id: 4,
+      imageUrl: 'https://res.cloudinary.com/dq8lou9re/image/upload/v1768764251/images_1_yxxpy2.jpg',
+      title: 'Diploma en Medicina Estética'
+    },
+    {
+      id: 5,
+      imageUrl: 'https://res.cloudinary.com/dq8lou9re/image/upload/v1768764253/images_i6klxs.jpg',
+      title: 'Certificación Técnica Superior'
     }
   ];
+
+  // Hover effect for card shuffle
+  useEffect(() => {
+    if (!isHovering) return;
+
+    const interval = setInterval(() => {
+      if (!isShuffling) {
+        setIsShuffling(true);
+        setTimeout(() => {
+          setShuffleIndex((prev) => (prev + 1) % certificates.length);
+          setIsShuffling(false);
+        }, 600);
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [isHovering, isShuffling]);
 
   const historiaNodes = useMemo(() => historia.map((hito) => ({
     node: (
@@ -581,72 +604,91 @@ const SobreNosotros: React.FC = () => {
             align-items: start;
           }
           
-          .cert-carousel-container {
+          
+          .card-stack-container {
             position: relative;
             width: 100%;
-            height: 220px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justifyContent: center;
+            cursor: pointer;
+            perspective: 1000px;
+          }
+          
+          .card-stack {
+            position: relative;
+            width: 85%;
+            height: 240px;
+            margin: 0 auto;
+          }
+          
+          .shuffle-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             border-radius: 1rem;
             overflow: hidden;
-            border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.25)' : 'rgba(209, 160, 42, 0.3)'};
-            box-shadow: ${theme === 'dark' ? '0 20px 50px rgba(0, 0, 0, 0.5)' : '0 10px 30px rgba(0, 0, 0, 0.15)'};
-            background: ${theme === 'dark' ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.9)'};
-            backdrop-filter: blur(6px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: ${theme === 'dark' ? '0 10px 40px rgba(0, 0, 0, 0.6)' : '0 8px 30px rgba(0, 0, 0, 0.2)'};
+            border: 1px solid ${theme === 'dark' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(209, 160, 42, 0.3)'};
+            background: ${theme === 'dark' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.95)'};
           }
           
-          .cert-carousel-track {
-            display: flex;
+          .shuffle-card img {
+            width: 100%;
             height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          
-          .cert-slide {
-            flex: 0 0 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 20px;
-          }
-          
-          .cert-slide img {
-            max-width: 75%;
-            max-height: 60%;
             object-fit: contain;
-            filter: ${theme === 'dark' ? 'drop-shadow(0 10px 25px rgba(0,0,0,0.5))' : 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))'};
-            border-radius: 0.75rem;
-            margin-bottom: 0.75rem;
+            display: block;
           }
           
-          .cert-title {
+          .shuffle-card.shuffling {
+            animation: shuffleOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          }
+          
+          @keyframes shuffleOut {
+            0% {
+              transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+              opacity: 1;
+              z-index: 10;
+            }
+            50% {
+              transform: translateX(120%) translateY(-30px) rotate(15deg) scale(0.9);
+              opacity: 0.5;
+            }
+            100% {
+              transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+              opacity: 1;
+              z-index: 1;
+            }
+          }
+          
+          .card-click-hint {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
             color: #fbbf24;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             text-align: center;
-            text-shadow: ${theme === 'dark' ? '0 2px 8px rgba(0,0,0,0.5)' : '0 1px 4px rgba(0,0,0,0.2)'};
+            opacity: 0.8;
+            animation: pulse 2s ease-in-out infinite;
           }
           
-          .cert-dots {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
+          @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
           }
           
-          .cert-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.4);
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-          
-          .cert-dot.active {
-            width: 20px;
-            border-radius: 8px;
-            background: #fbbf24;
-            box-shadow: 0 0 16px rgba(251, 191, 36, 0.6);
+          @media (max-width: 768px) {
+            .card-stack-container {
+              height: 240px;
+            }
+            
+            .card-stack {
+              height: 200px;
+            }
           }
           @media (max-width: 768px) {
             .liderazgo-grid {
@@ -1105,7 +1147,7 @@ const SobreNosotros: React.FC = () => {
                         </p>
                       </div>
 
-                      {/* Columna derecha: Carrusel de certificados */}
+                      {/* Columna derecha: Card Shuffle de certificados */}
                       <div>
                         <h4 style={{
                           color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
@@ -1117,31 +1159,34 @@ const SobreNosotros: React.FC = () => {
                           Certificaciones y Reconocimientos
                         </h4>
 
-                        <div className="cert-carousel-container">
-                          <div
-                            className="cert-carousel-track"
-                            style={{
-                              width: `${certificates.length * 100}%`,
-                              transform: `translateX(-${currentCertSlide * (100 / certificates.length)}%)`
-                            }}
-                          >
-                            {certificates.map((cert) => (
-                              <div key={cert.id} className="cert-slide">
-                                <img src={cert.imageUrl} alt={cert.title} />
-                                <div className="cert-title">{cert.title}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                        <div
+                          className="card-stack-container"
+                          onMouseEnter={() => setIsHovering(true)}
+                          onMouseLeave={() => setIsHovering(false)}
+                        >
+                          <div className="card-stack">
+                            {certificates.map((cert, index) => {
+                              const position = (index - shuffleIndex + certificates.length) % certificates.length;
+                              const isTop = position === 0;
 
-                        <div className="cert-dots">
-                          {certificates.map((_, i) => (
-                            <div
-                              key={i}
-                              className={`cert-dot ${i === currentCertSlide ? 'active' : ''}`}
-                              onClick={() => setCurrentCertSlide(i)}
-                            />
-                          ))}
+                              return (
+                                <div
+                                  key={cert.id}
+                                  className={`shuffle-card ${isShuffling && isTop ? 'shuffling' : ''}`}
+                                  style={{
+                                    zIndex: certificates.length - position,
+                                    transform: `translateY(${position * -4}px) translateX(${position * 2}px) scale(${1 - position * 0.02})`,
+                                    opacity: position > 2 ? 0 : 1 - position * 0.15
+                                  }}
+                                >
+                                  <img src={cert.imageUrl} alt={cert.title} />
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="card-click-hint">
+                            Pasa el mouse para barajar
+                          </div>
                         </div>
                       </div>
                     </div>
