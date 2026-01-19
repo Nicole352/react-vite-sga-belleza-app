@@ -83,6 +83,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
   const [errorCuotas, setErrorCuotas] = useState<{ [key: number]: boolean }>({});
   const [decisionLoading, setDecisionLoading] = useState<number | null>(null);
   const [cursoConfirmacion, setCursoConfirmacion] = useState<CursoConPagos | null>(null);
+  const [tooltipsVisible, setTooltipsVisible] = useState<{ [key: number]: boolean }>({});
 
   // Obtener userId del token al montar
   useEffect(() => {
@@ -186,6 +187,28 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       }
     }
   };
+
+  // Validar si una cuota puede ser pagada (todas las anteriores deben estar verificadas)
+  const puedePagarCuota = useCallback((cuota: Cuota, todasLasCuotas: Cuota[]) => {
+    // Si es la cuota #1, siempre se puede pagar
+    if (cuota.numero_cuota === 1) {
+      return { puede: true, mensaje: '' };
+    }
+
+    // Verificar que todas las cuotas anteriores estén verificadas
+    const cuotasAnteriores = todasLasCuotas.filter(c => c.numero_cuota < cuota.numero_cuota);
+    const cuotasNoVerificadas = cuotasAnteriores.filter(c => c.estado !== 'verificado');
+
+    if (cuotasNoVerificadas.length > 0) {
+      const numerosNoVerificados = cuotasNoVerificadas.map(c => `#${c.numero_cuota}`).join(', ');
+      return {
+        puede: false,
+        mensaje: `Debes pagar y verificar ${cuotasNoVerificadas.length === 1 ? 'la cuota' : 'las cuotas'} ${numerosNoVerificados} antes de pagar esta cuota`
+      };
+    }
+
+    return { puede: true, mensaje: '' };
+  }, []);
 
   const handlePagarCuota = (cuota: Cuota) => {
     setSelectedCuota(cuota);
@@ -521,38 +544,87 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
                     {getEstadoTexto(cuota.estado)}
                   </span>
 
-                  {cuota.estado === 'pendiente' && (
-                    <button
-                      onClick={() => handlePagarCuota(cuota)}
-                      style={{
-                        padding: '0.5em 0.875em',
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.5em',
-                        fontSize: '0.75rem',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.375em',
-                        boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 4px 10px rgba(16, 185, 129, 0.4)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.3)';
-                      }}
-                    >
-                      <CreditCard size={14} strokeWidth={2.5} color="#fff" />
-                      Pagar
-                    </button>
-                  )}
+                  {cuota.estado === 'pendiente' && (() => {
+                    const validacion = puedePagarCuota(cuota, cuotasFiltradas);
+                    const showTooltip = tooltipsVisible[cuota.id_pago] || false;
+
+                    return (
+                      <div
+                        style={{ position: 'relative', display: 'inline-block' }}
+                        onMouseEnter={() => {
+                          if (!validacion.puede) {
+                            setTooltipsVisible(prev => ({ ...prev, [cuota.id_pago]: true }));
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          setTooltipsVisible(prev => ({ ...prev, [cuota.id_pago]: false }));
+                        }}
+                      >
+                        <button
+                          onClick={() => validacion.puede && handlePagarCuota(cuota)}
+                          disabled={!validacion.puede}
+                          style={{
+                            padding: '0.5em 0.875em',
+                            background: validacion.puede
+                              ? 'linear-gradient(135deg, #10b981, #059669)'
+                              : 'linear-gradient(135deg, #9ca3af, #6b7280)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.5em',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            cursor: validacion.puede ? 'pointer' : 'not-allowed',
+                            whiteSpace: 'nowrap',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.375em',
+                            boxShadow: validacion.puede
+                              ? '0 2px 6px rgba(16, 185, 129, 0.3)'
+                              : '0 2px 6px rgba(107, 114, 128, 0.3)',
+                            transition: 'all 0.2s ease',
+                            opacity: validacion.puede ? 1 : 0.6
+                          }}
+                          onMouseEnter={(e) => {
+                            if (validacion.puede) {
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                              e.currentTarget.style.boxShadow = '0 4px 10px rgba(16, 185, 129, 0.4)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (validacion.puede) {
+                              e.currentTarget.style.transform = 'translateY(0)';
+                              e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.3)';
+                            }
+                          }}
+                        >
+                          <CreditCard size={14} strokeWidth={2.5} color="#fff" />
+                          {validacion.puede ? 'Pagar' : 'Bloqueado'}
+                        </button>
+                        {!validacion.puede && showTooltip && (
+                          <div style={{
+                            position: 'absolute',
+                            bottom: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            marginBottom: '0.5em',
+                            padding: '0.5em 0.75em',
+                            backgroundColor: darkMode ? '#1f2937' : '#374151',
+                            color: 'white',
+                            borderRadius: '0.375em',
+                            fontSize: '0.7rem',
+                            whiteSpace: 'nowrap',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                            zIndex: 10,
+                            maxWidth: '250px',
+                            textAlign: 'center'
+                          }}
+                          >
+                            {validacion.mensaje}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
