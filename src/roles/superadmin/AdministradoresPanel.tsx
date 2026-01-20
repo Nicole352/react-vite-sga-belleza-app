@@ -397,6 +397,21 @@ const AdministradoresPanel: React.FC = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const getEmptyMessage = () => {
+    if (searchTerm.trim()) {
+      return `No se encontraron administrativos que coincidan con "${searchTerm}"`;
+    }
+
+    switch (filterStatus) {
+      case 'activo':
+        return "No hay administrativos activos registrados";
+      case 'inactivo':
+        return "No hay administrativos inactivos";
+      default:
+        return "No hay administrativos registrados en el sistema";
+    }
+  };
+
   // Renderizado de Modales con GlassEffect
   const renderModal = (title: string, icon: any, onClose: () => void, content: React.ReactNode, footer: React.ReactNode) => {
     const Icon = icon;
@@ -614,7 +629,21 @@ const AdministradoresPanel: React.FC = () => {
       {/* Lista de Administradores */}
       {viewMode === 'cards' ? (
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: isMobile ? '0.5rem' : '0.75rem' }}>
-          {filteredAdmins.map(admin => (
+          {filteredAdmins.length === 0 ? (
+            <div style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '60px 1.25rem',
+              color: themeColors.textSecondary,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '1rem'
+            }}>
+              <Users size={isMobile ? 48 : 64} style={{ opacity: 0.5 }} />
+              <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</div>
+            </div>
+          ) : filteredAdmins.map(admin => (
             <GlassEffect key={admin.id} variant="card" tint="neutral" intensity="light" hover>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.625rem' }}>
                 <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center' }}>
@@ -725,7 +754,16 @@ const AdministradoresPanel: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredAdmins.map((admin, idx) => (
+              {filteredAdmins.length === 0 ? (
+                <tr>
+                  <td colSpan={4} style={{ padding: '60px 1.25rem', textAlign: 'center', color: themeColors.textSecondary }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                      <Users size={isMobile ? 48 : 64} style={{ opacity: 0.5 }} />
+                      <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</div>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredAdmins.map((admin, idx) => (
                 <tr key={admin.id} style={{ borderBottom: `1px solid ${themeColors.controlBorder}`, background: idx % 2 === 0 ? themeColors.tableRowAltBg : 'transparent' }}>
                   <td style={{ padding: '0.625rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

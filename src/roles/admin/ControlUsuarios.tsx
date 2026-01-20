@@ -236,6 +236,24 @@ const ControlUsuarios = () => {
     }
   };
 
+  const getEmptyMessage = () => {
+    if (search) return 'No se encontraron usuarios que coincidan con la búsqueda';
+    const rolText = rolFilter === 'docente' ? 'docentes' : rolFilter === 'estudiante' ? 'estudiantes' : 'usuarios registrados';
+
+    const estadoText = estadoFilter === 'activo' ? 'activos' :
+      estadoFilter === 'inactivo' ? 'inactivos' :
+        estadoFilter === 'bloqueado' ? 'bloqueados' : '';
+
+    if (rolFilter !== 'todos' && estadoFilter !== 'todos') {
+      return `No hay ${rolText} ${estadoText}`;
+    }
+    if (rolFilter !== 'todos') {
+      return rolFilter === 'docente' ? 'No hay docentes registrados' : 'No hay estudiantes registrados';
+    }
+    if (estadoFilter !== 'todos') return `No hay usuarios ${estadoText}`;
+    return 'No hay usuarios registrados';
+  };
+
 
   const formatFecha = (fecha: string | null) => {
     if (!fecha) return 'Nunca';
@@ -655,11 +673,6 @@ const ControlUsuarios = () => {
             <AlertCircle className="w-12 h-12 mx-auto mb-4" />
             <p>{error}</p>
           </div>
-        ) : usuarios.length === 0 ? (
-          <div className="text-center py-12 opacity-70">
-            <Users className="w-12 h-12 mx-auto mb-4" />
-            <p>No se encontraron usuarios</p>
-          </div>
         ) : (
           <>
             {/* Indicador de scroll en móvil */}
@@ -707,190 +720,201 @@ const ControlUsuarios = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {usuarios.map((usuario) => (
-                    <tr key={usuario.id_usuario} style={{
-                      borderBottom: `1px solid ${tableRowDivider}`,
-                      transition: 'all 0.2s ease'
-                    }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <div style={{ fontSize: '0.7rem', color: textPrimaryColor, fontWeight: 600 }}>
-                          {usuario.username || usuario.email}
+                  {usuarios.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '40px 1.25rem', textAlign: 'center', color: textSecondaryColor, fontSize: '0.85rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', opacity: 0.7 }}>
+                          <Users className="w-8 h-8 mx-auto" style={{ color: textMutedColor }} />
+                          {getEmptyMessage()}
                         </div>
                       </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.125rem', fontSize: '0.7rem' }}>
-                          {usuario.apellido}, {usuario.nombre}
-                        </div>
-                        <div style={{ fontSize: '0.65rem', color: textMutedColor }}>{usuario.cedula}</div>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getRolColor(usuario.nombre_rol)}`}>
-                          {usuario.nombre_rol}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <div style={{ fontSize: '0.65rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        {usuario.cuenta_bloqueada ? (
-                          <span className="px-2 py-0.5 rounded-full text-[0.65rem] font-medium border bg-red-600/20 text-red-500 border-red-600/30 flex items-center justify-center gap-1">
-                            <Lock size={10} /> BLOQUEADO
+                    </tr>
+                  ) : (
+                    usuarios.map((usuario) => (
+                      <tr key={usuario.id_usuario} style={{
+                        borderBottom: `1px solid ${tableRowDivider}`,
+                        transition: 'all 0.2s ease'
+                      }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <div style={{ fontSize: '0.7rem', color: textPrimaryColor, fontWeight: 600 }}>
+                            {usuario.username || usuario.email}
+                          </div>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <div style={{ fontWeight: '600', color: textPrimaryColor, marginBottom: '0.125rem', fontSize: '0.7rem' }}>
+                            {usuario.apellido}, {usuario.nombre}
+                          </div>
+                          <div style={{ fontSize: '0.65rem', color: textMutedColor }}>{usuario.cedula}</div>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getRolColor(usuario.nombre_rol)}`}>
+                            {usuario.nombre_rol}
                           </span>
-                        ) : (
-                          <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getEstadoColor(usuario.estado)}`}>
-                            {usuario.estado.toUpperCase()}
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <div style={{ fontSize: '0.65rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
-                          <button
-                            onClick={() => verDetalle(usuario)}
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: `1px solid ${RedColorPalette.primary}`,
-                              backgroundColor: 'transparent',
-                              color: RedColorPalette.primary,
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = RedColorPalette.primary;
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = RedColorPalette.primary;
-                            }}
-                            title="Ver detalle"
-                          >
-                            <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
-                          </button>
-                          <button
-                            onClick={() => confirmarCambioEstado(usuario)}
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: `1px solid ${usuario.estado === 'activo' ? '#ef4444' : '#10b981'}`,
-                              backgroundColor: 'transparent',
-                              color: usuario.estado === 'activo' ? '#ef4444' : '#10b981',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              const color = usuario.estado === 'activo' ? '#ef4444' : '#10b981';
-                              e.currentTarget.style.backgroundColor = color;
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              const color = usuario.estado === 'activo' ? '#ef4444' : '#10b981';
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = color;
-                            }}
-                            title={usuario.estado === 'activo' ? 'Desactivar usuario' : 'Activar usuario'}
-                          >
-                            {usuario.estado === 'activo' ? (
-                              <Power style={{ width: '0.85rem', height: '0.85rem' }} />
-                            ) : (
-                              <CheckCircle style={{ width: '0.85rem', height: '0.85rem' }} />
-                            )}
-                          </button>
-
-                          {/* Botón de Bloqueo Financiero */}
-                          <button
-                            onClick={() => usuario.cuenta_bloqueada ? confirmarDesbloqueo(usuario) : confirmarBloqueo(usuario)}
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: `1px solid ${usuario.cuenta_bloqueada ? '#10b981' : '#ef4444'}`,
-                              backgroundColor: 'transparent',
-                              color: usuario.cuenta_bloqueada ? '#10b981' : '#ef4444',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              const color = usuario.cuenta_bloqueada ? '#10b981' : '#ef4444';
-                              e.currentTarget.style.backgroundColor = color;
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              const color = usuario.cuenta_bloqueada ? '#10b981' : '#ef4444';
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = color;
-                            }}
-                            title={usuario.cuenta_bloqueada ? 'Desbloquear cuenta' : 'Bloquear cuenta'}
-                          >
-                            {usuario.cuenta_bloqueada ? (
-                              <Unlock style={{ width: '0.85rem', height: '0.85rem' }} />
-                            ) : (
-                              <Lock style={{ width: '0.85rem', height: '0.85rem' }} />
-                            )}
-                          </button>
-                          {usuario.cuenta_bloqueada && (
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <div style={{ fontSize: '0.65rem', color: textSecondaryColor }}>{usuario.email || '-'}</div>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          {usuario.cuenta_bloqueada ? (
+                            <span className="px-2 py-0.5 rounded-full text-[0.65rem] font-medium border bg-red-600/20 text-red-500 border-red-600/30 flex items-center justify-center gap-1">
+                              <Lock size={10} /> BLOQUEADO
+                            </span>
+                          ) : (
+                            <span className={`px-2 py-0.5 rounded-full text-[0.65rem] font-medium border ${getEstadoColor(usuario.estado)}`}>
+                              {usuario.estado.toUpperCase()}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <div style={{ fontSize: '0.65rem', color: textSecondaryColor }}>{formatFecha(usuario.fecha_ultima_conexion)}</div>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}>
                             <button
-                              onClick={() => confirmarDesbloqueoTemporal(usuario)}
+                              onClick={() => verDetalle(usuario)}
                               style={{
                                 padding: '0.25rem',
                                 borderRadius: '0.5rem',
-                                border: '1px solid #ff9800',
+                                border: `1px solid ${RedColorPalette.primary}`,
                                 backgroundColor: 'transparent',
-                                color: '#ff9800',
+                                color: RedColorPalette.primary,
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#ff9800';
+                                e.currentTarget.style.backgroundColor = RedColorPalette.primary;
                                 e.currentTarget.style.color = 'white';
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = '#ff9800';
+                                e.currentTarget.style.color = RedColorPalette.primary;
                               }}
-                              title="Desbloqueo temporal (24h)"
+                              title="Ver detalle"
                             >
-                              <Clock style={{ width: '0.85rem', height: '0.85rem' }} />
+                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
-                          )}
-                          <button
-                            onClick={() => resetearPassword(usuario)}
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #f59e0b',
-                              backgroundColor: 'transparent',
-                              color: '#f59e0b',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f59e0b';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#f59e0b';
-                            }}
-                            title="Resetear contraseña"
-                          >
-                            <KeyRound style={{ width: '0.85rem', height: '0.85rem' }} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            <button
+                              onClick={() => confirmarCambioEstado(usuario)}
+                              style={{
+                                padding: '0.25rem',
+                                borderRadius: '0.5rem',
+                                border: `1px solid ${usuario.estado === 'activo' ? '#ef4444' : '#10b981'}`,
+                                backgroundColor: 'transparent',
+                                color: usuario.estado === 'activo' ? '#ef4444' : '#10b981',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                const color = usuario.estado === 'activo' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = color;
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                const color = usuario.estado === 'activo' ? '#ef4444' : '#10b981';
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = color;
+                              }}
+                              title={usuario.estado === 'activo' ? 'Desactivar usuario' : 'Activar usuario'}
+                            >
+                              {usuario.estado === 'activo' ? (
+                                <Power style={{ width: '0.85rem', height: '0.85rem' }} />
+                              ) : (
+                                <CheckCircle style={{ width: '0.85rem', height: '0.85rem' }} />
+                              )}
+                            </button>
+
+                            {/* Botón de Bloqueo Financiero */}
+                            <button
+                              onClick={() => usuario.cuenta_bloqueada ? confirmarDesbloqueo(usuario) : confirmarBloqueo(usuario)}
+                              style={{
+                                padding: '0.25rem',
+                                borderRadius: '0.5rem',
+                                border: `1px solid ${usuario.cuenta_bloqueada ? '#10b981' : '#ef4444'}`,
+                                backgroundColor: 'transparent',
+                                color: usuario.cuenta_bloqueada ? '#10b981' : '#ef4444',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                const color = usuario.cuenta_bloqueada ? '#10b981' : '#ef4444';
+                                e.currentTarget.style.backgroundColor = color;
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                const color = usuario.cuenta_bloqueada ? '#10b981' : '#ef4444';
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = color;
+                              }}
+                              title={usuario.cuenta_bloqueada ? 'Desbloquear cuenta' : 'Bloquear cuenta'}
+                            >
+                              {usuario.cuenta_bloqueada ? (
+                                <Unlock style={{ width: '0.85rem', height: '0.85rem' }} />
+                              ) : (
+                                <Lock style={{ width: '0.85rem', height: '0.85rem' }} />
+                              )}
+                            </button>
+                            {usuario.cuenta_bloqueada && (
+                              <button
+                                onClick={() => confirmarDesbloqueoTemporal(usuario)}
+                                style={{
+                                  padding: '0.25rem',
+                                  borderRadius: '0.5rem',
+                                  border: '1px solid #ff9800',
+                                  backgroundColor: 'transparent',
+                                  color: '#ff9800',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#ff9800';
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                  e.currentTarget.style.color = '#ff9800';
+                                }}
+                                title="Desbloqueo temporal (24h)"
+                              >
+                                <Clock style={{ width: '0.85rem', height: '0.85rem' }} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => resetearPassword(usuario)}
+                              style={{
+                                padding: '0.25rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #f59e0b',
+                                backgroundColor: 'transparent',
+                                color: '#f59e0b',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#f59e0b';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#f59e0b';
+                              }}
+                              title="Resetear contraseña"
+                            >
+                              <KeyRound style={{ width: '0.85rem', height: '0.85rem' }} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             {/* Paginación */}
-            {totalPages > 0 && (
+            {usuarios.length > 0 && totalPages > 0 && (
               <div className="pagination-container" style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',

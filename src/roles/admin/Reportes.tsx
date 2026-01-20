@@ -313,6 +313,34 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     }
   ];
 
+  const getEmptyMessage = () => {
+    const busqueda = (tipoReporte === 'cursos' ? busquedaCursos : busquedaRapida).trim();
+
+    if (vistaActual === 'historial') {
+      if (filtroTipoHistorial !== 'todos') return "No se encontraron reportes de este tipo en el historial";
+      return "No hay reportes generados aún";
+    }
+
+    if (busqueda) return `No se encontraron resultados para "${busqueda}"`;
+
+    switch (tipoReporte) {
+      case 'estudiantes':
+        if (filtroCurso) return "No hay estudiantes registrados en este curso para el período seleccionado";
+        if (filtroEstadoEstudiante !== 'todos') return `No hay estudiantes con estado "${filtroEstadoEstudiante}" en este período`;
+        return "No hay estudiantes registrados en este período";
+      case 'cursos':
+        if (filtroEstadoCursoReporte !== 'todos') return `No hay cursos con estado "${filtroEstadoCursoReporte}" en este período`;
+        return "No hay cursos registrados en este período";
+      case 'financiero':
+        if (filtroEstadoPago !== 'todos') return `No hay pagos con estado "${filtroEstadoPago}" en este período`;
+        if (filtroMetodoPago !== 'todos') return `No hay pagos realizados con "${filtroMetodoPago}" en este período`;
+        if (filtroCursoFinanciero) return "No hay registros financieros para este curso en el período seleccionado";
+        return "No hay registros financieros en este período";
+      default:
+        return "No se encontraron datos";
+    }
+  };
+
   // Cargar datos iniciales
   useEffect(() => {
     const token = sessionStorage.getItem('auth_token');
@@ -1134,12 +1162,9 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       // Mostrar mensaje si no hay datos
       if (datosReporte && datosReporte.length === 0) {
         return (
-          <div style={{ textAlign: 'center', padding: '60px 1.25rem' }}>
-            <AlertCircle size={64} color="#f59e0b" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <h3 style={{ color: themeColors.textPrimary, marginBottom: '0.5rem', fontSize: '1.2rem' }}>No hay estudiantes en este período</h3>
-            <p style={{ color: themeColors.textMuted, fontSize: '1rem' }}>
-              Intenta seleccionar otro período o curso, o verifica que haya estudiantes matriculados.
-            </p>
+          <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: themeColors.textSecondary }}>
+            <Users size={isMobile ? 48 : 64} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+            <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</div>
           </div>
         );
       }
@@ -1513,7 +1538,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   </div>
                   {/* Controles de Paginación */}
                   {
-                    totalPaginasEstudiantes > 1 && (
+                    datosProcesados.length > 0 && totalPaginasEstudiantes > 1 && (
                       <div style={{
                         display: 'flex',
                         flexDirection: isMobile ? 'column' : 'row',
@@ -1679,7 +1704,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
             const indiceFin = indiceInicio + ITEMS_POR_PAGINA_FINANCIERO;
             const estudiantesPaginados = estudiantesFiltrados.slice(indiceInicio, indiceFin);
 
-            return estudiantesFinanciero.length > 0 && (
+            return estudiantesFinanciero.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: themeColors.textSecondary }}>
+                <DollarSign size={isMobile ? 48 : 64} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+                <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</div>
+              </div>
+            ) : (
               <div style={{
                 maxHeight: '65vh',
                 overflowY: 'auto',
@@ -2012,7 +2042,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
                 </div>
                 {/* Controles de Paginación */}
-                {totalPaginas > 1 && (
+                {estudiantesFiltrados.length > 0 && totalPaginas > 1 && (
                   <div style={{
                     display: 'flex',
                     flexDirection: isMobile ? 'column' : 'row',
@@ -2111,7 +2141,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           maxWidth: '100%'
         }}>
           {/* Lista de cursos */}
-          {datosReporte.length > 0 && (
+          {datosReporte.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 1.25rem', color: themeColors.textSecondary }}>
+              <BookOpen size={isMobile ? 48 : 64} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</div>
+            </div>
+          ) : (
             <div style={{
               maxHeight: isMobile ? 'auto' : '60vh',
               overflowY: isMobile ? 'visible' : 'auto',
@@ -2313,7 +2348,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
                 const totalPaginasCursos = Math.ceil(cursosFiltrados.length / ITEMS_POR_PAGINA_CURSOS);
 
-                return totalPaginasCursos > 1 && (
+                return cursosFiltrados.length > 0 && totalPaginasCursos > 1 && (
                   <div style={{
                     display: 'flex',
                     flexDirection: isMobile ? 'column' : 'row',
@@ -2817,304 +2852,302 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                 </select>
               </div>
 
-              {loadingHistorial ? (
-                <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
-                  <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 0.75rem' }} />
-                  <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>Cargando historial...</p>
-                </div>
-              ) : historialReportes.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
-                  <History size={48} color={darkMode ? 'rgba(255,255,255,0.3)' : 'rgba(15,23,42,0.25)'} style={{ margin: '0 auto 0.75rem' }} />
-                  <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>No hay reportes generados aún</p>
-                </div>
-              ) : (
-                (() => {
-                  // Filtrar reportes
-                  const reportesFiltrados = historialReportes.filter(r =>
-                    filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial)
-                  );
+              {(() => {
+                const reportesFiltrados = historialReportes.filter(r =>
+                  filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial)
+                );
 
-                  // Calcular paginación
-                  const indiceInicioHistorial = (paginaActualHistorial - 1) * ITEMS_POR_PAGINA_HISTORIAL;
-                  const indiceFinHistorial = indiceInicioHistorial + ITEMS_POR_PAGINA_HISTORIAL;
-                  const reportesPaginados = reportesFiltrados.slice(indiceInicioHistorial, indiceFinHistorial);
+                return loadingHistorial ? (
+                  <div style={{ textAlign: 'center', padding: '40px 1.25rem' }}>
+                    <Loader2 size={36} color="#ef4444" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 0.75rem' }} />
+                    <p style={{ color: themeColors.textMuted, fontSize: '0.85rem' }}>Cargando historial...</p>
+                  </div>
+                ) : reportesFiltrados.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '40px 1.25rem', color: themeColors.textSecondary }}>
+                    <History size={isMobile ? 36 : 48} style={{ margin: '0 auto 0.75rem', opacity: 0.5 }} />
+                    <p style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</p>
+                  </div>
+                ) : (
+                  (() => {
+                    // Calcular paginación
+                    const indiceInicioHistorial = (paginaActualHistorial - 1) * ITEMS_POR_PAGINA_HISTORIAL;
+                    const indiceFinHistorial = indiceInicioHistorial + ITEMS_POR_PAGINA_HISTORIAL;
+                    const reportesPaginados = reportesFiltrados.slice(indiceInicioHistorial, indiceFinHistorial);
 
-                  return (
-                    <>
-                      <div style={{ display: 'grid', gap: '0.75rem' }}>
-                        {reportesPaginados.map((reporte, idx) => {
-                          const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
-                          const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
+                    return (
+                      <>
+                        <div style={{ display: 'grid', gap: '0.75rem' }}>
+                          {reportesPaginados.map((reporte, idx) => {
+                            const tipoIcono = reporte.id_tipo_reporte === 1 ? Users : reporte.id_tipo_reporte === 2 ? DollarSign : BookOpen;
+                            const tipoColor = reporte.id_tipo_reporte === 1 ? '#3b82f6' : reporte.id_tipo_reporte === 2 ? '#f59e0b' : '#10b981';
 
-                          // Verificar si hay datos relevantes para mostrar en el snapshot
-                          const hasSnapshotData = reporte.snapshot && (
-                            (reporte.id_tipo_reporte === 1 && Number(reporte.snapshot.total_estudiantes || 0) > 0) ||
-                            (reporte.id_tipo_reporte === 2 && (Number(reporte.snapshot.monto_total || 0) > 0 || Number(reporte.snapshot.total_transacciones || 0) > 0)) ||
-                            (reporte.id_tipo_reporte === 3 && Number(reporte.snapshot.total_cursos || 0) > 0)
-                          );
+                            // Verificar si hay datos relevantes para mostrar en el snapshot
+                            const hasSnapshotData = reporte.snapshot && (
+                              (reporte.id_tipo_reporte === 1 && Number(reporte.snapshot.total_estudiantes || 0) > 0) ||
+                              (reporte.id_tipo_reporte === 2 && (Number(reporte.snapshot.monto_total || 0) > 0 || Number(reporte.snapshot.total_transacciones || 0) > 0)) ||
+                              (reporte.id_tipo_reporte === 3 && Number(reporte.snapshot.total_cursos || 0) > 0)
+                            );
 
-                          return (
-                            <div key={idx} style={{
-                              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
-                              border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.12)',
-                              borderRadius: '0.5rem',
-                              padding: isMobile ? '8px' : '0.5rem',
-                              transition: 'all 0.3s ease',
-                              cursor: 'pointer'
-                            }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
-                                e.currentTarget.style.borderColor = tipoColor;
+                            return (
+                              <div key={idx} style={{
+                                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)',
+                                border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(15,23,42,0.12)',
+                                borderRadius: '0.5rem',
+                                padding: isMobile ? '8px' : '0.5rem',
+                                transition: 'all 0.3s ease',
+                                cursor: 'pointer'
                               }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
-                                e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)';
-                              }}
-                            >
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+                                  e.currentTarget.style.borderColor = tipoColor;
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.05)';
+                                  e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.12)';
+                                }}
+                              >
+                                <div style={{
+                                  display: 'flex',
+                                  flexDirection: isMobile ? 'column' : 'row',
+                                  gap: isMobile ? '8px' : '0.5rem',
+                                  alignItems: isMobile ? 'stretch' : 'start'
+                                }}>
+                                  <div style={{
+                                    background: `${tipoColor}20`,
+                                    border: `2px solid ${tipoColor}`,
+                                    borderRadius: '0.5rem',
+                                    padding: isMobile ? '6px' : '0.5rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    alignSelf: isMobile ? 'center' : 'flex-start'
+                                  }}>
+                                    {React.createElement(tipoIcono, { size: isMobile ? 16 : 18, color: tipoColor })}
+                                  </div>
+
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{
+                                      display: 'flex',
+                                      flexDirection: isMobile ? 'column' : 'row',
+                                      justifyContent: 'space-between',
+                                      alignItems: isMobile ? 'flex-start' : 'start',
+                                      marginBottom: '0.3rem',
+                                      gap: isMobile ? '4px' : '0'
+                                    }}>
+                                      <div>
+                                        <h4 style={{
+                                          color: themeColors.textPrimary,
+                                          fontSize: isMobile ? '0.8rem' : '0.85rem',
+                                          fontWeight: '600',
+                                          margin: '0 0 0.15rem 0',
+                                          wordBreak: 'break-word'
+                                        }}>
+                                          {reporte.nombre_reporte}
+                                        </h4>
+                                        <p style={{
+                                          color: themeColors.textMuted,
+                                          fontSize: isMobile ? '0.65rem' : '0.75rem',
+                                          margin: 0,
+                                          wordBreak: 'break-all'
+                                        }}>
+                                          {reporte.archivo_generado}
+                                        </p>
+                                      </div>
+                                      <span style={{
+                                        padding: '2px 0.5rem',
+                                        background: `${tipoColor}20`,
+                                        border: `1px solid ${tipoColor}`,
+                                        borderRadius: '0.25rem',
+                                        color: tipoColor,
+                                        fontSize: '0.65rem',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase'
+                                      }}>
+                                        {reporte.formato_generado}
+                                      </span>
+                                    </div>
+
+                                    <div style={{
+                                      display: 'flex',
+                                      flexDirection: isMobile ? 'column' : 'row',
+                                      gap: isMobile ? '3px' : '0.75rem',
+                                      fontSize: isMobile ? '0.65rem' : '0.75rem',
+                                      color: themeColors.textMuted
+                                    }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                        <User size={isMobile ? 9 : 11} />
+                                        <span>{reporte.generado_por}</span>
+                                      </div>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                        <Clock size={isMobile ? 9 : 11} />
+                                        <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
+                                          day: '2-digit',
+                                          month: 'short',
+                                          year: 'numeric',
+                                          hour: '2-digit',
+                                          minute: '2-digit'
+                                        })}</span>
+                                      </div>
+                                    </div>
+
+                                    {/* SNAPSHOT DATA DISPLAY */}
+                                    {hasSnapshotData && (
+                                      <div style={{
+                                        marginTop: '0.3rem',
+                                        padding: '0.4rem',
+                                        background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)',
+                                        borderRadius: '0.3rem',
+                                        fontSize: '0.65rem',
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: '0.5rem',
+                                        borderLeft: `2px solid ${tipoColor}`
+                                      }}>
+                                        {/* Reporte Estudiantes */}
+                                        {reporte.id_tipo_reporte === 1 && (
+                                          <>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                              <Users size={10} color={themeColors.textSecondary} />
+                                              <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_estudiantes || 0}</span> estudiantes
+                                            </span>
+                                            {reporte.snapshot.nuevos_inscritos > 0 && (
+                                              <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#10b981' }}>
+                                                <TrendingUp size={10} />
+                                                +{reporte.snapshot.nuevos_inscritos} nuevos
+                                              </span>
+                                            )}
+                                          </>
+                                        )}
+
+                                        {/* Reporte Financiero */}
+                                        {reporte.id_tipo_reporte === 2 && (
+                                          <>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                              <DollarSign size={10} color="#10b981" />
+                                              <span style={{ fontWeight: 700, color: '#10b981' }}>${reporte.snapshot.monto_total || '0.00'}</span>
+                                            </span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                              <FileText size={10} color={themeColors.textSecondary} />
+                                              {reporte.snapshot.total_transacciones || 0} pagos
+                                            </span>
+                                          </>
+                                        )}
+
+                                        {/* Reporte Cursos */}
+                                        {reporte.id_tipo_reporte === 3 && (
+                                          <>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                              <BookOpen size={10} color={themeColors.textSecondary} />
+                                              <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_cursos || 0}</span> cursos
+                                            </span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                              <BarChart3 size={10} color={themeColors.textSecondary} />
+                                              {reporte.snapshot.promedio_ocupacion || '0'}% ocupación
+                                            </span>
+                                          </>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Controles de Paginación */}
+                        {(() => {
+                          const totalPaginasHistorial = Math.ceil(reportesFiltrados.length / ITEMS_POR_PAGINA_HISTORIAL);
+
+                          return reportesFiltrados.length > 0 && totalPaginasHistorial > 1 && (
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: isMobile ? 'column' : 'row',
+                              justifyContent: 'space-between',
+                              alignItems: isMobile ? 'stretch' : 'center',
+                              gap: isMobile ? '0.75rem' : '0',
+                              padding: isMobile ? '8px' : '0.25rem 1rem',
+                              background: themeColors.panelBg,
+                              border: `1px solid ${themeColors.panelBorder}`,
+                              borderRadius: '0.75rem',
+                              marginTop: '1rem'
+                            }}>
+                              <div style={{
+                                color: themeColors.textSecondary,
+                                fontSize: isMobile ? '0.75rem' : '0.8rem',
+                                textAlign: isMobile ? 'center' : 'left'
+                              }}>
+                                Página {paginaActualHistorial} de {totalPaginasHistorial}
+                              </div>
                               <div style={{
                                 display: 'flex',
-                                flexDirection: isMobile ? 'column' : 'row',
-                                gap: isMobile ? '8px' : '0.5rem',
-                                alignItems: isMobile ? 'stretch' : 'start'
+                                gap: '0.375rem',
+                                flexWrap: 'wrap',
+                                justifyContent: isMobile ? 'center' : 'flex-start'
                               }}>
-                                <div style={{
-                                  background: `${tipoColor}20`,
-                                  border: `2px solid ${tipoColor}`,
-                                  borderRadius: '0.5rem',
-                                  padding: isMobile ? '6px' : '0.5rem',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  alignSelf: isMobile ? 'center' : 'flex-start'
-                                }}>
-                                  {React.createElement(tipoIcono, { size: isMobile ? 16 : 18, color: tipoColor })}
-                                </div>
-
-                                <div style={{ flex: 1 }}>
-                                  <div style={{
+                                <button
+                                  onClick={() => setPaginaActualHistorial(prev => Math.max(1, prev - 1))}
+                                  disabled={paginaActualHistorial === 1}
+                                  style={{
                                     display: 'flex',
-                                    flexDirection: isMobile ? 'column' : 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: isMobile ? 'flex-start' : 'start',
-                                    marginBottom: '0.3rem',
-                                    gap: isMobile ? '4px' : '0'
-                                  }}>
-                                    <div>
-                                      <h4 style={{
-                                        color: themeColors.textPrimary,
-                                        fontSize: isMobile ? '0.8rem' : '0.85rem',
-                                        fontWeight: '600',
-                                        margin: '0 0 0.15rem 0',
-                                        wordBreak: 'break-word'
-                                      }}>
-                                        {reporte.nombre_reporte}
-                                      </h4>
-                                      <p style={{
-                                        color: themeColors.textMuted,
-                                        fontSize: isMobile ? '0.65rem' : '0.75rem',
-                                        margin: 0,
-                                        wordBreak: 'break-all'
-                                      }}>
-                                        {reporte.archivo_generado}
-                                      </p>
-                                    </div>
-                                    <span style={{
-                                      padding: '2px 0.5rem',
-                                      background: `${tipoColor}20`,
-                                      border: `1px solid ${tipoColor}`,
-                                      borderRadius: '0.25rem',
-                                      color: tipoColor,
-                                      fontSize: '0.65rem',
-                                      fontWeight: '600',
-                                      textTransform: 'uppercase'
-                                    }}>
-                                      {reporte.formato_generado}
-                                    </span>
-                                  </div>
-
-                                  <div style={{
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: isMobile ? '4px' : '0.25rem',
+                                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                                    background: paginaActualHistorial === 1
+                                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                                      : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                                    border: `1px solid ${paginaActualHistorial === 1
+                                      ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                                      : 'rgba(239, 68, 68, 0.3)'}`,
+                                    borderRadius: '0.625rem',
+                                    color: paginaActualHistorial === 1 ? themeColors.textMuted : '#ef4444',
+                                    fontSize: isMobile ? '0.75rem' : '0.8rem',
+                                    fontWeight: 600,
+                                    cursor: paginaActualHistorial === 1 ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    flex: isMobile ? '1' : 'initial',
+                                    boxShadow: 'none'
+                                  }}
+                                >
+                                  {!isMobile && 'Anterior'}
+                                </button>
+                                <button
+                                  onClick={() => setPaginaActualHistorial(prev => Math.min(totalPaginasHistorial, prev + 1))}
+                                  disabled={paginaActualHistorial === totalPaginasHistorial}
+                                  style={{
                                     display: 'flex',
-                                    flexDirection: isMobile ? 'column' : 'row',
-                                    gap: isMobile ? '3px' : '0.75rem',
-                                    fontSize: isMobile ? '0.65rem' : '0.75rem',
-                                    color: themeColors.textMuted
-                                  }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                      <User size={isMobile ? 9 : 11} />
-                                      <span>{reporte.generado_por}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                      <Clock size={isMobile ? 9 : 11} />
-                                      <span>{new Date(reporte.fecha_generacion).toLocaleString('es-ES', {
-                                        day: '2-digit',
-                                        month: 'short',
-                                        year: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                      })}</span>
-                                    </div>
-                                  </div>
-
-                                  {/* SNAPSHOT DATA DISPLAY */}
-                                  {hasSnapshotData && (
-                                    <div style={{
-                                      marginTop: '0.3rem',
-                                      padding: '0.4rem',
-                                      background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.03)',
-                                      borderRadius: '0.3rem',
-                                      fontSize: '0.65rem',
-                                      display: 'flex',
-                                      flexWrap: 'wrap',
-                                      gap: '0.5rem',
-                                      borderLeft: `2px solid ${tipoColor}`
-                                    }}>
-                                      {/* Reporte Estudiantes */}
-                                      {reporte.id_tipo_reporte === 1 && (
-                                        <>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                            <Users size={10} color={themeColors.textSecondary} />
-                                            <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_estudiantes || 0}</span> estudiantes
-                                          </span>
-                                          {reporte.snapshot.nuevos_inscritos > 0 && (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#10b981' }}>
-                                              <TrendingUp size={10} />
-                                              +{reporte.snapshot.nuevos_inscritos} nuevos
-                                            </span>
-                                          )}
-                                        </>
-                                      )}
-
-                                      {/* Reporte Financiero */}
-                                      {reporte.id_tipo_reporte === 2 && (
-                                        <>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                            <DollarSign size={10} color="#10b981" />
-                                            <span style={{ fontWeight: 700, color: '#10b981' }}>${reporte.snapshot.monto_total || '0.00'}</span>
-                                          </span>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                            <FileText size={10} color={themeColors.textSecondary} />
-                                            {reporte.snapshot.total_transacciones || 0} pagos
-                                          </span>
-                                        </>
-                                      )}
-
-                                      {/* Reporte Cursos */}
-                                      {reporte.id_tipo_reporte === 3 && (
-                                        <>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                            <BookOpen size={10} color={themeColors.textSecondary} />
-                                            <span style={{ fontWeight: 600, color: themeColors.textPrimary }}>{reporte.snapshot.total_cursos || 0}</span> cursos
-                                          </span>
-                                          <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                                            <BarChart3 size={10} color={themeColors.textSecondary} />
-                                            {reporte.snapshot.promedio_ocupacion || '0'}% ocupación
-                                          </span>
-                                        </>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: isMobile ? '4px' : '0.25rem',
+                                    padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
+                                    background: paginaActualHistorial === totalPaginasHistorial
+                                      ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
+                                      : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
+                                    border: `1px solid ${paginaActualHistorial === totalPaginasHistorial
+                                      ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
+                                      : 'rgba(239, 68, 68, 0.3)'}`,
+                                    borderRadius: '0.625rem',
+                                    color: paginaActualHistorial === totalPaginasHistorial ? themeColors.textMuted : '#ef4444',
+                                    fontSize: isMobile ? '0.75rem' : '0.8rem',
+                                    fontWeight: 600,
+                                    cursor: paginaActualHistorial === totalPaginasHistorial ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    flex: isMobile ? '1' : 'initial',
+                                    boxShadow: 'none'
+                                  }}
+                                >
+                                  {!isMobile && 'Siguiente'}
+                                </button>
                               </div>
                             </div>
                           );
-                        })}
-                      </div>
-
-                      {/* Controles de Paginación */}
-                      {(() => {
-                        const reportesFiltrados = historialReportes.filter(r =>
-                          filtroTipoHistorial === 'todos' || r.id_tipo_reporte === parseInt(filtroTipoHistorial)
-                        );
-                        const totalPaginasHistorial = Math.ceil(reportesFiltrados.length / ITEMS_POR_PAGINA_HISTORIAL);
-
-                        return totalPaginasHistorial > 1 && (
-                          <div style={{
-                            display: 'flex',
-                            flexDirection: isMobile ? 'column' : 'row',
-                            justifyContent: 'space-between',
-                            alignItems: isMobile ? 'stretch' : 'center',
-                            gap: isMobile ? '0.75rem' : '0',
-                            padding: isMobile ? '8px' : '0.25rem 1rem',
-                            background: themeColors.panelBg,
-                            border: `1px solid ${themeColors.panelBorder}`,
-                            borderRadius: '0.75rem',
-                            marginTop: '1rem'
-                          }}>
-                            <div style={{
-                              color: themeColors.textSecondary,
-                              fontSize: isMobile ? '0.75rem' : '0.8rem',
-                              textAlign: isMobile ? 'center' : 'left'
-                            }}>
-                              Página {paginaActualHistorial} de {totalPaginasHistorial}
-                            </div>
-                            <div style={{
-                              display: 'flex',
-                              gap: '0.375rem',
-                              flexWrap: 'wrap',
-                              justifyContent: isMobile ? 'center' : 'flex-start'
-                            }}>
-                              <button
-                                onClick={() => setPaginaActualHistorial(prev => Math.max(1, prev - 1))}
-                                disabled={paginaActualHistorial === 1}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: isMobile ? '4px' : '0.25rem',
-                                  padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
-                                  background: paginaActualHistorial === 1
-                                    ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                                    : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                                  border: `1px solid ${paginaActualHistorial === 1
-                                    ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
-                                    : 'rgba(239, 68, 68, 0.3)'}`,
-                                  borderRadius: '0.625rem',
-                                  color: paginaActualHistorial === 1 ? themeColors.textMuted : '#ef4444',
-                                  fontSize: isMobile ? '0.75rem' : '0.8rem',
-                                  fontWeight: 600,
-                                  cursor: paginaActualHistorial === 1 ? 'not-allowed' : 'pointer',
-                                  transition: 'all 0.2s ease',
-                                  flex: isMobile ? '1' : 'initial',
-                                  boxShadow: 'none'
-                                }}
-                              >
-                                {!isMobile && 'Anterior'}
-                              </button>
-                              <button
-                                onClick={() => setPaginaActualHistorial(prev => Math.min(totalPaginasHistorial, prev + 1))}
-                                disabled={paginaActualHistorial === totalPaginasHistorial}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: isMobile ? '4px' : '0.25rem',
-                                  padding: isMobile ? '6px 0.625rem' : '4px 0.75rem',
-                                  background: paginaActualHistorial === totalPaginasHistorial
-                                    ? (darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)')
-                                    : (darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)'),
-                                  border: `1px solid ${paginaActualHistorial === totalPaginasHistorial
-                                    ? (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)')
-                                    : 'rgba(239, 68, 68, 0.3)'}`,
-                                  borderRadius: '0.625rem',
-                                  color: paginaActualHistorial === totalPaginasHistorial ? themeColors.textMuted : '#ef4444',
-                                  fontSize: isMobile ? '0.75rem' : '0.8rem',
-                                  fontWeight: 600,
-                                  cursor: paginaActualHistorial === totalPaginasHistorial ? 'not-allowed' : 'pointer',
-                                  transition: 'all 0.2s ease',
-                                  flex: isMobile ? '1' : 'initial',
-                                  boxShadow: 'none'
-                                }}
-                              >
-                                {!isMobile && 'Siguiente'}
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </>
-                  );
-                })()
-              )}
+                        })()}
+                      </>
+                    );
+                  })()
+                )
+              })()}
             </div>
           )}
 

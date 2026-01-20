@@ -320,6 +320,14 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     return matchesSearch;
   });
 
+  const getEmptyMessage = () => {
+    if (searchTerm) return "No se encontraron asignaciones que coincidan con la búsqueda";
+    if (filtroEstado === 'activa') return "No hay asignaciones activas";
+    if (filtroEstado === 'inactiva') return "No hay asignaciones inactivas";
+    if (filtroEstado === 'cancelada') return "No hay asignaciones canceladas";
+    return "No hay asignaciones registradas";
+  };
+
   // Paginación
   const totalCount = asignacionesFiltradas.length;
   const totalPages = Math.ceil(totalCount / limit);
@@ -756,7 +764,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
           {asignacionesPaginadas.length === 0 ? (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '1.875rem 1.25rem', color: palette.emptyStateText }}>
               <MapPin size={isMobile ? 28 : 32} style={{ marginBottom: '0.625rem', opacity: 0.5 }} />
-              <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>{getEmptyMessage()}</div>
             </div>
           ) : (
             asignacionesPaginadas.map(asignacion => {
@@ -1099,32 +1107,36 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               }}
             />
 
-            {asignacionesPaginadas.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2.5rem 1.25rem', color: palette.emptyStateText }}>
-                <MapPin size={isMobile ? 28 : 32} style={{ marginBottom: '0.75rem', opacity: 0.5 }} />
-                <div style={{ fontSize: '0.95rem', fontWeight: '600' }}>No se encontraron asignaciones</div>
-              </div>
-            ) : (
-              <div className="responsive-table-container" style={{ overflowX: 'auto', position: 'relative', zIndex: 1 }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{
-                      background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                      borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
-                    }}>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
+            <div className="responsive-table-container" style={{ overflowX: 'auto', position: 'relative', zIndex: 1 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{
+                    background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
+                    borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
+                  }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {asignacionesPaginadas.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} style={{ padding: '40px 1.25rem', textAlign: 'center', color: palette.emptyStateText, fontSize: '0.85rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                          <MapPin size={isMobile ? 28 : 32} style={{ opacity: 0.5 }} />
+                          {getEmptyMessage()}
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {asignacionesPaginadas.map((asignacion) => (
+                  ) : (
+                    asignacionesPaginadas.map((asignacion) => (
                       <tr
                         key={asignacion.id_asignacion}
                         style={{
@@ -1287,17 +1299,16 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    )))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}
 
       {/* Paginación */}
-      {!loading && asignacionesFiltradas.length > 0 && (
+      {!loading && asignacionesFiltradas.length > 0 && totalPages > 0 && (
         <div className="pagination-container" style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',

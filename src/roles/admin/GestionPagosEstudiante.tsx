@@ -611,6 +611,17 @@ const GestionPagosEstudiante = () => {
     return estudiante.cursos.find(c => c.id_curso === idCurso) || estudiante.cursos[0];
   };
 
+  const getEmptyMessage = () => {
+    if (searchTerm) return 'No se encontraron registros que coincidan con la búsqueda';
+    switch (filtroEstado) {
+      case 'vencido': return 'No hay pagos vencidos';
+      case 'verificado': return 'No hay pagos verificados';
+      case 'pagado': return 'No hay pagos pendientes de verificación';
+      case 'pendiente': return 'No hay pagos pendientes de pago';
+      default: return 'No hay pagos registrados';
+    }
+  };
+
   if (loading) {
     return (
       <div style={{
@@ -1157,46 +1168,461 @@ const GestionPagosEstudiante = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedEstudiantes.map((estudiante) => {
-                  const cursoFiltrado = selectedCursoTab !== 'todos'
-                    ? estudiante.cursos.find(c => c.id_curso === selectedCursoTab)
-                    : null;
-                  const cursoActual = cursoFiltrado || getCursoSeleccionado(estudiante);
-                  if (!cursoActual) return null;
+                {paginatedEstudiantes.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} style={{ padding: '40px 1.25rem', textAlign: 'center', color: theme.textSecondary, fontSize: '0.85rem' }}>
+                      {getEmptyMessage()}
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedEstudiantes.map((estudiante) => {
+                    const cursoFiltrado = selectedCursoTab !== 'todos'
+                      ? estudiante.cursos.find(c => c.id_curso === selectedCursoTab)
+                      : null;
+                    const cursoActual = cursoFiltrado || getCursoSeleccionado(estudiante);
+                    if (!cursoActual) return null;
 
-                  const pago = getPagoSeleccionado(estudiante, cursoActual);
-                  if (!pago) return null;
+                    const pago = getPagoSeleccionado(estudiante, cursoActual);
+                    if (!pago) return null;
 
-                  const metodoPagoBadge = (() => {
-                    if (pago.metodo_pago === 'efectivo') {
-                      return { label: 'Efectivo', color: '#10b981', Icon: Wallet };
-                    }
-                    if (!pago.numero_comprobante) {
-                      return { label: 'En Espera', color: '#f59e0b', Icon: Hourglass };
-                    }
-                    return { label: 'Transferencia', color: '#3b82f6', Icon: Building2 };
-                  })();
+                    const metodoPagoBadge = (() => {
+                      if (pago.metodo_pago === 'efectivo') {
+                        return { label: 'Efectivo', color: '#10b981', Icon: Wallet };
+                      }
+                      if (!pago.numero_comprobante) {
+                        return { label: 'En Espera', color: '#f59e0b', Icon: Hourglass };
+                      }
+                      return { label: 'Transferencia', color: '#3b82f6', Icon: Building2 };
+                    })();
 
-                  const MetodoIcon = metodoPagoBadge.Icon;
-                  const cuotaKey = buildCuotaKey(estudiante.estudiante_cedula, cursoActual.id_curso);
+                    const MetodoIcon = metodoPagoBadge.Icon;
+                    const cuotaKey = buildCuotaKey(estudiante.estudiante_cedula, cursoActual.id_curso);
 
-                  return (
-                    <tr
-                      key={pago.id_pago}
-                      style={{
-                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 600, fontSize: '0.7rem', verticalAlign: 'middle' }}>
-                        {estudiante.estudiante_apellido}, {estudiante.estudiante_nombre}
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, fontSize: '0.65rem', verticalAlign: 'middle' }}>{estudiante.estudiante_cedula}</td>
-                      <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                    return (
+                      <tr
+                        key={pago.id_pago}
+                        style={{
+                          borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 600, fontSize: '0.7rem', verticalAlign: 'middle' }}>
+                          {estudiante.estudiante_apellido}, {estudiante.estudiante_nombre}
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, fontSize: '0.65rem', verticalAlign: 'middle' }}>{estudiante.estudiante_cedula}</td>
+                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                          {selectedCursoTab !== 'todos' ? (
+                            <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 500 }}>
+                              {cursoActual.curso_nombre}
+                            </div>
+                          ) : estudiante.cursos.length > 1 ? (
+                            <select
+                              value={selectedCurso[estudiante.estudiante_cedula] || cursoActual.id_curso}
+                              onChange={(e) => {
+                                const newIdCurso = Number(e.target.value);
+                                setSelectedCurso(prev => ({ ...prev, [estudiante.estudiante_cedula]: newIdCurso }));
+                                const nuevoCurso = estudiante.cursos.find(c => c.id_curso === newIdCurso);
+                                if (nuevoCurso && nuevoCurso.pagos.length > 0) {
+                                  const newKey = buildCuotaKey(estudiante.estudiante_cedula, nuevoCurso.id_curso);
+                                  setSelectedCuota(prev => {
+                                    if (prev[newKey]) return prev;
+                                    return { ...prev, [newKey]: nuevoCurso.pagos[0].id_pago };
+                                  });
+                                }
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '0.25rem 0.5rem',
+                                background: theme.inputBg,
+                                border: `1px solid ${theme.inputBorder}`,
+                                borderRadius: '0.375rem',
+                                color: theme.textPrimary,
+                                fontSize: '0.7rem',
+                                cursor: 'pointer',
+                                fontWeight: 500
+                              }}
+                            >
+                              {estudiante.cursos.map(curso => (
+                                <option
+                                  key={curso.id_curso}
+                                  value={curso.id_curso}
+                                  style={{
+                                    background: darkMode ? '#1a1a2e' : '#ffffff',
+                                    color: darkMode ? '#f8fafc' : '#0f172a'
+                                  }}
+                                >
+                                  {curso.curso_nombre}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 500 }}>{cursoActual.curso_nombre}</div>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <select
+                            value={selectedCuota[cuotaKey] ?? pago.id_pago}
+                            onChange={(e) => {
+                              setCuotaSeleccionada(estudiante.estudiante_cedula, cursoActual.id_curso, Number(e.target.value));
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.25rem 0.5rem',
+                              background: theme.inputBg,
+                              border: `1px solid ${theme.inputBorder}`,
+                              borderRadius: '0.375rem',
+                              color: theme.textPrimary,
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              fontWeight: 600
+                            }}
+                          >
+                            {cursoActual.pagos.map(p => (
+                              <option
+                                key={p.id_pago}
+                                value={p.id_pago}
+                                style={{
+                                  background: darkMode ? '#1a1a2e' : '#ffffff',
+                                  color: darkMode ? '#f8fafc' : '#0f172a'
+                                }}
+                              >
+                                {pago.modalidad_pago === 'clases' ? `Clase ${p.numero_cuota}` : `Cuota ${p.numero_cuota}`}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 700, fontSize: '0.7rem' }}>{formatearMonto(pago.monto)}</td>
+                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, fontSize: '0.65rem' }}>{formatearFecha(pago.fecha_vencimiento)}</td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            padding: '3px 0.5rem',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.65rem',
+                            fontWeight: 600,
+                            color: metodoPagoBadge.color,
+                            background: `${metodoPagoBadge.color}15`,
+                            border: `1px solid ${metodoPagoBadge.color}30`
+                          }}>
+                            <MetodoIcon size={11} />
+                            {metodoPagoBadge.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem' }}>
+                          <span style={{
+                            padding: '3px 0.625rem',
+                            borderRadius: '999px',
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
+                              pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
+                                pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
+                                  'rgba(156, 163, 175, 0.15)',
+                            border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.3)' :
+                              pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
+                                pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
+                                  '1px solid rgba(156, 163, 175, 0.3)',
+                            color: pago.estado === 'verificado' ? '#10b981' :
+                              pago.estado === 'pagado' ? '#fbbf24' :
+                                pago.estado === 'vencido' ? '#ef4444' :
+                                  '#9ca3af'
+                          }}>
+                            {pago.estado}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          {pago.numero_comprobante ? (
+                            <button
+                              onClick={() => openComprobanteModal(pago)}
+                              title="Ver comprobante"
+                              style={{
+                                padding: '0.25rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #10b981',
+                                backgroundColor: 'transparent',
+                                color: '#10b981',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#10b981';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#10b981';
+                              }}
+                            >
+                              <Download style={{ width: '0.85rem', height: '0.85rem' }} />
+                            </button>
+                          ) : (
+                            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontStyle: 'italic' }}>Sin comprobante</span>
+                          )}
+                        </td>
+                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center', alignItems: 'center' }}>
+                            <button
+                              onClick={() => {
+                                setSelectedPago(pago);
+                                setShowModal(true);
+                              }}
+                              title="Ver Detalles"
+                              style={{
+                                padding: '0.25rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #3b82f6',
+                                backgroundColor: 'transparent',
+                                color: '#3b82f6',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#3b82f6';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '#3b82f6';
+                              }}
+                            >
+                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
+                            </button>
+                            {pago.estado === 'pagado' && (
+                              <>
+                                <button
+                                  onClick={() => handleVerificarPago(pago)}
+                                  disabled={procesando}
+                                  title="Verificar Pago"
+                                  style={{
+                                    padding: '0.25rem',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid #10b981',
+                                    backgroundColor: 'transparent',
+                                    color: '#10b981',
+                                    cursor: procesando ? 'not-allowed' : 'pointer',
+                                    opacity: procesando ? 0.5 : 1,
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!procesando) {
+                                      e.currentTarget.style.backgroundColor = '#10b981';
+                                      e.currentTarget.style.color = 'white';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                    e.currentTarget.style.color = '#10b981';
+                                  }}
+                                >
+                                  <BadgeCheck style={{ width: '1rem', height: '1rem' }} />
+                                </button>
+                                <button
+                                  onClick={() => handleRechazarPago(pago)}
+                                  disabled={procesando}
+                                  title="Rechazar Pago"
+                                  style={{
+                                    padding: '0.375rem',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid #ef4444',
+                                    backgroundColor: 'transparent',
+                                    color: '#ef4444',
+                                    cursor: procesando ? 'not-allowed' : 'pointer',
+                                    opacity: procesando ? 0.5 : 1,
+                                    transition: 'all 0.2s'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!procesando) {
+                                      e.currentTarget.style.backgroundColor = '#ef4444';
+                                      e.currentTarget.style.color = 'white';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                    e.currentTarget.style.color = '#ef4444';
+                                  }}
+                                >
+                                  <ShieldX style={{ width: '1rem', height: '1rem' }} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.25rem' }}>
+          {paginatedEstudiantes.length === 0 ? (
+            <div style={{ padding: '40px 1.25rem', textAlign: 'center', color: theme.textSecondary, fontSize: '0.85rem' }}>
+              {getEmptyMessage()}
+            </div>
+          ) : (
+            paginatedEstudiantes.map((estudiante) => {
+              const cursoFiltrado = selectedCursoTab !== 'todos'
+                ? estudiante.cursos.find(c => c.id_curso === selectedCursoTab)
+                : null;
+              const cursoActual = cursoFiltrado || getCursoSeleccionado(estudiante);
+              if (!cursoActual) return null;
+
+              const pago = getPagoSeleccionado(estudiante, cursoActual);
+              if (!pago) return null;
+
+              const cuotaKey = buildCuotaKey(estudiante.estudiante_cedula, cursoActual.id_curso);
+              const cuotaSeleccionada = selectedCuota[cuotaKey] ?? pago.id_pago;
+
+              const metodoPagoBadge = (() => {
+                if (pago.metodo_pago === 'efectivo') {
+                  return {
+                    label: 'Efectivo',
+                    color: '#10b981',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    Icon: Wallet
+                  } as const;
+                }
+
+                if (!pago.numero_comprobante) {
+                  return {
+                    label: 'En Espera',
+                    color: '#f59e0b',
+                    background: 'rgba(245, 158, 11, 0.1)',
+                    border: '1px solid rgba(245, 158, 11, 0.3)',
+                    Icon: Hourglass
+                  } as const;
+                }
+
+                return {
+                  label: 'Transferencia',
+                  color: '#3b82f6',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  Icon: Building2
+                } as const;
+              })();
+
+              const MetodoIcon = metodoPagoBadge.Icon;
+
+              return (
+                <div
+                  key={pago.id_pago}
+                  style={{
+                    background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
+                    backdropFilter: 'blur(1.25rem)',
+                    border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+                    borderRadius: '0.5rem',
+                    padding: '0.35rem 0.5rem',
+                    boxShadow: '0 0.125rem 0.5rem rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.35rem'
+                  }}
+                >
+                  {/* Información Principal + Selectores Combinados */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.8fr',
+                    gap: '0.5rem',
+                    alignItems: 'start'
+                  }}>
+                    {/* Izquierda: Badges + Nombre + ID */}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.25rem' }}>
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.2rem',
+                              color: metodoPagoBadge.color,
+                              fontSize: '0.65rem',
+                              background: metodoPagoBadge.background,
+                              border: metodoPagoBadge.border,
+                              padding: '0.2rem 0.4rem',
+                              borderRadius: '0.35rem',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.01em'
+                            }}
+                          >
+                            <MetodoIcon size={12} color={metodoPagoBadge.color} />
+                            {metodoPagoBadge.label}
+                          </span>
+                          <span style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.2rem',
+                            padding: '0.2rem 0.4rem',
+                            borderRadius: '0.35rem',
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.1)' :
+                              pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.1)' :
+                                pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.1)' :
+                                  'rgba(156, 163, 175, 0.1)',
+                            border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.2)' :
+                              pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.2)' :
+                                pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.2)' :
+                                  '1px solid rgba(156, 163, 175, 0.2)',
+                            color: pago.estado === 'verificado' ? '#10b981' :
+                              pago.estado === 'pagado' ? '#fbbf24' :
+                                pago.estado === 'vencido' ? '#ef4444' :
+                                  '#9ca3af',
+                            letterSpacing: '0.025em'
+                          }}>
+                            {pago.estado}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h3 style={{
+                        color: theme.textPrimary,
+                        margin: '0 0 0.1rem 0',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {pago.estudiante_apellido}, {pago.estudiante_nombre}
+                      </h3>
+                      <div style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>
+                        ID: {estudiante.estudiante_cedula}
+                      </div>
+                    </div>
+
+                    {/* Derecha: Selectores de Curso, Cuota y Vencimiento Compactos */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.2fr 0.8fr 1fr',
+                      gap: '0.35rem',
+                      alignItems: 'end',
+                      background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
+                      padding: '0.25rem',
+                      borderRadius: '0.35rem'
+                    }}>
+                      {/* Curso */}
+                      <div>
+                        <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>CURSO</div>
                         {selectedCursoTab !== 'todos' ? (
-                          <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 500 }}>
+                          <div style={{
+                            color: theme.textPrimary,
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>
                             {cursoActual.curso_nombre}
                           </div>
                         ) : estudiante.cursos.length > 1 ? (
@@ -1216,14 +1642,15 @@ const GestionPagosEstudiante = () => {
                             }}
                             style={{
                               width: '100%',
-                              padding: '0.25rem 0.5rem',
+                              padding: '0.15rem 0.3rem',
                               background: theme.inputBg,
                               border: `1px solid ${theme.inputBorder}`,
-                              borderRadius: '0.375rem',
+                              borderRadius: '0.25rem',
                               color: theme.textPrimary,
                               fontSize: '0.7rem',
                               cursor: 'pointer',
-                              fontWeight: 500
+                              fontWeight: 700,
+                              lineHeight: 1.2
                             }}
                           >
                             {estudiante.cursos.map(curso => (
@@ -1240,25 +1667,29 @@ const GestionPagosEstudiante = () => {
                             ))}
                           </select>
                         ) : (
-                          <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 500 }}>{cursoActual.curso_nombre}</div>
+                          <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700 }}>{cursoActual.curso_nombre}</div>
                         )}
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
+                      </div>
+
+                      {/* Cuota */}
+                      <div>
+                        <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>{pago.modalidad_pago === 'clases' ? 'CLASE' : 'CUOTA'}</div>
                         <select
-                          value={selectedCuota[cuotaKey] ?? pago.id_pago}
+                          value={cuotaSeleccionada}
                           onChange={(e) => {
                             setCuotaSeleccionada(estudiante.estudiante_cedula, cursoActual.id_curso, Number(e.target.value));
                           }}
                           style={{
                             width: '100%',
-                            padding: '0.25rem 0.5rem',
+                            padding: '0.15rem 0.3rem',
                             background: theme.inputBg,
                             border: `1px solid ${theme.inputBorder}`,
-                            borderRadius: '0.375rem',
+                            borderRadius: '0.25rem',
                             color: theme.textPrimary,
-                            fontSize: '0.75rem',
+                            fontSize: '0.7rem',
                             cursor: 'pointer',
-                            fontWeight: 600
+                            fontWeight: 800,
+                            lineHeight: 1.2
                           }}
                         >
                           {cursoActual.pagos.map(p => (
@@ -1270,603 +1701,197 @@ const GestionPagosEstudiante = () => {
                                 color: darkMode ? '#f8fafc' : '#0f172a'
                               }}
                             >
-                              {pago.modalidad_pago === 'clases' ? `Clase ${p.numero_cuota}` : `Cuota ${p.numero_cuota}`}
+                              #{p.numero_cuota} - {formatearMonto(p.monto)}
                             </option>
                           ))}
                         </select>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 700, fontSize: '0.7rem' }}>{formatearMonto(pago.monto)}</td>
-                      <td style={{ padding: '0.25rem 0.5rem', color: theme.textSecondary, fontSize: '0.65rem' }}>{formatearFecha(pago.fecha_vencimiento)}</td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          padding: '3px 0.5rem',
-                          borderRadius: '0.375rem',
-                          fontSize: '0.65rem',
-                          fontWeight: 600,
-                          color: metodoPagoBadge.color,
-                          background: `${metodoPagoBadge.color}15`,
-                          border: `1px solid ${metodoPagoBadge.color}30`
-                        }}>
-                          <MetodoIcon size={11} />
-                          {metodoPagoBadge.label}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem' }}>
-                        <span style={{
-                          padding: '3px 0.625rem',
-                          borderRadius: '999px',
-                          fontSize: '0.65rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
-                            pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.15)' :
-                              pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.15)' :
-                                'rgba(156, 163, 175, 0.15)',
-                          border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.3)' :
-                            pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.3)' :
-                              pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.3)' :
-                                '1px solid rgba(156, 163, 175, 0.3)',
-                          color: pago.estado === 'verificado' ? '#10b981' :
-                            pago.estado === 'pagado' ? '#fbbf24' :
-                              pago.estado === 'vencido' ? '#ef4444' :
-                                '#9ca3af'
-                        }}>
-                          {pago.estado}
-                        </span>
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        {pago.numero_comprobante ? (
-                          <button
-                            onClick={() => openComprobanteModal(pago)}
-                            title="Ver comprobante"
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #10b981',
-                              backgroundColor: 'transparent',
-                              color: '#10b981',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#10b981';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#10b981';
-                            }}
-                          >
-                            <Download style={{ width: '0.85rem', height: '0.85rem' }} />
-                          </button>
-                        ) : (
-                          <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontStyle: 'italic' }}>Sin comprobante</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                        <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'center', alignItems: 'center' }}>
-                          <button
-                            onClick={() => {
-                              setSelectedPago(pago);
-                              setShowModal(true);
-                            }}
-                            title="Ver Detalles"
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #3b82f6',
-                              backgroundColor: 'transparent',
-                              color: '#3b82f6',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#3b82f6';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#3b82f6';
-                            }}
-                          >
-                            <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
-                          </button>
-                          {pago.estado === 'pagado' && (
-                            <>
-                              <button
-                                onClick={() => handleVerificarPago(pago)}
-                                disabled={procesando}
-                                title="Verificar Pago"
-                                style={{
-                                  padding: '0.25rem',
-                                  borderRadius: '0.5rem',
-                                  border: '1px solid #10b981',
-                                  backgroundColor: 'transparent',
-                                  color: '#10b981',
-                                  cursor: procesando ? 'not-allowed' : 'pointer',
-                                  opacity: procesando ? 0.5 : 1,
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!procesando) {
-                                    e.currentTarget.style.backgroundColor = '#10b981';
-                                    e.currentTarget.style.color = 'white';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'transparent';
-                                  e.currentTarget.style.color = '#10b981';
-                                }}
-                              >
-                                <BadgeCheck style={{ width: '1rem', height: '1rem' }} />
-                              </button>
-                              <button
-                                onClick={() => handleRechazarPago(pago)}
-                                disabled={procesando}
-                                title="Rechazar Pago"
-                                style={{
-                                  padding: '0.375rem',
-                                  borderRadius: '0.5rem',
-                                  border: '1px solid #ef4444',
-                                  backgroundColor: 'transparent',
-                                  color: '#ef4444',
-                                  cursor: procesando ? 'not-allowed' : 'pointer',
-                                  opacity: procesando ? 0.5 : 1,
-                                  transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!procesando) {
-                                    e.currentTarget.style.backgroundColor = '#ef4444';
-                                    e.currentTarget.style.color = 'white';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = 'transparent';
-                                  e.currentTarget.style.color = '#ef4444';
-                                }}
-                              >
-                                <ShieldX style={{ width: '1rem', height: '1rem' }} />
-                              </button>
-                            </>
-                          )}
+                      </div>
+
+                      {/* Vencimiento */}
+                      <div>
+                        <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>VENCE</div>
+                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          {formatearFecha(pago.fecha_vencimiento)}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.25rem' }}>
-          {paginatedEstudiantes.map((estudiante) => {
-            const cursoFiltrado = selectedCursoTab !== 'todos'
-              ? estudiante.cursos.find(c => c.id_curso === selectedCursoTab)
-              : null;
-            const cursoActual = cursoFiltrado || getCursoSeleccionado(estudiante);
-            if (!cursoActual) return null;
-
-            const pago = getPagoSeleccionado(estudiante, cursoActual);
-            if (!pago) return null;
-
-            const cuotaKey = buildCuotaKey(estudiante.estudiante_cedula, cursoActual.id_curso);
-            const cuotaSeleccionada = selectedCuota[cuotaKey] ?? pago.id_pago;
-
-            const metodoPagoBadge = (() => {
-              if (pago.metodo_pago === 'efectivo') {
-                return {
-                  label: 'Efectivo',
-                  color: '#10b981',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  Icon: Wallet
-                } as const;
-              }
-
-              if (!pago.numero_comprobante) {
-                return {
-                  label: 'En Espera',
-                  color: '#f59e0b',
-                  background: 'rgba(245, 158, 11, 0.1)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  Icon: Hourglass
-                } as const;
-              }
-
-              return {
-                label: 'Transferencia',
-                color: '#3b82f6',
-                background: 'rgba(59, 130, 246, 0.1)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                Icon: Building2
-              } as const;
-            })();
-
-            const MetodoIcon = metodoPagoBadge.Icon;
-
-            return (
-              <div
-                key={pago.id_pago}
-                style={{
-                  background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
-                  backdropFilter: 'blur(1.25rem)',
-                  border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
-                  borderRadius: '0.5rem',
-                  padding: '0.35rem 0.5rem',
-                  boxShadow: '0 0.125rem 0.5rem rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.35rem'
-                }}
-              >
-                {/* Información Principal + Selectores Combinados */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.8fr',
-                  gap: '0.5rem',
-                  alignItems: 'start'
-                }}>
-                  {/* Izquierda: Badges + Nombre + ID */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.25rem' }}>
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.2rem',
-                            color: metodoPagoBadge.color,
-                            fontSize: '0.65rem',
-                            background: metodoPagoBadge.background,
-                            border: metodoPagoBadge.border,
-                            padding: '0.2rem 0.4rem',
-                            borderRadius: '0.35rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.01em'
-                          }}
-                        >
-                          <MetodoIcon size={12} color={metodoPagoBadge.color} />
-                          {metodoPagoBadge.label}
-                        </span>
-                        <span style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.2rem',
-                          padding: '0.2rem 0.4rem',
-                          borderRadius: '0.35rem',
-                          fontSize: '0.65rem',
-                          fontWeight: 800,
-                          textTransform: 'uppercase',
-                          background: pago.estado === 'verificado' ? 'rgba(16, 185, 129, 0.1)' :
-                            pago.estado === 'pagado' ? 'rgba(251, 191, 36, 0.1)' :
-                              pago.estado === 'vencido' ? 'rgba(239, 68, 68, 0.1)' :
-                                'rgba(156, 163, 175, 0.1)',
-                          border: pago.estado === 'verificado' ? '1px solid rgba(16, 185, 129, 0.2)' :
-                            pago.estado === 'pagado' ? '1px solid rgba(251, 191, 36, 0.2)' :
-                              pago.estado === 'vencido' ? '1px solid rgba(239, 68, 68, 0.2)' :
-                                '1px solid rgba(156, 163, 175, 0.2)',
-                          color: pago.estado === 'verificado' ? '#10b981' :
-                            pago.estado === 'pagado' ? '#fbbf24' :
-                              pago.estado === 'vencido' ? '#ef4444' :
-                                '#9ca3af',
-                          letterSpacing: '0.025em'
-                        }}>
-                          {pago.estado}
-                        </span>
                       </div>
                     </div>
-
-                    <h3 style={{
-                      color: theme.textPrimary,
-                      margin: '0 0 0.1rem 0',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      letterSpacing: '-0.01em'
-                    }}>
-                      {pago.estudiante_apellido}, {pago.estudiante_nombre}
-                    </h3>
-                    <div style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>
-                      ID: {estudiante.estudiante_cedula}
-                    </div>
-                  </div>
-
-                  {/* Derecha: Selectores de Curso, Cuota y Vencimiento Compactos */}
+                  </div>    {/* Segunda fila - Número, Comprobante y Estado */}
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '1.2fr 0.8fr 1fr',
-                    gap: '0.35rem',
-                    alignItems: 'end',
-                    background: darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
-                    padding: '0.25rem',
-                    borderRadius: '0.35rem'
+                    gridTemplateColumns: isMobile ? '1fr' : (pago.metodo_pago === 'efectivo' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'),
+                    gap: '0.5rem',
+                    alignItems: 'end'
                   }}>
-                    {/* Curso */}
+                    {/* Número de comprobante */}
                     <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>CURSO</div>
-                      {selectedCursoTab !== 'todos' ? (
-                        <div style={{
-                          color: theme.textPrimary,
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}>
-                          {cursoActual.curso_nombre}
-                        </div>
-                      ) : estudiante.cursos.length > 1 ? (
-                        <select
-                          value={selectedCurso[estudiante.estudiante_cedula] || cursoActual.id_curso}
-                          onChange={(e) => {
-                            const newIdCurso = Number(e.target.value);
-                            setSelectedCurso(prev => ({ ...prev, [estudiante.estudiante_cedula]: newIdCurso }));
-                            const nuevoCurso = estudiante.cursos.find(c => c.id_curso === newIdCurso);
-                            if (nuevoCurso && nuevoCurso.pagos.length > 0) {
-                              const newKey = buildCuotaKey(estudiante.estudiante_cedula, nuevoCurso.id_curso);
-                              setSelectedCuota(prev => {
-                                if (prev[newKey]) return prev;
-                                return { ...prev, [newKey]: nuevoCurso.pagos[0].id_pago };
-                              });
-                            }
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '0.15rem 0.3rem',
-                            background: theme.inputBg,
-                            border: `1px solid ${theme.inputBorder}`,
-                            borderRadius: '0.25rem',
-                            color: theme.textPrimary,
-                            fontSize: '0.7rem',
-                            cursor: 'pointer',
-                            fontWeight: 700,
-                            lineHeight: 1.2
-                          }}
-                        >
-                          {estudiante.cursos.map(curso => (
-                            <option
-                              key={curso.id_curso}
-                              value={curso.id_curso}
-                              style={{
-                                background: darkMode ? '#1a1a2e' : '#ffffff',
-                                color: darkMode ? '#f8fafc' : '#0f172a'
-                              }}
-                            >
-                              {curso.curso_nombre}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700 }}>{cursoActual.curso_nombre}</div>
-                      )}
-                    </div>
-
-                    {/* Cuota */}
-                    <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>{pago.modalidad_pago === 'clases' ? 'CLASE' : 'CUOTA'}</div>
-                      <select
-                        value={cuotaSeleccionada}
-                        onChange={(e) => {
-                          setCuotaSeleccionada(estudiante.estudiante_cedula, cursoActual.id_curso, Number(e.target.value));
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '0.15rem 0.3rem',
-                          background: theme.inputBg,
-                          border: `1px solid ${theme.inputBorder}`,
-                          borderRadius: '0.25rem',
-                          color: theme.textPrimary,
-                          fontSize: '0.7rem',
-                          cursor: 'pointer',
-                          fontWeight: 800,
-                          lineHeight: 1.2
-                        }}
-                      >
-                        {cursoActual.pagos.map(p => (
-                          <option
-                            key={p.id_pago}
-                            value={p.id_pago}
-                            style={{
-                              background: darkMode ? '#1a1a2e' : '#ffffff',
-                              color: darkMode ? '#f8fafc' : '#0f172a'
-                            }}
-                          >
-                            #{p.numero_cuota} - {formatearMonto(p.monto)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Vencimiento */}
-                    <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.1rem', fontWeight: 600 }}>VENCE</div>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                        {formatearFecha(pago.fecha_vencimiento)}
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>
+                        Número Comprobante
                       </div>
-                    </div>
-                  </div>
-                </div>    {/* Segunda fila - Número, Comprobante y Estado */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: isMobile ? '1fr' : (pago.metodo_pago === 'efectivo' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)'),
-                  gap: '0.5rem',
-                  alignItems: 'end'
-                }}>
-                  {/* Número de comprobante */}
-                  <div>
-                    <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>
-                      Número Comprobante
-                    </div>
-                    <div style={{
-                      background: pago.numero_comprobante ? 'rgba(239, 68, 68, 0.05)' : 'rgba(107, 114, 128, 0.05)',
-                      border: pago.numero_comprobante ? '1px solid rgba(239, 68, 68, 0.1)' : '1px solid rgba(107, 114, 128, 0.1)',
-                      color: pago.numero_comprobante ? RedColorPalette.primary : 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
-                      padding: '0.2rem 0.4rem',
-                      borderRadius: '0.25rem',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      textAlign: 'center',
-                      textTransform: 'uppercase',
-                      fontStyle: pago.numero_comprobante ? 'normal' : 'italic'
-                    }}>
-                      {pago.numero_comprobante || 'N/A'}
-                    </div>
-                  </div>
-
-                  {/* Recibido por - Solo para efectivo */}
-                  {pago.metodo_pago === 'efectivo' && (
-                    <div>
-                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>Recibido por</div>
                       <div style={{
-                        background: 'rgba(180, 83, 9, 0.05)',
-                        border: '1px solid rgba(180, 83, 9, 0.1)',
-                        color: '#b45309',
+                        background: pago.numero_comprobante ? 'rgba(239, 68, 68, 0.05)' : 'rgba(107, 114, 128, 0.05)',
+                        border: pago.numero_comprobante ? '1px solid rgba(239, 68, 68, 0.1)' : '1px solid rgba(107, 114, 128, 0.1)',
+                        color: pago.numero_comprobante ? RedColorPalette.primary : 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
                         padding: '0.2rem 0.4rem',
                         borderRadius: '0.25rem',
                         fontSize: '0.7rem',
                         fontWeight: 700,
                         textAlign: 'center',
                         textTransform: 'uppercase',
-                        fontStyle: (pago as any).recibido_por ? 'normal' : 'italic'
+                        fontStyle: pago.numero_comprobante ? 'normal' : 'italic'
                       }}>
-                        {(pago as any).recibido_por || 'SECRETARIA'}
+                        {pago.numero_comprobante || 'N/A'}
                       </div>
                     </div>
-                  )}
 
-                  {/* Comprobante - Botón */}
-                  <div>
-                    <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>Recibo</div>
-                    {pago.numero_comprobante ? (
-                      <button
-                        onClick={() => openComprobanteModal(pago)}
-                        style={{
-                          background: 'rgba(16, 185, 129, 0.05)',
-                          border: '1px solid rgba(16, 185, 129, 0.15)',
-                          color: '#10b981',
-                          padding: '0.2rem 0.5rem',
+                    {/* Recibido por - Solo para efectivo */}
+                    {pago.metodo_pago === 'efectivo' && (
+                      <div>
+                        <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>Recibido por</div>
+                        <div style={{
+                          background: 'rgba(180, 83, 9, 0.05)',
+                          border: '1px solid rgba(180, 83, 9, 0.1)',
+                          color: '#b45309',
+                          padding: '0.2rem 0.4rem',
                           borderRadius: '0.25rem',
-                          cursor: 'pointer',
                           fontSize: '0.7rem',
                           fontWeight: 700,
+                          textAlign: 'center',
+                          textTransform: 'uppercase',
+                          fontStyle: (pago as any).recibido_por ? 'normal' : 'italic'
+                        }}>
+                          {(pago as any).recibido_por || 'SECRETARIA'}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Comprobante - Botón */}
+                    <div>
+                      <div style={{ color: theme.textMuted, fontSize: '0.65rem', marginBottom: '0.05rem', fontWeight: 500 }}>Recibo</div>
+                      {pago.numero_comprobante ? (
+                        <button
+                          onClick={() => openComprobanteModal(pago)}
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.05)',
+                            border: '1px solid rgba(16, 185, 129, 0.15)',
+                            color: '#10b981',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '0.25rem',
+                            cursor: 'pointer',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            width: '100%',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
+                        >
+                          <Download size={13} /> Ver Comprobante
+                        </button>
+                      ) : (
+                        <div style={{
+                          background: 'rgba(107, 114, 128, 0.05)',
+                          border: '1px solid rgba(107, 114, 128, 0.1)',
+                          color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
+                          padding: '0.2rem 0.4rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.7rem',
+                          fontWeight: 500,
+                          textAlign: 'center',
+                          fontStyle: 'italic',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.25rem',
-                          width: '100%',
                           justifyContent: 'center',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
-                      >
-                        <Download size={13} /> Ver Comprobante
-                      </button>
-                    ) : (
-                      <div style={{
-                        background: 'rgba(107, 114, 128, 0.05)',
-                        border: '1px solid rgba(107, 114, 128, 0.1)',
-                        color: 'var(--admin-text-secondary, rgba(255, 255, 255, 0.5))',
-                        padding: '0.2rem 0.4rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.7rem',
-                        fontWeight: 500,
-                        textAlign: 'center',
-                        fontStyle: 'italic',
+                          gap: '0.25rem'
+                        }}>
+                          <ImageOff size={13} /> Sin archivo
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Acciones */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '0.3rem',
+                    marginTop: '0'
+                  }}>
+                    <button
+                      onClick={() => {
+                        setSelectedPago(pago);
+                        setDetalleComprobanteError(false);
+                        setShowModal(true);
+                      }}
+                      style={{
+                        background: pick('rgba(59, 130, 246, 0.06)', 'rgba(59, 130, 246, 0.1)'),
+                        border: '1px solid rgba(59, 130, 246, 0.15)',
+                        color: '#3b82f6',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '0.35rem',
+                        cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.25rem'
-                      }}>
-                        <ImageOff size={13} /> Sin archivo
-                      </div>
+                        gap: '0.25rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <Eye size={13} /> Ver
+                    </button>
+                    {pago.numero_comprobante && pago.estado !== 'verificado' && (
+                      <>
+                        <button
+                          onClick={() => handleVerificarPago(pago)}
+                          disabled={procesando}
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.2)',
+                            color: '#10b981',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.35rem',
+                            cursor: procesando ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            opacity: procesando ? 0.6 : 1,
+                            fontSize: '0.7rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          <Check size={13} /> Aprobar
+                        </button>
+                        <button
+                          onClick={() => handleRechazarPago(pago)}
+                          disabled={procesando}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            color: RedColorPalette.primary,
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.35rem',
+                            cursor: procesando ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            opacity: procesando ? 0.6 : 1,
+                            fontSize: '0.7rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          <X size={13} /> Rechazar
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
-
-                {/* Acciones */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '0.3rem',
-                  marginTop: '0'
-                }}>
-                  <button
-                    onClick={() => {
-                      setSelectedPago(pago);
-                      setDetalleComprobanteError(false);
-                      setShowModal(true);
-                    }}
-                    style={{
-                      background: pick('rgba(59, 130, 246, 0.06)', 'rgba(59, 130, 246, 0.1)'),
-                      border: '1px solid rgba(59, 130, 246, 0.15)',
-                      color: '#3b82f6',
-                      padding: '0.25rem 0.5rem',
-                      borderRadius: '0.35rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      fontSize: '0.7rem',
-                      fontWeight: 700,
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <Eye size={13} /> Ver
-                  </button>
-                  {pago.numero_comprobante && pago.estado !== 'verificado' && (
-                    <>
-                      <button
-                        onClick={() => handleVerificarPago(pago)}
-                        disabled={procesando}
-                        style={{
-                          background: 'rgba(16, 185, 129, 0.1)',
-                          border: '1px solid rgba(16, 185, 129, 0.2)',
-                          color: '#10b981',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.35rem',
-                          cursor: procesando ? 'not-allowed' : 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          opacity: procesando ? 0.6 : 1,
-                          fontSize: '0.7rem',
-                          fontWeight: 700
-                        }}
-                      >
-                        <Check size={13} /> Aprobar
-                      </button>
-                      <button
-                        onClick={() => handleRechazarPago(pago)}
-                        disabled={procesando}
-                        style={{
-                          background: 'rgba(239, 68, 68, 0.1)',
-                          border: '1px solid rgba(239, 68, 68, 0.2)',
-                          color: RedColorPalette.primary,
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.35rem',
-                          cursor: procesando ? 'not-allowed' : 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          opacity: procesando ? 0.6 : 1,
-                          fontSize: '0.7rem',
-                          fontWeight: 700
-                        }}
-                      >
-                        <X size={13} /> Rechazar
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       )
       }
