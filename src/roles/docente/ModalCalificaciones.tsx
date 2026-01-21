@@ -61,36 +61,6 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
   cursoNombre,
   darkMode,
 }) => {
-  // Utilidad: convertir un SVG público a PNG dataURL para insertarlo en jsPDF
-  const loadSvgAsPngDataUrl = async (
-    url: string,
-    width = 64,
-    height = 64,
-  ): Promise<string | null> => {
-    try {
-      const res = await fetch(url);
-      const svgText = await res.text();
-      const svgBlob = new Blob([svgText], { type: "image/svg+xml" });
-      const img = new Image();
-      const objectUrl = URL.createObjectURL(svgBlob);
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = reject;
-        img.src = objectUrl;
-      });
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return null;
-      ctx.drawImage(img, 0, 0, width, height);
-      URL.revokeObjectURL(objectUrl);
-      return canvas.toDataURL("image/png");
-    } catch {
-      return null;
-    }
-  };
-
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [filteredEstudiantes, setFilteredEstudiantes] = useState<Estudiante[]>(
@@ -324,68 +294,6 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
     }
   };
 
-  const descargarPDF = async () => {
-    try {
-      setDownloadingPDF(true);
-
-      const { jsPDF }: any = await import("jspdf");
-      const autoTable = (await import("jspdf-autotable")).default as any;
-
-      const orientation = tareas.length > 6 ? "landscape" : "portrait";
-      const doc = new jsPDF({ orientation });
-
-      // Encabezado
-      doc.setFontSize(14);
-      doc.text("Calificaciones del Curso", 14, 14);
-      doc.setFontSize(11);
-      doc.text(String(cursoNombre || ""), 14, 22);
-
-      // Logo (opcional) desde /public/vite.svg
-      try {
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const logoDataUrl = await loadSvgAsPngDataUrl("/vite.svg", 24, 24);
-        if (logoDataUrl) {
-          doc.addImage(logoDataUrl, "PNG", pageWidth - 14 - 24, 10, 24, 24);
-        }
-      } catch { }
-
-      // Construir head y body
-      const head = [
-        [
-          "Estudiante",
-          ...tareas.map((t) => `${t.titulo} (/${t.nota_maxima})`),
-          "Promedio",
-        ],
-      ];
-      const body = estudiantes.map((est) => [
-        `${est.nombre} ${est.apellido}`,
-        ...tareas.map((t) => {
-          const v = est.calificaciones[t.id_tarea];
-          return v !== null && Number.isFinite(v)
-            ? (v as number).toFixed(1)
-            : "-";
-        }),
-        est.promedio.toFixed(1),
-      ]);
-
-      autoTable(doc, {
-        head,
-        body,
-        startY: 28,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [59, 130, 246], textColor: 255 },
-        alternateRowStyles: { fillColor: [245, 247, 250] },
-      });
-
-      doc.save(
-        `Calificaciones_${cursoNombre}_${new Date().toISOString().split("T")[0]}.pdf`,
-      );
-    } catch (error) {
-      console.error("Error al generar PDF:", error);
-    } finally {
-      setDownloadingPDF(false);
-    }
-  };
 
   const descargarExcel = async () => {
     try {
@@ -717,45 +625,6 @@ const ModalCalificaciones: React.FC<ModalCalificacionesProps> = ({
               {downloadingExcel ? "Generando..." : "Excel"}
             </button>
 
-            <button
-              onClick={descargarPDF}
-              disabled={downloadingPDF || loading}
-              style={{
-                background: downloadingPDF
-                  ? "rgba(59, 130, 246, 0.5)"
-                  : darkMode
-                    ? "rgba(59, 130, 246, 0.15)"
-                    : "rgba(59, 130, 246, 0.1)",
-                border: `1px solid ${downloadingPDF ? "rgba(59, 130, 246, 0.5)" : "rgba(59, 130, 246, 0.3)"}`,
-                borderRadius: "0.5rem",
-                padding: "0.5rem 0.75rem",
-                color: downloadingPDF ? "#fff" : "#3b82f6",
-                cursor: downloadingPDF || loading ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                transition: "all 0.2s ease",
-                fontSize: "0.875rem",
-                fontWeight: "600",
-              }}
-              onMouseEnter={(e) => {
-                if (!downloadingPDF && !loading) {
-                  e.currentTarget.style.background = darkMode
-                    ? "rgba(59, 130, 246, 0.25)"
-                    : "rgba(59, 130, 246, 0.15)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = downloadingPDF
-                  ? "rgba(59, 130, 246, 0.5)"
-                  : darkMode
-                    ? "rgba(59, 130, 246, 0.15)"
-                    : "rgba(59, 130, 246, 0.1)";
-              }}
-            >
-              <Download size={18} />
-              {downloadingPDF ? "Generando..." : "PDF"}
-            </button>
 
             <button
               onClick={onClose}

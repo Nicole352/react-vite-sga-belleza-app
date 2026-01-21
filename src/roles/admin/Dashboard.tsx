@@ -3,11 +3,13 @@ import {
   BookOpen, Award, TrendingUp,
   Target, PieChart, BarChart3,
   Activity, Shield, GraduationCap, Users, CheckCircle, Clock,
-  UserPlus, DollarSign, UserCheck
+  UserPlus, DollarSign, UserCheck, Star
 } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
 import LoadingModal from '../../components/LoadingModal';
+import AdminSectionHeader from '../../components/AdminSectionHeader';
+import { StyledSelect } from '../../components/StyledSelect';
 import '../../styles/responsive.css';
 
 const Dashboard = () => {
@@ -48,6 +50,10 @@ const Dashboard = () => {
   const [proximosVencimientos, setProximosVencimientos] = useState<Array<{ id_pago: number; numero_cuota: number; monto: number; fecha_vencimiento: string; dias_restantes: number; nombre_estudiante: string; nombre_curso: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [periodFilter, setPeriodFilter] = useState('month'); // 'today', 'week', 'month', 'year', 'all'
+  const [courseFilter, setCourseFilter] = useState('all'); // id_tipo_curso o 'all'
+  const [tiposCursos, setTiposCursos] = useState<Array<{ id_tipo_curso: number; nombre: string }>>([]);
+  const [ingresosTendencias, setIngresosTendencias] = useState<{ datos: Array<{ mes: string; valor: number }>; promedio: number; total: number; mes_mayor: { mes: string; valor: number } }>({ datos: [], promedio: 0, total: 0, mes_mayor: { mes: '', valor: 0 } });
   const API_BASE = (import.meta as any).env?.VITE_API_URL ? `${(import.meta as any).env.VITE_API_URL}/api` : 'http://localhost:3000/api';
 
   useEffect(() => {
@@ -100,15 +106,16 @@ const Dashboard = () => {
 
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [statsRes, matriculasRes, actividadRes, cursosTopRes, ingresosRes, estudiantesRes, pagosRes, vencimientosRes] = await Promise.all([
-        fetch(`${API_BASE}/users/admin-stats`, { headers }),
-        fetch(`${API_BASE}/dashboard/matriculas-por-mes`, { headers }),
-        fetch(`${API_BASE}/dashboard/actividad-reciente`, { headers }),
-        fetch(`${API_BASE}/dashboard/cursos-top-matriculas`, { headers }),
-        fetch(`${API_BASE}/dashboard/ingresos-mes-actual`, { headers }),
-        fetch(`${API_BASE}/dashboard/estadisticas-estudiantes`, { headers }),
-        fetch(`${API_BASE}/dashboard/pagos-pendientes-verificacion`, { headers }),
-        fetch(`${API_BASE}/dashboard/proximos-vencimientos`, { headers })
+      const [statsRes, matriculasRes, actividadRes, cursosTopRes, ingresosRes, estudiantesRes, pagosRes, vencimientosRes, tendenciasRes] = await Promise.all([
+        fetch(`${API_BASE}/users/admin-stats?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/matriculas-por-mes?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/actividad-reciente?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/cursos-top-matriculas?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/ingresos-mes-actual?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/estadisticas-estudiantes?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/pagos-pendientes-verificacion?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/proximos-vencimientos?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/ingresos-tendencias?period=${periodFilter}&course=${courseFilter}`, { headers })
       ]);
 
       if (statsRes.ok) {
@@ -149,6 +156,11 @@ const Dashboard = () => {
       if (vencimientosRes.ok) {
         const data = await vencimientosRes.json();
         setProximosVencimientos(data);
+      }
+
+      if (tendenciasRes.ok) {
+        const data = await tendenciasRes.json();
+        setIngresosTendencias(data);
       }
     } catch (error) {
       console.error('Error cargando datos del dashboard:', error);
@@ -201,6 +213,29 @@ const Dashboard = () => {
     return () => {
       isMounted = false;
     };
+  }, [periodFilter, courseFilter]); // Recargar cuando cambie cualquier filtro
+
+  // Cargar tipos de cursos al montar
+  useEffect(() => {
+    const loadTiposCursos = async () => {
+      try {
+        const token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token') || localStorage.getItem('auth_token') || localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE}/tipos-cursos`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTiposCursos(data);
+        }
+      } catch (error) {
+        console.error('Error cargando tipos de cursos:', error);
+      }
+    };
+
+    loadTiposCursos();
   }, []);
 
   const getIconComponent = (iconName: string) => {
@@ -212,6 +247,42 @@ const Dashboard = () => {
       UserCheck
     };
     return icons[iconName] || Activity;
+  };
+
+  // Helper para obtener el texto del período dinámicamente
+  const getPeriodLabel = () => {
+    switch (periodFilter) {
+      case 'today':
+        return 'de Hoy';
+      case 'week':
+        return 'de los Últimos 7 Días';
+      case 'month':
+        return 'del Mes';
+      case 'year':
+        return 'del Año';
+      case 'all':
+        return 'Total';
+      default:
+        return 'del Mes';
+    }
+  };
+
+  // Helper para obtener el texto de comparación dinámicamente
+  const getPeriodComparisonLabel = () => {
+    switch (periodFilter) {
+      case 'today':
+        return 'vs ayer';
+      case 'week':
+        return 'vs semana anterior';
+      case 'month':
+        return 'vs mes anterior';
+      case 'year':
+        return 'vs año anterior';
+      case 'all':
+        return 'histórico';
+      default:
+        return 'vs mes anterior';
+    }
   };
 
   const statTiles = [
@@ -272,12 +343,54 @@ const Dashboard = () => {
   ];
 
   return (
-    <div data-dark={darkMode ? 'true' : 'false'} style={{ background: theme.pageBg, padding: isMobile ? '0.5rem' : '1rem', borderRadius: '1rem' }}>
+    <div data-dark={darkMode ? 'true' : 'false'} style={{ background: theme.pageBg, padding: isMobile ? '0.5rem' : '0.75rem', borderRadius: '0.75rem' }}>
+      {/* Header con filtros */}
+      <AdminSectionHeader
+        title="Dashboard"
+        subtitle="Estadísticas generales del sistema"
+        marginBottom={isMobile ? '12px' : '0.75rem'}
+        rightSlot={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {/* Filtro de Período */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>Período:</span>
+              <StyledSelect
+                name="periodFilter"
+                value={periodFilter}
+                onChange={(e) => setPeriodFilter(e.target.value)}
+                options={[
+                  { value: 'today', label: 'Hoy' },
+                  { value: 'week', label: 'Últimos 7 días' },
+                  { value: 'month', label: 'Este mes' },
+                  { value: 'year', label: 'Este año' },
+                  { value: 'all', label: 'Todo' }
+                ]}
+                style={{ minWidth: '130px', fontSize: '0.7rem' }}
+              />
+            </div>
+
+            {/* Filtro de Curso */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>Curso:</span>
+              <StyledSelect
+                name="courseFilter"
+                value={courseFilter}
+                onChange={(e) => setCourseFilter(e.target.value)}
+                options={[
+                  { value: 'all', label: 'Todos' },
+                  ...tiposCursos.map(tc => ({ value: tc.id_tipo_curso.toString(), label: tc.nombre }))
+                ]}
+                style={{ minWidth: '140px', fontSize: '0.7rem' }}
+              />
+            </div>
+          </div>
+        }
+      />
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(15rem, 90vw), 1fr))',
-        gap: isMobile ? '0.75em' : '0.875em',
-        marginBottom: isMobile ? '1em' : '1.125em'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(10.5rem, 90vw), 1fr))',
+        gap: isMobile ? '0.5em' : '0.625em',
+        marginBottom: isMobile ? '0.75em' : '0.875em'
       }}>
         {statTiles.map(({ key, title, value, percentage, icon: Icon, iconColor, accentRgb }) => {
           const trendColor = percentage >= 0 ? '#22c55e' : '#ef4444';
@@ -288,42 +401,42 @@ const Dashboard = () => {
               style={{
                 background: theme.statCardBg,
                 border: `0.0625rem solid ${theme.statCardBorder}`,
-                borderRadius: '0.75em',
-                padding: '0.625em',
+                borderRadius: '0.625em',
+                padding: '0.35em',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 flexDirection: 'column',
                 boxShadow: darkMode ? '0 12px 24px rgba(0,0,0,0.25)' : '0 10px 20px rgba(239,68,68,0.08)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.2em' }}>
                 <div style={{
                   background: theme.statIconBg(accentRgb),
                   border: theme.statIconBorder(accentRgb),
-                  borderRadius: '0.5em',
-                  padding: '0.35em',
-                  width: isMobile ? '2.1rem' : '2.25rem',
-                  height: isMobile ? '2.1rem' : '2.25rem',
+                  borderRadius: '0.375em',
+                  padding: '0.25em',
+                  width: isMobile ? '1.5rem' : '1.625rem',
+                  height: isMobile ? '1.5rem' : '1.625rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0
                 }}>
-                  <Icon size={14} color={iconColor} strokeWidth={2.25} />
+                  <Icon size={12} color={iconColor} strokeWidth={2.25} />
                 </div>
-                <h3 style={{ color: theme.textPrimary, margin: 0, fontSize: '0.75rem', fontWeight: 600 }}>{title}</h3>
+                <h3 style={{ color: theme.textPrimary, margin: 0, fontSize: '0.65rem', fontWeight: 600 }}>{title}</h3>
               </div>
-              <p style={{ color: theme.valueText, fontSize: '1.5rem', fontWeight: '700', margin: '0 0 0.375em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
+              <p style={{ color: theme.valueText, fontSize: '1.15rem', fontWeight: '700', margin: '0 0 0.08em 0', lineHeight: '1', letterSpacing: '-0.02em' }}>
                 {loading ? '...' : value.toLocaleString()}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.2em' }}>
-                  <TrendingUp size={10} color={trendColor} strokeWidth={2} />
-                  <span style={{ color: trendColor, fontSize: '0.7rem', fontWeight: '700' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.15em' }}>
+                  <TrendingUp size={8} color={trendColor} strokeWidth={2} />
+                  <span style={{ color: trendColor, fontSize: '0.6rem', fontWeight: '700' }}>
                     {formattedPercentage}
                   </span>
                 </div>
-                <span style={{ color: theme.textMuted, fontSize: '0.7rem', fontWeight: '500' }}>vs mes anterior</span>
+                <span style={{ color: theme.textMuted, fontSize: '0.625rem', fontWeight: '500' }}>vs mes anterior</span>
               </div>
             </div>
           );
@@ -332,13 +445,13 @@ const Dashboard = () => {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(11.25rem, 90vw), 1fr))',
-        gap: isMobile ? '0.625em' : '0.75em',
-        marginBottom: isMobile ? '1em' : '1.125em'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(min(10rem, 90vw), 1fr))',
+        gap: isMobile ? '0.5em' : '0.625em',
+        marginBottom: isMobile ? '0.75em' : '0.875em'
       }}>
         {[{
           key: 'aprobacion',
-          title: 'Tasa de Aprobación',
+          title: 'Tasa Aprobación',
           value: loading ? '...' : `${estadisticasEstudiantes.tasa_aprobacion}%`,
           subtitle: 'Global',
           icon: Target,
@@ -368,49 +481,49 @@ const Dashboard = () => {
                 ? `linear-gradient(135deg, rgba(${rgb},0.18), rgba(${rgb},0.08))`
                 : `linear-gradient(135deg, rgba(${rgb},0.12), rgba(${rgb},0.05))`,
               border: `0.0625rem solid rgba(${rgb}, ${darkMode ? 0.35 : 0.28})`,
-              borderRadius: '0.75em',
-              padding: '0.75em',
+              borderRadius: '0.625em',
+              padding: '0.625em',
               boxShadow: darkMode ? '0 14px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(148,163,184,0.16)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', marginBottom: '0.4em' }}>
-              <Icon size={isMobile ? 13 : 15} color={color} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.25em' }}>
+              <Icon size={isMobile ? 12 : 14} color={color} />
               <h4 style={{ color: theme.textPrimary, fontSize: '0.65em', fontWeight: 600, margin: 0 }}>{title}</h4>
             </div>
-            <p style={{ color, fontSize: '1.4em', fontWeight: '700', margin: 0 }}>{value}</p>
-            <p style={{ color: theme.textMuted, fontSize: '0.625em', margin: '0.25em 0 0 0' }}>{subtitle}</p>
+            <p style={{ color, fontSize: '1.25em', fontWeight: '700', margin: 0 }}>{value}</p>
+            <p style={{ color: theme.textMuted, fontSize: '0.6em', margin: '0.125em 0 0 0' }}>{subtitle}</p>
           </div>
         ))}
       </div>
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-        gap: isMobile ? '0.625em' : '0.75em',
-        marginBottom: isMobile ? '1em' : '1.125em'
+        gap: isMobile ? '0.5em' : '0.625em',
+        marginBottom: isMobile ? '0.75em' : '0.875em'
       }}>
-        {/* Ingresos del Mes */}
+        {/* Ingresos del Período */}
         <div style={{
           background: darkMode
             ? 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(34,197,94,0.08))'
             : 'linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.05))',
           border: `0.0625rem solid rgba(34,197,94, ${darkMode ? 0.35 : 0.28})`,
-          borderRadius: '0.75em',
-          padding: '0.75em',
+          borderRadius: '0.625em',
+          padding: '0.625em',
           boxShadow: darkMode ? '0 14px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(148,163,184,0.16)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', marginBottom: '0.4em' }}>
-            <DollarSign size={isMobile ? 13 : 15} color="#22c55e" />
-            <h4 style={{ color: theme.textPrimary, fontSize: '0.65em', fontWeight: 600, margin: 0 }}>Ingresos del Mes</h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.25em' }}>
+            <DollarSign size={isMobile ? 12 : 14} color="#22c55e" />
+            <h4 style={{ color: theme.textPrimary, fontSize: '0.65em', fontWeight: 600, margin: 0 }}>Ingresos {getPeriodLabel()}</h4>
           </div>
-          <p style={{ color: '#22c55e', fontSize: '1.4em', fontWeight: '700', margin: 0 }}>
-            ${loading ? '...' : ingresosMes.ingresos_mes_actual.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p style={{ color: '#22c55e', fontSize: '1.25em', fontWeight: '700', margin: 0 }}>
+            ${loading ? '...' : (ingresosTendencias?.total || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25em', marginTop: '0.25em' }}>
-            <TrendingUp size={10} color={ingresosMes.porcentaje_cambio >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
-            <span style={{ color: ingresosMes.porcentaje_cambio >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.625em', fontWeight: '700' }}>
+            <TrendingUp size={9} color={ingresosMes.porcentaje_cambio >= 0 ? '#22c55e' : '#ef4444'} strokeWidth={2} />
+            <span style={{ color: ingresosMes.porcentaje_cambio >= 0 ? '#22c55e' : '#ef4444', fontSize: '0.6em', fontWeight: '700' }}>
               {loading ? '...' : `${ingresosMes.porcentaje_cambio >= 0 ? '+' : ''}${ingresosMes.porcentaje_cambio}%`}
             </span>
-            <span style={{ color: theme.textMuted, fontSize: '0.625em', margin: 0 }}>vs mes anterior</span>
+            <span style={{ color: theme.textMuted, fontSize: '0.6em', margin: 0 }}>{getPeriodComparisonLabel()}</span>
           </div>
         </div>
         {/* Estudiantes Activos */}
@@ -419,22 +532,22 @@ const Dashboard = () => {
             ? 'linear-gradient(135deg, rgba(59,130,246,0.18), rgba(59,130,246,0.08))'
             : 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.05))',
           border: `0.0625rem solid rgba(59,130,246, ${darkMode ? 0.35 : 0.28})`,
-          borderRadius: '0.75em',
-          padding: '0.75em',
+          borderRadius: '0.625em',
+          padding: '0.625em',
           boxShadow: darkMode ? '0 14px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(148,163,184,0.16)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', marginBottom: '0.4em' }}>
-            <Users size={isMobile ? 13 : 15} color="#3b82f6" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.25em' }}>
+            <Users size={isMobile ? 12 : 14} color="#3b82f6" />
             <h4 style={{ color: theme.textPrimary, fontSize: '0.65em', fontWeight: 600, margin: 0 }}>Estudiantes Activos</h4>
           </div>
-          <p style={{ color: '#3b82f6', fontSize: '1.4em', fontWeight: '700', margin: 0 }}>
+          <p style={{ color: '#3b82f6', fontSize: '1.25em', fontWeight: '700', margin: 0 }}>
             {loading ? '...' : `${estadisticasEstudiantes.porcentaje_activos}%`}
           </p>
-          <div style={{ marginTop: '0.5em' }}>
-            <div style={{ width: '100%', height: '0.375em', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '0.375em', overflow: 'hidden' }}>
+          <div style={{ marginTop: '0.35em' }}>
+            <div style={{ width: '100%', height: '0.3em', background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', borderRadius: '0.3em', overflow: 'hidden' }}>
               <div style={{ width: `${estadisticasEstudiantes.porcentaje_activos}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #60a5fa)', transition: 'width 0.3s ease' }} />
             </div>
-            <p style={{ color: theme.textMuted, fontSize: '0.625em', margin: '0.25em 0 0 0' }}>
+            <p style={{ color: theme.textMuted, fontSize: '0.6em', margin: '0.15em 0 0 0' }}>
               {loading ? '...' : `${estadisticasEstudiantes.estudiantes_activos} de ${estadisticasEstudiantes.estudiantes_activos + estadisticasEstudiantes.estudiantes_inactivos} estudiantes`}
             </p>
           </div>
@@ -445,64 +558,64 @@ const Dashboard = () => {
             ? 'linear-gradient(135deg, rgba(139,92,246,0.18), rgba(139,92,246,0.08))'
             : 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.05))',
           border: `0.0625rem solid rgba(139,92,246, ${darkMode ? 0.35 : 0.28})`,
-          borderRadius: '0.75em',
-          padding: '0.75em',
+          borderRadius: '0.625em',
+          padding: '0.625em',
           boxShadow: darkMode ? '0 14px 28px rgba(0,0,0,0.3)' : '0 12px 24px rgba(148,163,184,0.16)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', marginBottom: '0.4em' }}>
-            <Award size={isMobile ? 13 : 15} color="#8b5cf6" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3em', marginBottom: '0.25em' }}>
+            <Award size={isMobile ? 12 : 14} color="#8b5cf6" />
             <h4 style={{ color: theme.textPrimary, fontSize: '0.65em', fontWeight: 600, margin: 0 }}>Tasa de Retención</h4>
           </div>
-          <p style={{ color: '#8b5cf6', fontSize: '1.4em', fontWeight: '700', margin: 0 }}>
+          <p style={{ color: '#8b5cf6', fontSize: '1.25em', fontWeight: '700', margin: 0 }}>
             {loading ? '...' : `${estadisticasEstudiantes.tasa_retencion}%`}
           </p>
-          <p style={{ color: theme.textMuted, fontSize: '0.625em', margin: '0.25em 0 0 0' }}>Estudiantes que completan</p>
+          <p style={{ color: theme.textMuted, fontSize: '0.6em', margin: '0.15em 0 0 0' }}>Estudiantes que completan</p>
         </div>
       </div>
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '0.6fr 1.4fr',
-        gap: isMobile ? '1em' : '1.125em',
-        marginBottom: isMobile ? '1em' : '1.125em'
+        gridTemplateColumns: isMobile ? '1fr' : '0.5fr 0.7fr 0.8fr',
+        gap: isMobile ? '0.75em' : '0.875em',
+        marginBottom: isMobile ? '0.75em' : '0.875em'
       }}>
         {/* Gráfico Circular - Pagos Pendientes */}
         <div style={{
           background: theme.containerBg,
           border: `0.0625rem solid ${theme.containerBorder}`,
-          borderRadius: '0.875em',
-          padding: '1.125em',
+          borderRadius: '0.75em',
+          padding: '0.875em',
           boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <h3 style={{ color: theme.textPrimary, marginBottom: '1em', fontSize: '0.875em', fontWeight: 600, textAlign: 'center' }}>
-            Pagos Pendientes Verificación
+          <h3 style={{ color: theme.textPrimary, marginBottom: '0.75em', fontSize: '0.8em', fontWeight: 600, textAlign: 'center' }}>
+            Pagos Pendientes Verificación {getPeriodLabel()}
           </h3>
 
           {/* Gráfico de Dona Circular */}
-          <div style={{ position: 'relative', width: '140px', height: '140px', marginBottom: '1em' }}>
-            <svg width="140" height="140" viewBox="0 0 140 140" style={{ transform: 'rotate(-90deg)' }}>
+          <div style={{ position: 'relative', width: '120px', height: '120px', marginBottom: '0.75em' }}>
+            <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: 'rotate(-90deg)' }}>
               {/* Círculo de fondo */}
               <circle
-                cx="70"
-                cy="70"
-                r="55"
+                cx="60"
+                cy="60"
+                r="50"
                 fill="none"
                 stroke={darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}
-                strokeWidth="18"
+                strokeWidth="14"
               />
               {/* Círculo de progreso */}
               <circle
-                cx="70"
-                cy="70"
-                r="55"
+                cx="60"
+                cy="60"
+                r="50"
                 fill="none"
                 stroke="url(#orangeGradient)"
-                strokeWidth="18"
-                strokeDasharray={`${Math.min((pagosPendientes.total_pendientes / 20) * 345, 345)} 345`}
+                strokeWidth="14"
+                strokeDasharray={`${Math.min((pagosPendientes.total_pendientes / 20) * 314, 314)} 314`}
                 strokeLinecap="round"
                 style={{ transition: 'stroke-dasharray 0.6s ease' }}
               />
@@ -521,10 +634,10 @@ const Dashboard = () => {
               transform: 'translate(-50%, -50%)',
               textAlign: 'center'
             }}>
-              <div style={{ color: '#fb923c', fontSize: '2.5em', fontWeight: '700', lineHeight: '1' }}>
+              <div style={{ color: '#fb923c', fontSize: '2em', fontWeight: '700', lineHeight: '1' }}>
                 {loading ? '...' : pagosPendientes.total_pendientes}
               </div>
-              <div style={{ color: theme.textMuted, fontSize: '0.65em', marginTop: '0.25em' }}>pagos</div>
+              <div style={{ color: theme.textMuted, fontSize: '0.6em', marginTop: '0.15em' }}>pagos</div>
             </div>
           </div>
 
@@ -533,23 +646,103 @@ const Dashboard = () => {
           </p>
         </div>
 
+        {/* Gráfico de Tendencias de Ingresos - Compacto */}
+        <div style={{
+          background: theme.containerBg,
+          border: `0.0625rem solid ${theme.containerBorder}`,
+          borderRadius: '0.75em',
+          padding: '0.875em',
+          boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(34,197,94,0.12)',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', marginBottom: '0.5em' }}>
+            <TrendingUp size={14} color="#22c55e" strokeWidth={2.5} />
+            <h3 style={{ color: theme.textPrimary, margin: 0, fontSize: '0.75em', fontWeight: 600 }}>
+              Tendencias {getPeriodLabel()}
+            </h3>
+          </div>
+
+          <div style={{ position: 'relative', height: '100px', marginBottom: '0.5em' }}>
+            <svg width="100%" height="100" viewBox="0 0 300 100" preserveAspectRatio="none">
+              {[0, 1, 2, 3].map(i => (
+                <line key={i} x1="0" y1={i * 25} x2="300" y2={i * 25} stroke={darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} strokeWidth="1" />
+              ))}
+
+              {ingresosTendencias.datos.length > 0 && (() => {
+                const maxValor = Math.max(...ingresosTendencias.datos.map(d => d.valor), 1);
+                const points = ingresosTendencias.datos.map((d, i) => {
+                  const x = (i / (ingresosTendencias.datos.length - 1)) * 300;
+                  const y = 100 - ((d.valor / maxValor) * 80);
+                  return `${x},${y}`;
+                }).join(' ');
+
+                return (
+                  <>
+                    <polygon points={`0,100 ${points} 300,100`} fill="url(#greenGradient)" opacity="0.2" />
+                    <polyline points={points} fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    {ingresosTendencias.datos.map((d, i) => {
+                      const x = (i / (ingresosTendencias.datos.length - 1)) * 300;
+                      const y = 100 - ((d.valor / maxValor) * 80);
+                      const isMax = d.mes === ingresosTendencias.mes_mayor.mes;
+                      return (
+                        <g key={i}>
+                          <circle cx={x} cy={y} r={isMax ? "4" : "2.5"} fill={isMax ? "#22c55e" : theme.containerBg} stroke="#22c55e" strokeWidth="1.5" />
+                          {isMax && <g transform={`translate(${x - 6}, ${y - 14})`}><Star size={12} fill="#22c55e" color="#22c55e" /></g>}
+                        </g>
+                      );
+                    })}
+                  </>
+                );
+              })()}
+
+              <defs>
+                <linearGradient id="greenGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#22c55e" />
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          {/* Estadísticas Resumidas */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5em' }}>
+            <div style={{
+              background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(34,197,94,0.06)',
+              borderRadius: '0.5em',
+              padding: '0.4em 0.75em'
+            }}>
+              <span style={{ fontSize: '0.65em', color: theme.textMuted, display: 'block', marginBottom: '0.1em' }}>Total</span>
+              <span style={{ fontSize: '0.9em', fontWeight: 700, color: '#22c55e', display: 'block' }}>
+                ${(ingresosTendencias?.total || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
+            </div>
+            <div style={{ padding: '0.4em', background: darkMode ? 'rgba(34,197,94,0.1)' : 'rgba(34,197,94,0.05)', borderRadius: '0.4em' }}>
+              <div style={{ color: theme.textMuted, fontSize: '0.6em' }}>Mejor</div>
+              <div style={{ color: '#22c55e', fontSize: '0.75em', fontWeight: '700' }}>
+                {loading ? '...' : ingresosTendencias.mes_mayor.mes}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Timeline - Próximos Vencimientos */}
         <div style={{
           background: theme.containerBg,
           border: `0.0625rem solid ${theme.containerBorder}`,
-          borderRadius: '0.875em',
-          padding: '1.125em',
+          borderRadius: '0.75em',
+          padding: '0.875em',
           boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)'
         }}>
-          <h3 style={{ color: theme.textPrimary, marginBottom: '1em', fontSize: '0.875em', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-            <Clock size={18} color="#ef4444" />
+          <h3 style={{ color: theme.textPrimary, marginBottom: '0.75em', fontSize: '0.8em', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+            <Clock size={16} color="#ef4444" />
             Próximos Vencimientos (7 días)
             {proximosVencimientos.length > 0 && (
               <span style={{
                 background: 'rgba(239,68,68,0.1)',
                 color: '#ef4444',
-                fontSize: '0.75em',
-                padding: '0.1em 0.6em',
+                fontSize: '0.7em',
+                padding: '0.1em 0.5em',
                 borderRadius: '1em',
                 marginLeft: 'auto'
               }}>
@@ -562,11 +755,11 @@ const Dashboard = () => {
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.75em',
-              maxHeight: '320px',
+              gap: '0.625em',
+              maxHeight: '280px',
               overflowY: 'auto',
               paddingRight: '0.5em',
-              paddingLeft: '1em'
+              paddingLeft: '0.75em'
             }}>
               {proximosVencimientos.map((venc, index) => {
                 const urgenciaColor = venc.dias_restantes <= 2 ? '#ef4444' : venc.dias_restantes <= 5 ? '#fb923c' : '#fbbf24';
@@ -575,17 +768,17 @@ const Dashboard = () => {
                 return (
                   <div key={index} style={{
                     position: 'relative',
-                    paddingLeft: '2em',
-                    paddingBottom: index < proximosVencimientos.length - 1 ? '0.75em' : '0',
+                    paddingLeft: '1.5em',
+                    paddingBottom: index < proximosVencimientos.length - 1 ? '0.625em' : '0',
                     borderLeft: index < proximosVencimientos.length - 1 ? `2px solid ${darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` : 'none'
                   }}>
                     {/* Punto del timeline */}
                     <div style={{
                       position: 'absolute',
-                      left: '-6px',
+                      left: '-5px',
                       top: '4px',
-                      width: '12px',
-                      height: '12px',
+                      width: '10px',
+                      height: '10px',
                       borderRadius: '50%',
                       background: urgenciaColor,
                       boxShadow: `0 0 0 3px ${darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.9)'}`,
@@ -596,25 +789,25 @@ const Dashboard = () => {
                     <div style={{
                       background: darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
                       borderRadius: '0.5em',
-                      padding: '0.75em',
+                      padding: '0.625em',
                       border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
                       borderLeft: `3px solid ${urgenciaColor}`
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5em' }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ color: theme.textPrimary, fontSize: '0.8em', fontWeight: '600', marginBottom: '0.25em' }}>
+                          <div style={{ color: theme.textPrimary, fontSize: '0.75em', fontWeight: '600', marginBottom: '0.2em' }}>
                             {venc.nombre_estudiante}
                           </div>
-                          <div style={{ color: theme.textSecondary, fontSize: '0.7em' }}>
+                          <div style={{ color: theme.textSecondary, fontSize: '0.65em' }}>
                             {venc.nombre_curso}
                           </div>
                         </div>
                         <div style={{
                           background: `${urgenciaColor}20`,
                           color: urgenciaColor,
-                          fontSize: '0.65em',
+                          fontSize: '0.6em',
                           fontWeight: '700',
-                          padding: '0.3em 0.6em',
+                          padding: '0.25em 0.5em',
                           borderRadius: '0.375em',
                           marginLeft: '0.5em',
                           whiteSpace: 'nowrap'
@@ -623,10 +816,10 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ color: theme.textMuted, fontSize: '0.7em' }}>
+                        <span style={{ color: theme.textMuted, fontSize: '0.65em' }}>
                           Cuota #{venc.numero_cuota}
                         </span>
-                        <span style={{ color: theme.textPrimary, fontSize: '0.8em', fontWeight: '600' }}>
+                        <span style={{ color: theme.textPrimary, fontSize: '0.75em', fontWeight: '600' }}>
                           ${venc.monto.toFixed(2)}
                         </span>
                       </div>
@@ -639,8 +832,8 @@ const Dashboard = () => {
             <div style={{
               textAlign: 'center',
               color: theme.emptyText,
-              padding: '3em 1em',
-              fontSize: '0.8em',
+              padding: '2em 1em',
+              fontSize: '0.75em',
               background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
               borderRadius: '0.5em'
             }}>
@@ -653,22 +846,22 @@ const Dashboard = () => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr',
-        gap: isMobile ? '1em' : '1.125em',
-        marginBottom: isMobile ? '1em' : '1.125em'
+        gap: isMobile ? '0.75em' : '0.875em',
+        marginBottom: isMobile ? '0.75em' : '0.875em'
       }}>
         {/* Gráfico de Matrículas */}
         <div style={{
           background: theme.containerBg,
           border: `0.0625rem solid ${theme.containerBorder}`,
-          borderRadius: '0.875em',
-          padding: '1.125em',
+          borderRadius: '0.75em',
+          padding: '0.875em',
           boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)'
         }}>
-          <h3 style={{ color: theme.textPrimary, marginBottom: '1em', display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-            <BarChart3 size={isMobile ? 17 : 19} color="#ef4444" />
+          <h3 style={{ color: theme.textPrimary, marginBottom: '0.75em', display: 'flex', alignItems: 'center', gap: '0.5em', fontSize: '0.8em', fontWeight: 600 }}>
+            <BarChart3 size={isMobile ? 15 : 17} color="#ef4444" />
             Matrículas por Mes (Últimos 6 meses)
           </h3>
-          <div style={{ display: 'flex', alignItems: 'end', gap: '0.75em', height: '10rem', padding: '0 0.75em' }}>
+          <div style={{ display: 'flex', alignItems: 'end', gap: '0.625em', height: '9rem', padding: '0 0.5em' }}>
             {matriculasPorMes.length > 0 ? matriculasPorMes.map((item, index) => (
               <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                 <div style={{
@@ -700,16 +893,17 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
         {/* Gráfico de Pastel - Cursos Top */}
         <div style={{
           background: theme.containerBg,
           border: `0.0625rem solid ${theme.containerBorder}`,
-          borderRadius: '0.875em',
-          padding: '1.125em',
+          borderRadius: '0.75em',
+          padding: '0.875em',
           boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)'
         }}>
-          <h3 style={{ color: theme.textPrimary, marginBottom: '1em', display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-            <PieChart size={isMobile ? 17 : 19} color="#ef4444" />
+          <h3 style={{ color: theme.textPrimary, marginBottom: '0.75em', display: 'flex', alignItems: 'center', gap: '0.5em', fontSize: '0.8em', fontWeight: 600 }}>
+            <PieChart size={isMobile ? 15 : 17} color="#ef4444" />
             Cursos con Más Matrículas
           </h3>
           {cursosTop.length > 0 ? (
@@ -745,70 +939,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div style={{
-        background: theme.containerBg,
-        border: `0.0625rem solid ${theme.containerBorder}`,
-        borderRadius: '0.875em',
-        padding: '1.125em',
-        boxShadow: darkMode ? '0 20px 40px rgba(0,0,0,0.35)' : '0 16px 32px rgba(239,68,68,0.12)'
-      }}>
-        <h3 style={{ color: theme.textPrimary, marginBottom: '1em', display: 'flex', alignItems: 'center', gap: '0.5em' }}>
-          <Activity size={isMobile ? 17 : 19} color="#ef4444" />
-          Actividad Reciente
-        </h3>
-
-        <div style={{ display: 'grid', gap: '0.75em' }}>
-          {actividadReciente.length > 0 ? actividadReciente.map((actividad, index) => {
-            const IconComponent = getIconComponent(actividad.icono);
-            const rgbColor = actividad.color === '#10b981'
-              ? '16, 185, 129'
-              : actividad.color === '#f59e0b'
-                ? '245, 158, 11'
-                : actividad.color === '#a855f7'
-                  ? '168, 85, 247'
-                  : actividad.color === '#3b82f6'
-                    ? '59, 130, 246'
-                    : '239, 68, 68';
-            return (
-              <div
-                key={index}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75em',
-                  padding: '0.75em',
-                  background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.85)',
-                  borderRadius: '0.625em',
-                  border: darkMode ? '0.0625rem solid rgba(255,255,255,0.05)' : '0.0625rem solid rgba(239,68,68,0.12)',
-                  boxShadow: darkMode ? '0 10px 20px rgba(0,0,0,0.25)' : '0 10px 20px rgba(148,163,184,0.18)'
-                }}
-              >
-                <div style={{
-                  background: darkMode ? `rgba(${rgbColor},0.22)` : `rgba(${rgbColor},0.12)`,
-                  borderRadius: '0.5em',
-                  padding: '0.5em',
-                  border: darkMode ? `1px solid rgba(${rgbColor},0.35)` : `1px solid rgba(${rgbColor},0.24)`
-                }}>
-                  <IconComponent size={isMobile ? 16 : 17} color={actividad.color} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: theme.textPrimary, fontSize: '0.75em', fontWeight: '500', margin: '0 0 0.1875em 0' }}>
-                    {actividad.texto}
-                  </p>
-                  <p style={{ color: theme.textMuted, fontSize: '0.65em', margin: 0 }}>
-                    {actividad.tiempo}
-                  </p>
-                </div>
-              </div>
-            );
-          }) : (
-            <div style={{ textAlign: 'center', color: theme.emptyText, padding: '2em' }}>
-              No hay actividad reciente
-            </div>
-          )}
-        </div>
-      </div>
-
       <LoadingModal
         isOpen={showLoadingModal}
         message="Actualizando estadísticas..."
@@ -817,7 +947,7 @@ const Dashboard = () => {
         onComplete={() => setShowLoadingModal(false)}
         colorTheme="red"
       />
-    </div>
+    </div >
   );
 };
 
