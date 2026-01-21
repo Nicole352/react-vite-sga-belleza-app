@@ -76,8 +76,7 @@ const PanelAdministrativos = () => {
       if (response.ok) {
         const data = await response.json();
         // Handle both nombre/nombres and apellido/apellidos for compatibility
-        const nombres = data.nombres || data.nombre || '';
-        const apellidos = data.apellidos || data.apellido || '';
+
         setUserData(data);
       } else {
         console.error('Error en respuesta:', response.status);
@@ -137,14 +136,14 @@ const PanelAdministrativos = () => {
       };
     } else {
       return {
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
-        sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
-        contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
-        textPrimary: '#1e293b',
-        textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(239, 68, 68, 0.2)',
+        background: '#f8fafc',
+        sidebarBg: '#ffffff',
+        navbarBg: '#ffffff',
+        contentBg: '#ffffff',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        textMuted: '#64748b',
+        border: '#e2e8f0',
         accent: '#ef4444'
       };
     }
@@ -184,7 +183,7 @@ const PanelAdministrativos = () => {
           --admin-input-border: ${darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0,0,0,0.15)'};
           --admin-hover-bg: ${darkMode ? 'rgba(239, 68, 68, 0.08)' : 'rgba(0,0,0,0.05)'};
           --admin-modal-bg: ${darkMode ? 'rgba(10, 10, 10, 0.95)' : 'rgba(0,0,0,0.4)'};
-          --admin-card-bg: ${darkMode ? '#171717' : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'};
+          --admin-card-bg: ${darkMode ? '#171717' : '#ffffff'};
         }
         
         /* Estilos globales para componentes hijos */

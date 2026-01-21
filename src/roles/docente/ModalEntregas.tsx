@@ -342,7 +342,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
   const theme = {
     bg: 'rgba(0,0,0,0.75)',
-    modalBg: darkMode ? '#1a1a2e' : '#ffffff',
+    modalBg: darkMode ? '#171717' : '#ffffff',
     textPrimary: darkMode ? '#fff' : '#1e293b',
     textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(30,41,59,0.7)',
     textMuted: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(30,41,59,0.5)',
@@ -506,8 +506,8 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           margin: '0.5rem 1rem 0.4rem 1rem',
           padding: '0.5rem 0.75rem',
           borderRadius: '0.6rem',
-          background: darkMode ? 'rgba(59, 130, 246, 0.05)' : 'rgba(59, 130, 246, 0.03)',
-          border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)'}`,
+          background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.03)',
+          border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(59, 130, 246, 0.1)'}`,
           display: 'flex',
           alignItems: 'center',
           gap: '1.5rem',
@@ -521,7 +521,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           <div style={{ display: 'flex', gap: '1rem', flex: 1, flexWrap: 'wrap' }}>
             {/* Total */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(59, 130, 246, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Users size={12} color="#3b82f6" />
               </div>
               <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Total:</span>
@@ -530,7 +530,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
             {/* Pendientes */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(251, 191, 36, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(251, 191, 36, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Clock size={12} color="#fbbf24" />
               </div>
               <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Pendientes:</span>
@@ -539,7 +539,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
             {/* Calificadas */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(16, 185, 129, 0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FileCheck size={12} color="#10b981" />
               </div>
               <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Calificadas:</span>
@@ -548,7 +548,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
 
             {/* Completado */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <div style={{ width: '1.5rem', height: '1.5rem', background: 'rgba(16, 185, 129, 0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '1.5rem', height: '1.5rem', background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(16, 185, 129, 0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Award size={12} color="#10b981" />
               </div>
               <span style={{ color: theme.textSecondary, fontSize: '0.75rem', fontWeight: '600' }}>Completado:</span>
@@ -596,7 +596,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
               style={{
                 padding: '0.35rem 0.6rem',
                 background: filtro === 'todas'
-                  ? darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'
+                  ? darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.2)'
                   : 'transparent',
                 border: `1px solid ${filtro === 'todas' ? '#3b82f6' : theme.inputBorder}`,
                 borderRadius: '0.5rem',
@@ -818,7 +818,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                             width: '1.5rem',
                             height: '1.5rem',
                             borderRadius: '50%',
-                            background: darkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+                            background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.1)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1019,7 +1019,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
       <div
         style={{
           background: darkMode
-            ? 'rgba(15, 23, 42, 0.95)'
+            ? 'rgba(26, 26, 26, 0.95)'
             : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
@@ -1185,9 +1185,9 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
                 marginTop: '0.75em',
                 padding: '0.75em',
                 background: darkMode
-                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)'
+                  ? 'rgba(255, 255, 255, 0.03)'
                   : 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%)',
-                border: `1px solid ${darkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(59, 130, 246, 0.2)'}`,
                 borderRadius: '0.5em'
               }}>
                 <div style={{
@@ -1378,7 +1378,7 @@ const ModalEntregas: React.FC<ModalEntregasProps> = ({
           }}>
             <div style={{
               background: darkMode
-                ? 'rgba(15, 23, 42, 0.95)'
+                ? 'rgba(26, 26, 26, 0.95)'
                 : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',

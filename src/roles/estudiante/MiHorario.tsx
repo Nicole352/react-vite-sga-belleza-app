@@ -81,22 +81,22 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
         cardBg: 'rgba(255, 255, 255, 0.05)',
         textPrimary: '#fff',
         textSecondary: 'rgba(255,255,255,0.8)',
-        textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(251, 191, 36, 0.2)', // Dorado para estudiantes
-        accent: '#fbbf24', // Dorado principal para estudiantes
+        textMuted: 'rgba(255,255,255,0.6)',
+        border: 'rgba(255, 255, 255, 0.1)',
+        accent: '#fbbf24',
         success: '#10b981',
         warning: '#f59e0b'
       };
     } else {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
+        cardBg: '#ffffff',
         textPrimary: '#1e293b',
         textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(251, 191, 36, 0.2)', // Dorado para estudiantes
-        accent: '#fbbf24', // Dorado principal para estudiantes
-        success: '#059669',
-        warning: '#d97706'
+        textMuted: 'rgba(30,41,59,0.6)',
+        border: '#e2e8f0',
+        accent: '#f59e0b',
+        success: '#10b981',
+        warning: '#f59e0b'
       };
     }
   };
@@ -213,19 +213,20 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
               <div
                 key={dia}
                 style={{
-                  padding: '0.4rem 0.25rem',
-                  background: `linear-gradient(135deg, ${theme.accent}15, ${theme.accent}08)`,
-                  borderRadius: '0.375rem 0.375rem 0 0',
+                  padding: '0.75rem 0.25rem',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.02)' : '#fff',
+                  borderRadius: '0.5rem 0.5rem 0 0',
                   textAlign: 'center',
-                  borderBottom: 'none'
+                  borderBottom: `2px solid ${theme.border}`,
+                  transition: 'all 0.2s ease'
                 }}
               >
                 <div style={{
-                  color: theme.accent,
+                  color: theme.textPrimary,
                   fontSize: '0.7rem',
-                  fontWeight: '700',
+                  fontWeight: '800',
                   textTransform: 'uppercase',
-                  marginBottom: '2px'
+                  letterSpacing: '0.02em'
                 }}>
                   {isMobile ? diaAbreviado : dia}
                 </div>
@@ -239,12 +240,12 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
             gridTemplateColumns: '3rem repeat(7, 1fr)',
             gap: '1px',
             position: 'relative',
-            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+            background: darkMode ? 'rgba(255,255,255,0.02)' : '#f8fafc',
             borderRadius: '0.5rem',
             overflow: 'hidden'
           }}>
             {/* Columna de horas */}
-            <div style={{ background: theme.cardBg, paddingTop: '15px' }}>
+            <div style={{ background: darkMode ? 'transparent' : '#fff', paddingTop: '15px' }}>
               {horasDelDia.map(hora => (
                 <div
                   key={hora}
@@ -266,14 +267,14 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
             </div>
 
             {/* Columnas de días */}
-            {horariosPorDia.map(({ dia, clases }, diaIndex) => (
+            {horariosPorDia.map(({ dia, clases }) => (
               <div
                 key={dia}
                 style={{
                   position: 'relative',
-                  background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
-                  border: `0.0625rem solid ${theme.border}`,
-                  borderRadius: diaIndex === 0 ? '0 0 0 0.75em' : diaIndex === 6 ? '0 0 0.75em 0' : '0'
+                  background: darkMode ? 'transparent' : '#fff',
+                  borderRight: `1px solid ${theme.border}`,
+                  borderBottom: `1px solid ${theme.border}`
                 }}
               >
                 {/* Líneas de hora */}

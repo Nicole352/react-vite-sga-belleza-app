@@ -1360,15 +1360,15 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(30, 41, 59, 0.7)',
-        textPrimary: '#f8fafc',
-        textSecondary: '#cbd5e1',
-        textMuted: '#94a3b8',
-        border: 'rgba(255, 255, 255, 0.08)',
+        cardBg: 'rgba(26, 26, 26, 0.7)',
+        textPrimary: '#ffffff',
+        textSecondary: 'rgba(255, 255, 255, 0.8)',
+        textMuted: 'rgba(255, 255, 255, 0.6)',
+        border: 'rgba(255, 255, 255, 0.1)',
         accent: '#3b82f6',
-        success: '#34d399',
-        warning: '#fbbf24',
-        danger: '#f87171'
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444'
       };
     } else {
       return {
@@ -1542,7 +1542,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   flex: 1
                 }}>
                   <div style={{
-                    background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
                     padding: '0.25rem 0.4rem',
@@ -1558,7 +1558,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   </div>
 
                   <div style={{
-                    background: darkMode ? 'rgba(96, 165, 250, 0.08)' : 'rgba(96, 165, 250, 0.04)',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
                     padding: '0.25rem 0.4rem',
@@ -1574,7 +1574,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   </div>
 
                   <div style={{
-                    background: darkMode ? 'rgba(147, 197, 253, 0.08)' : 'rgba(147, 197, 253, 0.04)',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
                     padding: '0.25rem 0.4rem',
@@ -1590,7 +1590,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   </div>
 
                   <div style={{
-                    background: darkMode ? 'rgba(37, 99, 235, 0.08)' : 'rgba(37, 99, 235, 0.04)',
+                    background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
                     border: `1px solid ${theme.border}`,
                     borderRadius: '0.5rem',
                     padding: '0.25rem 0.4rem',

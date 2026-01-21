@@ -181,15 +181,15 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
       };
     } else {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
+        cardBg: '#ffffff',
         textPrimary: '#1e293b',
         textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(251, 191, 36, 0.2)',
+        textMuted: 'rgba(30,41,59,0.6)',
+        border: '#e2e8f0',
         accent: '#f59e0b',
-        success: '#059669',
-        warning: '#d97706',
-        danger: '#dc2626'
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444'
       };
     }
   };
@@ -257,76 +257,128 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
       </div>
 
       {/* Estadísticas rápidas Compactas */}
-      <div className="responsive-grid-4" style={{ gap: '0.5rem', marginBottom: '0.75rem' }}>
+      <div className="responsive-grid-4" style={{ gap: '0.65rem', marginBottom: '0.85rem' }}>
+        {/* Progreso */}
         <div style={{
-          background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-          border: `1px solid rgba(251, 191, 36, 0.4)`,
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Target size={14} color="#fbbf24" strokeWidth={2} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Progreso</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Target size={13} color="#fbbf24" strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Progreso</span>
           </div>
-          <span style={{ color: '#fbbf24', fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: '#fbbf24', fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {cursosMatriculados.length > 0
               ? Math.round(cursosMatriculados.reduce((acc, curso) => acc + (curso.progreso || 0), 0) / cursosMatriculados.length) || 0
               : 0}%
           </span>
         </div>
 
+        {/* Activos */}
         <div style={{
-          background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
-          border: '1px solid rgba(59, 130, 246, 0.4)',
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <BookOpen size={14} color="#3b82f6" strokeWidth={2} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Activos</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <BookOpen size={13} color="#3b82f6" strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Activos</span>
           </div>
-          <span style={{ color: '#3b82f6', fontSize: '1.25rem', fontWeight: '800' }}>{cursosMatriculados.length}</span>
+          <span style={{ color: '#3b82f6', fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>{cursosMatriculados.length}</span>
         </div>
 
+        {/* Promedio */}
         <div style={{
-          background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
-          border: '1px solid rgba(16, 185, 129, 0.4)',
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Star size={14} color="#10b981" strokeWidth={2} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Promedio</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Star size={13} color="#10b981" strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Promedio</span>
           </div>
-          <span style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: '#10b981', fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {cursosMatriculados.length > 0 && cursosMatriculados.some(curso => curso.calificacion !== undefined && curso.calificacion !== null) ?
               (cursosMatriculados.reduce((acc, curso) => acc + (Number(curso.calificacion) || 0), 0) / cursosMatriculados.length).toFixed(1) : '0.0'}
           </span>
         </div>
 
+        {/* Pendientes */}
         <div style={{
-          background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
-          border: '1px solid rgba(139, 92, 246, 0.4)',
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Award size={14} color="#8b5cf6" strokeWidth={2} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Pendientes</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Award size={13} color="#8b5cf6" strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Pendientes</span>
           </div>
-          <span style={{ color: '#8b5cf6', fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: '#8b5cf6', fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {cursosMatriculados.length > 0 ?
               cursosMatriculados.reduce((acc, curso) => acc + (curso.tareasPendientes || 0), 0) : 0}
           </span>
@@ -434,7 +486,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
                 onClick={() => navigate(`/panel/estudiante/curso/${curso.id_curso}`)}
                 style={{
                   padding: '0.6rem',
-                  background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                  background: darkMode ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
                   borderRadius: '0.625rem',
                   border: `0.0625rem solid ${theme.border}`,
                   transition: 'all 0.3s ease',
@@ -487,7 +539,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
                       flexDirection: 'column',
                       gap: '0.25rem',
                       padding: '0.35rem',
-                      background: darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.06)',
+                      background: darkMode ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
                       borderRadius: '0.375rem',
                       border: `0.0625rem solid ${theme.accent}25`
                     }}>
@@ -525,7 +577,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
                       flexDirection: 'column',
                       gap: '0.25rem',
                       padding: '0.35rem',
-                      background: darkMode ? 'rgba(245, 158, 11, 0.08)' : 'rgba(245, 158, 11, 0.06)',
+                      background: darkMode ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
                       borderRadius: '0.375rem',
                       border: `0.0625rem solid rgba(245, 158, 11, 0.25)`
                     }}>
@@ -563,7 +615,7 @@ const MiAula: React.FC<MiAulaProps> = ({ darkMode, onNavigate }) => {
                       flexDirection: 'column',
                       gap: '0.25rem',
                       padding: '0.35rem',
-                      background: darkMode ? 'rgba(217, 119, 6, 0.08)' : 'rgba(217, 119, 6, 0.06)',
+                      background: darkMode ? 'rgba(255, 255, 255, 0.03)' : '#ffffff',
                       borderRadius: '0.375rem',
                       border: `0.0625rem solid rgba(217, 119, 6, 0.25)`
                     }}>

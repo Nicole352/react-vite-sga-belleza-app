@@ -60,29 +60,29 @@ const PanelDashboardSuperAdmin = () => {
     };
   }, []);
 
-  // Tema EXACTO del admin
+  // Tema MÁS BLANCO y LIMPIO para coincidir con la app móvil
   const theme = useMemo(() => ({
     pageBg: darkMode
       ? 'linear-gradient(180deg, rgba(12,12,18,1) 0%, rgba(9,9,12,1) 100%)'
-      : 'linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,246,246,0.92) 100%)',
+      : '#f8fafc', // Fondo gris muy claro y limpio
     statCardBg: darkMode
       ? 'linear-gradient(135deg, rgba(20,20,28,0.92) 0%, rgba(30,30,38,0.92) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,244,244,0.92) 100%)',
-    statCardBorder: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.22)',
-    statIconBg: (rgb: string) => (darkMode ? `rgba(${rgb}, 0.24)` : `rgba(${rgb}, 0.16)`),
-    statIconBorder: (rgb: string) => (darkMode ? `1px solid rgba(${rgb}, 0.35)` : `1px solid rgba(${rgb}, 0.25)`),
-    textPrimary: darkMode ? 'rgba(255,255,255,0.92)' : '#1f2937',
-    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#4b5563',
-    textMuted: darkMode ? 'rgba(255,255,255,0.55)' : '#6b7280',
-    valueText: darkMode ? '#fff' : '#111827',
+      : '#ffffff', // Tarjeta blanca pura
+    statCardBorder: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(226, 232, 240, 1)', // Borde gris suave en light
+    statIconBg: (rgb: string) => (darkMode ? `rgba(${rgb}, 0.24)` : `rgba(${rgb}, 0.1)`), // Fondo de icono más sutil
+    statIconBorder: (rgb: string) => (darkMode ? `1px solid rgba(${rgb}, 0.35)` : `1px solid rgba(${rgb}, 0.15)`),
+    textPrimary: darkMode ? 'rgba(255,255,255,0.92)' : '#0f172a', // Texto casi negro
+    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#475569', // Gris azulado oscuro
+    textMuted: darkMode ? 'rgba(255,255,255,0.55)' : '#94a3b8',
+    valueText: darkMode ? '#fff' : '#1e293b',
     containerBg: darkMode
       ? 'linear-gradient(135deg, rgba(15,15,20,0.85) 0%, rgba(30,30,35,0.85) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,238,238,0.9) 100%)',
-    containerBorder: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.25)',
+      : '#ffffff', // Contenedor blanco puro
+    containerBorder: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(226, 232, 240, 1)', // Borde gris suave
     chartBarColor: darkMode ? 'linear-gradient(180deg, #ef4444, #dc2626)' : 'linear-gradient(180deg, #ef4444, #f87171)',
-    chartLabelColor: darkMode ? 'rgba(255,255,255,0.75)' : '#4b5563',
-    emptyText: darkMode ? 'rgba(255,255,255,0.5)' : '#6b7280',
-    terminalBg: darkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.03)',
+    chartLabelColor: darkMode ? 'rgba(255,255,255,0.75)' : '#64748b',
+    emptyText: darkMode ? 'rgba(255,255,255,0.5)' : '#94a3b8',
+    terminalBg: darkMode ? 'rgba(0,0,0,0.3)' : '#f8fafc',
     terminalText: darkMode ? '#22c55e' : '#059669'
   }), [darkMode]);
 

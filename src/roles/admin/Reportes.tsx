@@ -90,7 +90,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     panelBg: darkMode
       ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
       : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(241,245,249,0.98) 100%)',
-    panelBorder: darkMode ? 'rgba(239, 68, 68, 0.25)' : 'rgba(239, 68, 68, 0.14)',
+    panelBorder: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0',
     softCardBg: darkMode ? 'rgba(255,255,255,0.07)' : 'rgba(15,23,42,0.04)',
     softCardHover: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.08)',
     softCardBorder: darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.12)',
@@ -165,7 +165,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
     .metricas-scroll {
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
-      scrollbar-color: rgba(239, 68, 68, 0.5) rgba(255, 255, 255, 0.05);
+      scrollbar-color: rgba(148, 163, 184, 0.5) rgba(255, 255, 255, 0.05);
     }
     
     .metricas-scroll::-webkit-scrollbar {
@@ -176,11 +176,11 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
       border-radius: 0.625rem;
     }
     .metricas-scroll::-webkit-scrollbar-thumb {
-      background: rgba(239, 68, 68, 0.5);
+      background: rgba(148, 163, 184, 0.5);
       border-radius: 0.625rem;
     }
     .metricas-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(239, 68, 68, 0.7);
+      background: rgba(148, 163, 184, 0.7);
     }
     
     /* Forzar que las tarjetas no se envuelvan */
@@ -1312,12 +1312,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                   {/* Indicador de scroll en móvil */}
                   {isSmallScreen && (
                     <div style={{
-                      background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.08)',
-                      border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.18)',
+                      background: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f1f5f9',
+                      border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
                       borderRadius: '0.5rem',
                       padding: '0.5rem',
                       marginBottom: '0.75rem',
-                      color: '#ef4444',
+                      color: darkMode ? '#94a3b8' : '#64748b',
                       fontSize: '0.75rem',
                       textAlign: 'center',
                       display: 'flex',
@@ -1347,7 +1347,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             ? 'linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(10, 10, 10, 0.8) 100%)'
                             : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
                           backdropFilter: 'blur(12px)',
-                          border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)'}`,
+                          border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0'}`,
                           borderRadius: '0.5rem',
                           padding: '0.5rem',
                           transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -1368,7 +1368,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(239, 68, 68, 0.15)';
+                            e.currentTarget.style.borderColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0';
                             e.currentTarget.style.boxShadow = darkMode
                               ? '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
                               : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02)';
@@ -1493,14 +1493,10 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                     borderRadius: '2rem',
                                     fontSize: '0.575rem',
                                     fontWeight: '900',
-                                    background: curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.15)' :
-                                      curso.estado_academico === 'reprobado' ? 'rgba(239, 68, 68, 0.15)' :
-                                        'rgba(59, 130, 246, 0.15)',
-                                    color: curso.estado_academico === 'aprobado' ? '#10b981' :
-                                      curso.estado_academico === 'reprobado' ? '#ef4444' :
-                                        '#3b82f6',
+                                    background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                                    color: themeColors.textPrimary,
                                     letterSpacing: '0.025em',
-                                    border: `1px solid ${curso.estado_academico === 'aprobado' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                                    border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)'}`
                                   }}>
                                     {curso.estado_academico?.toUpperCase() || 'ACTIVO'}
                                   </div>
@@ -1882,13 +1878,14 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                               width: '40px',
                               height: '40px',
                               borderRadius: '50%',
-                              background: darkMode ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-                              color: darkMode ? '#fff' : '#2563eb',
+                              background: darkMode ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #fee2e2, #fecaca)',
+                              color: darkMode ? '#fff' : '#dc2626',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               fontWeight: '700',
-                              fontSize: '1rem'
+                              fontSize: '1rem',
+                              border: darkMode ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.2)'
                             }}>
                               {estudiante.nombre.charAt(0)}{estudiante.apellido.charAt(0)}
                             </div>
@@ -1915,14 +1912,14 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             width: isMobile ? '100%' : 'auto'
                           }}>                            <div>
                               <div style={{ fontSize: '0.65rem', color: themeColors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Pagado</div>
-                              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#10b981' }}>
+                              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: themeColors.textPrimary }}>
                                 ${estudiante.totalPagado.toFixed(2)}
                               </div>
                             </div>
                             {estudiante.totalPendiente > 0 && (
                               <div>
                                 <div style={{ fontSize: '0.65rem', color: themeColors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Pendiente</div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#f59e0b' }}>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '700', color: themeColors.textSecondary }}>
                                   ${estudiante.totalPendiente.toFixed(2)}
                                 </div>
                               </div>
@@ -1994,16 +1991,9 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                                         borderRadius: '9999px',
                                         fontSize: '0.75rem',
                                         fontWeight: '700',
-                                        background: pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.15)' :
-                                          pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.15)' :
-                                            'rgba(239, 68, 68, 0.15)',
-                                        color: pago.estado_pago === 'verificado' ? '#10b981' :
-                                          pago.estado_pago === 'pagado' ? '#3b82f6' :
-                                            '#ef4444',
-                                        border: `1px solid ${pago.estado_pago === 'verificado' ? 'rgba(16, 185, 129, 0.2)' :
-                                          pago.estado_pago === 'pagado' ? 'rgba(59, 130, 246, 0.2)' :
-                                            'rgba(239, 68, 68, 0.2)'
-                                          }`
+                                        background: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                                        color: themeColors.textPrimary,
+                                        border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)'}`
                                       }}>
                                         {pago.estado_pago?.toUpperCase()}
                                       </span>
@@ -2021,12 +2011,12 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                             {estudiante.totalPendiente > 0 && (
                               <div style={{
                                 padding: '0.75rem 1.25rem',
-                                background: darkMode ? 'rgba(245, 158, 11, 0.1)' : '#fffbeb',
-                                borderTop: darkMode ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid #fcd34d',
+                                background: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+                                borderTop: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.5rem',
-                                color: '#d97706',
+                                color: themeColors.textSecondary,
                                 fontSize: '0.8rem',
                                 fontWeight: '600'
                               }}>
@@ -2288,8 +2278,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
                   return cursosPaginados.map((curso, idx) => (
                     <div key={idx} style={{
-                      background: darkMode ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.08)',
-                      border: darkMode ? '1px solid rgba(16, 185, 129, 0.28)' : '1px solid rgba(16, 185, 129, 0.18)',
+                      background: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+                      border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
                       borderRadius: '0.625rem',
                       padding: '0.75rem'
                     }}>
@@ -2304,14 +2294,14 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                         <div style={{ color: themeColors.textPrimary, fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: '600' }}>
                           {curso.nombre_curso}
                         </div>
-                        <div style={{ color: '#10b981', fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: '700' }}>
+                        <div style={{ color: themeColors.textSecondary, fontSize: isMobile ? '0.75rem' : '0.8rem', fontWeight: '700' }}>
                           {curso.porcentaje_ocupacion}% ocupación
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                         <div style={{ flex: 1, background: darkMode ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.08)', borderRadius: '0.5rem', height: '0.5rem' }}>
                           <div style={{
-                            background: '#10b981',
+                            background: darkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)',
                             height: '100%',
                             borderRadius: '0.5rem',
                             width: `${curso.porcentaje_ocupacion}%`

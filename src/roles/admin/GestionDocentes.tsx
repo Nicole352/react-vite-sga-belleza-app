@@ -79,43 +79,43 @@ const GestionDocentes = () => {
 
   const theme = {
     background: pick(
-      'linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
+      '#f8fafc',
       'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
     ),
     textPrimary: pick('#0f172a', 'rgba(255,255,255,0.95)'),
-    textSecondary: pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.7)'),
-    textMuted: pick('rgba(100,116,139,0.65)', 'rgba(148,163,184,0.6)'),
-    surface: pick('rgba(255,255,255,0.9)', 'rgba(255,255,255,0.05)'),
-    surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
+    textSecondary: pick('#475569', 'rgba(226,232,240,0.7)'),
+    textMuted: pick('#64748b', 'rgba(148,163,184,0.6)'),
+    surface: pick('#ffffff', 'rgba(255,255,255,0.05)'),
+    surfaceBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
     contentBackground: pick(
       '#ffffff',
       '#1e293b'
     ),
     inputBg: pick('#ffffff', 'rgba(255,255,255,0.1)'),
     inputBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
-    inputIcon: pick('rgba(100,116,139,0.55)', 'rgba(255,255,255,0.5)'),
-    toggleBg: pick('rgba(248,250,252,0.95)', 'rgba(255,255,255,0.05)'),
-    toggleInactive: pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)'),
+    inputIcon: pick('#94a3b8', 'rgba(255,255,255,0.5)'),
+    toggleBg: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
+    toggleInactive: pick('#64748b', 'rgba(255,255,255,0.6)'),
     cardBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(246,248,252,0.94) 100%)',
+      '#ffffff',
       'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
     ),
-    cardBorder: pick('rgba(226,232,240,0.85)', 'rgba(239,68,68,0.2)'),
-    badgeBg: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)'),
-    badgeText: pick('rgba(71,85,105,0.78)', 'rgba(255,255,255,0.6)'),
-    divider: pick('rgba(226,232,240,0.68)', 'rgba(255,255,255,0.1)'),
-    tableWrapperBg: pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.05)'),
-    tableWrapperBorder: pick('rgba(226,232,240,0.65)', 'rgba(255,255,255,0.1)'),
-    tableHeaderBg: pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)'),
-    tableHeaderText: pick('#9f1239', '#ffffff'),
-    tableRowAlt: pick('rgba(15,23,42,0.035)', 'rgba(255,255,255,0.02)'),
-    tableText: pick('rgba(71,85,105,0.9)', 'rgba(255,255,255,0.8)'),
+    cardBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
+    badgeBg: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
+    badgeText: pick('#64748b', 'rgba(255,255,255,0.6)'),
+    divider: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
+    tableWrapperBg: pick('#ffffff', 'rgba(255,255,255,0.05)'),
+    tableWrapperBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
+    tableHeaderBg: pick('#f8fafc', 'rgba(248,250,252,0.05)'),
+    tableHeaderText: pick('#64748b', '#e2e8f0'),
+    tableRowAlt: pick('#f8fafc', 'rgba(255,255,255,0.02)'),
+    tableText: pick('#334155', 'rgba(255,255,255,0.8)'),
     buttonPrimaryBg: pick(RedColorPalette.primary, `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`),
     buttonPrimaryText: pick('#ffffff', '#fff'),
-    infoPanelBg: pick('rgba(59,130,246,0.1)', 'rgba(59,130,246,0.1)'),
-    infoPanelBorder: pick('rgba(59,130,246,0.2)', 'rgba(59,130,246,0.3)'),
-    neutralPanelBg: pick('rgba(255,255,255,0.82)', 'rgba(255,255,255,0.02)'),
-    chipBg: pick('rgba(15,23,42,0.05)', 'rgba(255,255,255,0.05)')
+    infoPanelBg: pick('#eff6ff', 'rgba(59,130,246,0.1)'),
+    infoPanelBorder: pick('#bfdbfe', 'rgba(59,130,246,0.3)'),
+    neutralPanelBg: pick('#f8fafc', 'rgba(255,255,255,0.02)'),
+    chipBg: pick('#f1f5f9', 'rgba(255,255,255,0.05)')
   };
 
   const selectOptionStyle: CSSProperties = {
@@ -139,13 +139,13 @@ const GestionDocentes = () => {
     descriptionColor: pick('rgba(71,85,105,0.75)', 'rgba(226,232,240,0.72)')
   };
   const autoUsernameStyles = {
-    background: pick('rgba(239,68,68,0.08)', 'rgba(239,68,68,0.2)'),
-    border: `1px solid ${pick('rgba(239,68,68,0.22)', 'rgba(239,68,68,0.32)')}`,
-    headingColor: pick('#b91c1c', '#fca5a5'),
-    iconColor: pick('#ef4444', '#fca5a5'),
-    badgeBackground: pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.28)'),
-    badgeBorder: `1px solid ${pick('rgba(239,68,68,0.22)', 'rgba(239,68,68,0.35)')}`,
-    badgeText: pick('#b91c1c', '#fca5a5'),
+    background: pick('rgba(59,130,246,0.08)', 'rgba(59,130,246,0.2)'),
+    border: `1px solid ${pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.32)')}`,
+    headingColor: pick('#1d4ed8', '#93c5fd'),
+    iconColor: pick('#3b82f6', '#93c5fd'),
+    badgeBackground: pick('rgba(59,130,246,0.12)', 'rgba(59,130,246,0.28)'),
+    badgeBorder: `1px solid ${pick('rgba(59,130,246,0.22)', 'rgba(59,130,246,0.35)')}`,
+    badgeText: pick('#1d4ed8', '#93c5fd'),
     helperText: pick('rgba(71,85,105,0.75)', 'rgba(226,232,240,0.7)')
   };
 
@@ -623,7 +623,7 @@ const GestionDocentes = () => {
           padding: '0.5rem',
           boxShadow: 'none',
           borderRadius: '0.375rem',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`
         }}
       >
         <div className="responsive-filters" style={{ gap: '0.75rem', alignItems: 'center' }}>
@@ -644,7 +644,7 @@ const GestionDocentes = () => {
                 width: '100%',
                 padding: '0 0.5rem 0 2rem',
                 background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
                 borderRadius: '0.5rem',
                 color: theme.textPrimary,
                 fontSize: '0.75rem',
@@ -811,7 +811,7 @@ const GestionDocentes = () => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = pick('0 0.75rem 1.75rem rgba(15,23,42,0.12)', '0 0.75rem 1.75rem rgba(239, 68, 68, 0.25)');
+                  e.currentTarget.style.boxShadow = pick('0 0.75rem 1.75rem rgba(15,23,42,0.12)', '0 0.75rem 1.75rem rgba(0, 0, 0, 0.4)');
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
@@ -1025,12 +1025,12 @@ const GestionDocentes = () => {
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(254,226,226,0.9)',
-              border: `1px solid ${darkMode ? 'rgba(248,113,113,0.4)' : 'rgba(248,113,113,0.35)'}`,
+              background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,0.95)',
+              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
               borderRadius: '0.5rem',
               padding: '8px 0.75rem',
               marginBottom: '0.75rem',
-              color: darkMode ? 'rgba(248,250,252,0.85)' : 'rgba(153,27,27,0.85)',
+              color: darkMode ? 'rgba(255,255,255,0.7)' : 'rgba(71,85,105,0.85)',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
@@ -1050,11 +1050,11 @@ const GestionDocentes = () => {
               : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
             borderRadius: '0.75rem',
             overflow: 'hidden',
-            border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+            border: `1px solid ${theme.tableWrapperBorder}`,
             marginBottom: '0.5rem',
             boxShadow: darkMode
               ? '0 8px 32px rgba(0,0,0,0.3)'
-              : '0 4px 20px rgba(239,68,68,0.08)',
+              : '0 4px 20px rgba(15,23,42,0.08)',
             position: 'relative'
           }}>
             {/* Marca de agua de scroll */}
@@ -1067,35 +1067,35 @@ const GestionDocentes = () => {
               pointerEvents: 'none',
               zIndex: 0
             }}>
-              <ArrowLeftRight size={120} strokeWidth={1.5} color={darkMode ? '#ffffff' : '#ef4444'} />
+              <ArrowLeftRight size={120} strokeWidth={1.5} color={darkMode ? '#ffffff' : theme.textSecondary} />
             </div>
 
             <div className="responsive-table-container" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{
-                    background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                    borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
+                    background: theme.tableHeaderBg,
+                    borderBottom: `1px solid ${theme.divider}`
                   }}>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Docente
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Identificación
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Usuario
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Título Profesional
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Estado
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Experiencia
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                       Acciones
                     </th>
                   </tr>
@@ -1117,7 +1117,7 @@ const GestionDocentes = () => {
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                          e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : '#f1f5f9';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'transparent';
@@ -1131,7 +1131,7 @@ const GestionDocentes = () => {
                               apellido={docente.apellidos}
                               size={2}
                               showBorder={true}
-                              borderColor={pick('rgba(148,163,184,0.35)', 'rgba(239, 68, 68, 0.3)')}
+                              borderColor={pick('rgba(148,163,184,0.35)', 'rgba(255, 255, 255, 0.15)')}
                             />
                             <div>
                               <div style={{ fontWeight: '600', color: theme.textPrimary, fontSize: '0.7rem' }}>
@@ -1410,7 +1410,7 @@ const GestionDocentes = () => {
             style={{
               position: 'relative',
               background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
+              border: `1px solid ${theme.surfaceBorder}`,
               borderRadius: '12px',
               width: isMobile ? '92vw' : '50rem',
               maxWidth: isMobile ? '92vw' : '50rem',
@@ -1433,7 +1433,7 @@ const GestionDocentes = () => {
               paddingBottom: '0.875rem',
               borderBottom: `1px solid ${theme.divider}`,
             }}>
-              <h3 style={{ margin: 0, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
+              <h3 style={{ margin: 0, color: theme.textPrimary, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', fontWeight: '600', letterSpacing: '-0.02em' }}>
                 <UserCheck size={20} />
                 {modalMode === 'view' ? 'Información del Docente' :
                   modalMode === 'create' ? 'Crear Nuevo Docente' : 'Editar Docente'}
@@ -1453,8 +1453,8 @@ const GestionDocentes = () => {
                   transition: 'all 0.2s ease',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = pick('rgba(252,165,165,0.35)', 'rgba(239,68,68,0.25)');
-                  e.currentTarget.style.borderColor = pick('rgba(248,113,113,0.3)', 'rgba(239,68,68,0.45)');
+                  e.currentTarget.style.background = pick('rgba(252,165,165,0.35)', 'rgba(255,255,255,0.08)');
+                  e.currentTarget.style.borderColor = pick('rgba(248,113,113,0.3)', 'rgba(255,255,255,0.15)');
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = theme.toggleBg;
@@ -2120,7 +2120,7 @@ const GestionDocentes = () => {
         message="Actualizando datos..."
         darkMode={darkMode}
         onComplete={() => setShowLoadingModal(false)}
-        colorTheme="red"
+        colorTheme="blue"
       />
 
       {/* Modal de Confirmación */}

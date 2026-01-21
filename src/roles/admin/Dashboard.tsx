@@ -2,8 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   BookOpen, Award, TrendingUp,
   Target, PieChart, BarChart3,
-  Activity, Shield, GraduationCap, Users, CheckCircle, Clock,
-  UserPlus, DollarSign, UserCheck, Star
+  UserCheck, Star, Shield, GraduationCap, Users, CheckCircle, Clock, DollarSign
 } from 'lucide-react';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { useSocket } from '../../hooks/useSocket';
@@ -34,7 +33,7 @@ const Dashboard = () => {
     porcentajeMatriculasPendientes: 0
   });
   const [matriculasPorMes, setMatriculasPorMes] = useState<Array<{ mes: string; valor: number; altura: string }>>([]);
-  const [actividadReciente, setActividadReciente] = useState<Array<{ texto: string; tiempo: string; icono: string; color: string }>>([]);
+
   const [cursosTop, setCursosTop] = useState<Array<{ nombre_curso: string; total_matriculas: number; color: string }>>([]);
   const [ingresosMes, setIngresosMes] = useState({ ingresos_mes_actual: 0, porcentaje_cambio: 0 });
   const [estadisticasEstudiantes, setEstadisticasEstudiantes] = useState({
@@ -73,25 +72,25 @@ const Dashboard = () => {
   const theme = useMemo(() => ({
     pageBg: darkMode
       ? 'linear-gradient(180deg, rgba(12,12,18,1) 0%, rgba(9,9,12,1) 100%)'
-      : 'linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,246,246,0.92) 100%)',
+      : '#f8fafc',
     statCardBg: darkMode
       ? 'linear-gradient(135deg, rgba(20,20,28,0.92) 0%, rgba(30,30,38,0.92) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,244,244,0.92) 100%)',
-    statCardBorder: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.22)',
-    statIconBg: (rgb: string) => (darkMode ? `rgba(${rgb}, 0.24)` : `rgba(${rgb}, 0.16)`),
-    statIconBorder: (rgb: string) => (darkMode ? `1px solid rgba(${rgb}, 0.35)` : `1px solid rgba(${rgb}, 0.25)`),
-    textPrimary: darkMode ? 'rgba(255,255,255,0.92)' : '#1f2937',
-    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#4b5563',
-    textMuted: darkMode ? 'rgba(255,255,255,0.55)' : '#6b7280',
-    valueText: darkMode ? '#fff' : '#111827',
+      : '#ffffff',
+    statCardBorder: darkMode ? 'rgba(239,68,68,0.18)' : '#e2e8f0',
+    statIconBg: (rgb: string) => (darkMode ? `rgba(${rgb}, 0.24)` : `rgba(${rgb}, 0.12)`),
+    statIconBorder: (rgb: string) => (darkMode ? `1px solid rgba(${rgb}, 0.35)` : `1px solid rgba(${rgb}, 0.2)`),
+    textPrimary: darkMode ? 'rgba(255,255,255,0.92)' : '#0f172a',
+    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#475569',
+    textMuted: darkMode ? 'rgba(255,255,255,0.55)' : '#64748b',
+    valueText: darkMode ? '#fff' : '#0f172a',
     containerBg: darkMode
       ? 'linear-gradient(135deg, rgba(15,15,20,0.85) 0%, rgba(30,30,35,0.85) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,238,238,0.9) 100%)',
-    containerBorder: darkMode ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.25)',
-    badgeBg: (color: string) => (darkMode ? `${color}25` : `${color}22`),
+      : '#ffffff',
+    containerBorder: darkMode ? 'rgba(239,68,68,0.18)' : '#e2e8f0',
+    badgeBg: (color: string) => (darkMode ? `${color}25` : `${color}15`),
     chartBarColor: darkMode ? 'linear-gradient(180deg, #ef4444, #dc2626)' : 'linear-gradient(180deg, #ef4444, #f87171)',
-    chartLabelColor: darkMode ? 'rgba(255,255,255,0.75)' : '#4b5563',
-    emptyText: darkMode ? 'rgba(255,255,255,0.5)' : '#6b7280',
+    chartLabelColor: darkMode ? 'rgba(255,255,255,0.75)' : '#64748b',
+    emptyText: darkMode ? 'rgba(255,255,255,0.5)' : '#94a3b8',
     overlayBg: darkMode ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.45)'
   }), [darkMode]);
 
@@ -106,14 +105,13 @@ const Dashboard = () => {
 
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [statsRes, matriculasRes, actividadRes, cursosTopRes, ingresosRes, estudiantesRes, pagosRes, vencimientosRes, tendenciasRes] = await Promise.all([
+      const [statsRes, matriculasRes, cursosTopRes, ingresosRes, estudiantesRes, pagosRes, vencimientosRes, tendenciasRes] = await Promise.all([
         fetch(`${API_BASE}/users/admin-stats?period=${periodFilter}&course=${courseFilter}`, { headers }),
         fetch(`${API_BASE}/dashboard/matriculas-por-mes?period=${periodFilter}&course=${courseFilter}`, { headers }),
-        fetch(`${API_BASE}/dashboard/actividad-reciente?period=${periodFilter}&course=${courseFilter}`, { headers }),
         fetch(`${API_BASE}/dashboard/cursos-top-matriculas?period=${periodFilter}&course=${courseFilter}`, { headers }),
         fetch(`${API_BASE}/dashboard/ingresos-mes-actual?period=${periodFilter}&course=${courseFilter}`, { headers }),
         fetch(`${API_BASE}/dashboard/estadisticas-estudiantes?period=${periodFilter}&course=${courseFilter}`, { headers }),
-        fetch(`${API_BASE}/dashboard/pagos-pendientes-verificacion?period=${periodFilter}&course=${courseFilter}`, { headers }),
+        fetch(`${API_BASE}/dashboard/pagos-pendientes-validacion?period=${periodFilter}&course=${courseFilter}`, { headers }),
         fetch(`${API_BASE}/dashboard/proximos-vencimientos?period=${periodFilter}&course=${courseFilter}`, { headers }),
         fetch(`${API_BASE}/dashboard/ingresos-tendencias?period=${periodFilter}&course=${courseFilter}`, { headers })
       ]);
@@ -128,10 +126,7 @@ const Dashboard = () => {
         setMatriculasPorMes(data);
       }
 
-      if (actividadRes.ok) {
-        const data = await actividadRes.json();
-        setActividadReciente(data);
-      }
+
 
       if (cursosTopRes.ok) {
         const data = await cursosTopRes.json();
@@ -237,17 +232,6 @@ const Dashboard = () => {
 
     loadTiposCursos();
   }, []);
-
-  const getIconComponent = (iconName: string) => {
-    const icons: Record<string, any> = {
-      UserPlus,
-      DollarSign,
-      Award,
-      BookOpen,
-      UserCheck
-    };
-    return icons[iconName] || Activity;
-  };
 
   // Helper para obtener el texto del período dinámicamente
   const getPeriodLabel = () => {

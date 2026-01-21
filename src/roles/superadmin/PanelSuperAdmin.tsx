@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart3,
-  FileText,
   Settings,
   Users,
   Shield,
@@ -90,15 +89,16 @@ const PanelSuperAdmin: React.FC = () => {
       };
     } else {
       return {
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
-        sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(220, 38, 38, 0.05))',
-        contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
-        textPrimary: '#1e293b',
-        textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(239, 68, 68, 0.2)',
-        accent: '#ef4444'
+        // Tema Light MÁS LIMPIO y BLANCO (Matching Mobile)
+        background: '#f1f5f9', // Slate-100: Fondo general suave
+        sidebarBg: '#ffffff', // Sidebar blanco puro
+        navbarBg: 'rgba(255, 255, 255, 0.9)', // Navbar blanco translúcido
+        contentBg: '#ffffff', // Contenido blanco puro
+        textPrimary: '#0f172a', // Slate-900
+        textSecondary: '#475569', // Slate-600
+        textMuted: '#94a3b8', // Slate-400
+        border: 'rgba(226, 232, 240, 1)', // Slate-200: Borde gris neutro
+        accent: '#ef4444' // Mantener rojo solo como acento
       };
     }
   };
@@ -455,7 +455,6 @@ const PanelSuperAdmin: React.FC = () => {
                 toggleDarkMode={toggleDarkMode}
                 theme={theme}
                 userData={userData}
-                onChangePassword={() => { }}
                 avatarColor="linear-gradient(135deg, #ef4444, #dc2626)"
               />
             </div>

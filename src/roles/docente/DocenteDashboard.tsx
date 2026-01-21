@@ -135,27 +135,27 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(30, 41, 59, 0.7)',
-        textPrimary: '#f8fafc',
-        textSecondary: '#cbd5e1',
-        textMuted: '#94a3b8',
-        border: 'rgba(255, 255, 255, 0.08)',
+        cardBg: 'rgba(26, 26, 26, 0.7)',
+        textPrimary: '#ffffff',
+        textSecondary: 'rgba(255, 255, 255, 0.8)',
+        textMuted: 'rgba(255, 255, 255, 0.6)',
+        border: 'rgba(255, 255, 255, 0.1)',
         accent: '#3b82f6',
-        success: '#34d399',
-        warning: '#fbbf24',
-        danger: '#f87171'
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444'
       };
     } else {
       return {
         cardBg: '#ffffff',
-        textPrimary: '#0f172a',
-        textSecondary: '#475569',
-        textMuted: '#64748b',
-        border: 'rgba(15, 23, 42, 0.08)',
-        accent: '#2563eb',
-        success: '#059669',
-        warning: '#d97706',
-        danger: '#dc2626'
+        textPrimary: '#1e293b',
+        textSecondary: 'rgba(30,41,59,0.8)',
+        textMuted: 'rgba(30,41,59,0.7)',
+        border: '#e2e8f0',
+        accent: '#3b82f6',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444'
       };
     }
   };
@@ -226,75 +226,127 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
       </div>
 
       {/* Estadísticas rápidas - 4 tarjetas */}
-      <div className="responsive-grid-4" style={{ gap: '0.5rem', marginBottom: '0.75rem' }}>
+      <div className="responsive-grid-4" style={{ gap: '0.65rem', marginBottom: '0.85rem' }}>
+        {/* Cursos Activos */}
         <div style={{
-          background: darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(59, 130, 246, 0.04)',
-          border: `1px solid ${theme.accent}20`,
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <BookOpen size={14} color={theme.accent} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Cursos Activos</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <BookOpen size={13} color={theme.accent} strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Cursos Activos</span>
           </div>
-          <span style={{ color: theme.accent, fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: theme.accent, fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {cursos.filter(c => (c.estado || 'activo') === 'activo').length}
           </span>
         </div>
 
+        {/* Total Estudiantes */}
         <div style={{
-          background: darkMode ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.04)',
-          border: `1px solid ${theme.success}20`,
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Users size={14} color={theme.success} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Total Estudiantes</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Users size={13} color={theme.success} strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total Estudiantes</span>
           </div>
-          <span style={{ color: theme.success, fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: theme.success, fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {totalEstudiantes}
           </span>
         </div>
 
+        {/* Ocupación */}
         <div style={{
-          background: darkMode ? 'rgba(251, 191, 36, 0.08)' : 'rgba(251, 191, 36, 0.04)',
-          border: `1px solid ${theme.warning}20`,
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Target size={14} color={theme.warning} />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Ocupación</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Target size={13} color={theme.warning} strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Ocupación</span>
           </div>
-          <span style={{ color: theme.warning, fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: theme.warning, fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {promedioOcupacion}%
           </span>
         </div>
 
+        {/* Capacidad Total */}
         <div style={{
-          background: darkMode ? 'rgba(139, 92, 246, 0.08)' : 'rgba(139, 92, 246, 0.04)',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
-          borderRadius: '0.625rem',
-          padding: '0.65rem 0.75rem',
+          background: theme.cardBg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: '0.75rem',
+          padding: '0.6rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.25rem'
+          gap: '0.2rem',
+          boxShadow: darkMode ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+          transition: 'all 0.3s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Award size={14} color="#8b5cf6" />
-            <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: '600' }}>Capacidad Total</span>
+            <div style={{
+              width: '1.4rem',
+              height: '1.4rem',
+              borderRadius: '0.4rem',
+              background: darkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Award size={13} color="#8b5cf6" strokeWidth={2.5} />
+            </div>
+            <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Capacidad Total</span>
           </div>
-          <span style={{ color: '#8b5cf6', fontSize: '1.25rem', fontWeight: '800' }}>
+          <span style={{ color: '#8b5cf6', fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
             {capacidadTotal}
           </span>
         </div>

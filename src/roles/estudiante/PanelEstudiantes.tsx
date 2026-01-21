@@ -141,24 +141,24 @@ const PanelEstudiantes = () => {
       return {
         background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
         sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1))',
+        navbarBg: darkMode ? '#262626' : '#ffffff',
         contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         textPrimary: '#fff',
         textSecondary: 'rgba(255,255,255,0.8)',
         textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(251, 191, 36, 0.2)',
+        border: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0',
         accent: '#fbbf24'
       };
     } else {
       return {
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
         sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.05))',
+        navbarBg: darkMode ? '#262626' : '#ffffff',
         contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
         textPrimary: '#1e293b',
         textSecondary: 'rgba(30,41,59,0.8)',
         textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(251, 191, 36, 0.2)',
+        border: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0',
         accent: '#fbbf24'
       };
     }

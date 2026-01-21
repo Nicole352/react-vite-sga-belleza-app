@@ -7,7 +7,7 @@ import {
 import { StyledSelect } from '../../components/StyledSelect';
 import GlassEffect from '../../components/GlassEffect';
 import UserAvatar from '../../components/UserAvatar';
-import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
+import { RedColorPalette } from '../../utils/colorMapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import LoadingModal from '../../components/LoadingModal';
 import AdminSectionHeader from '../../components/AdminSectionHeader';
@@ -82,7 +82,7 @@ const GestionEstudiantes = () => {
 
   const theme = {
     pageBackground: pick(
-      '#f1f5f9',
+      '#f8fafc',
       '#0f172a'
     ),
     contentBackground: pick(
@@ -90,8 +90,8 @@ const GestionEstudiantes = () => {
       '#1e293b'
     ),
     surface: pick('#ffffff', '#1e293b'),
-    surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
-    accentBorder: pick('rgba(239,68,68,0.15)', 'rgba(239,68,68,0.2)'),
+    surfaceBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
+    accentBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
     textPrimary: pick('#0f172a', '#f8fafc'),
     textSecondary: pick('#475569', '#cbd5e1'),
     textMuted: pick('#64748b', '#94a3b8'),
@@ -99,25 +99,25 @@ const GestionEstudiantes = () => {
     inputBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
     inputText: pick('#0f172a', '#f8fafc'),
     inputIcon: pick('#94a3b8', '#94a3b8'),
-    chipBg: pick('rgba(15,23,42,0.04)', 'rgba(255,255,255,0.06)'),
-    chipBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.1)'),
+    chipBg: pick('#f1f5f9', 'rgba(255,255,255,0.06)'),
+    chipBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
     toggleBg: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
     toggleMuted: pick('#64748b', '#94a3b8'),
-    cardShadow: pick('none', 'none'),
-    cardHoverShadow: pick('none', 'none'),
+    cardShadow: pick('0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)', 'none'),
+    cardHoverShadow: pick('0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)', 'none'),
     divider: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
     emptyStateText: pick('#94a3b8', '#94a3b8'),
     tableHeaderBg: pick('#f8fafc', 'rgba(255,255,255,0.03)'),
-    tableHeaderText: pick('#475569', '#94a3b8'),
-    tableCellText: pick('#1e293b', '#e2e8f0'),
-    tableRowBorder: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
-    tableActionBg: pick('rgba(59,130,246,0.08)', 'rgba(59,130,246,0.1)'),
-    tableActionBorder: pick('rgba(59,130,246,0.2)', 'rgba(59,130,246,0.2)'),
+    tableHeaderText: pick('#64748b', '#94a3b8'),
+    tableCellText: pick('#334155', '#e2e8f0'),
+    tableRowBorder: pick('#e2e8f0', 'rgba(255,255,255,0.05)'),
+    tableActionBg: pick('#eff6ff', 'rgba(59,130,246,0.1)'),
+    tableActionBorder: pick('#bfdbfe', 'rgba(59,130,246,0.2)'),
     tableActionText: pick('#2563eb', '#60a5fa'),
     paginationBackground: pick('#ffffff', '#1e293b'),
     paginationBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
-    paginationText: pick('#475569', '#94a3b8'),
-    paginationInactiveBg: pick('#f1f5f9', 'rgba(255,255,255,0.03)'),
+    paginationText: pick('#64748b', '#94a3b8'),
+    paginationInactiveBg: pick('#f8fafc', 'rgba(255,255,255,0.03)'),
     paginationInactiveText: pick('#94a3b8', '#64748b'),
     cardBackground: pick('#ffffff', '#1e293b')
   };
@@ -156,7 +156,7 @@ const GestionEstudiantes = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10); // 10 estudiantes por página
   const [totalCount, setTotalCount] = useState(0);
-  const [totalActivos, setTotalActivos] = useState(0);
+
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
 
   // Estado para confirmación de cambio de estado
@@ -229,8 +229,7 @@ const GestionEstudiantes = () => {
       const headerVal = response.headers.get('X-Total-Count');
       const totalHeader = headerVal !== null ? Number(headerVal) : NaN;
 
-      const activosHeader = response.headers.get('X-Total-Activos');
-      const totalActivosVal = activosHeader !== null ? Number(activosHeader) : 0;
+
 
       const computedTotal = Number.isFinite(totalHeader) && totalHeader >= 0
         ? totalHeader
@@ -238,7 +237,7 @@ const GestionEstudiantes = () => {
 
       setEstudiantes(Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : []));
       setTotalCount(computedTotal);
-      setTotalActivos(totalActivosVal);
+
 
       if (options?.successMessage) {
         showToast.success(options.successMessage, darkMode);
@@ -299,7 +298,7 @@ const GestionEstudiantes = () => {
   const modalAccent = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
   const modalAccentBg = pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.24)');
   const modalSectionBackground = pick('rgba(255,255,255,0.94)', 'rgba(12,19,33,0.85)');
-  const modalSectionBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.28)');
+  const modalSectionBorder = pick('rgba(239, 68, 68, 0.18)', 'rgba(255, 255, 255, 0.08)');
   const modalLabelColor = pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.75)');
   const modalValueColor = pick('#0f172a', '#f8fafc');
   const modalDivider = pick('rgba(148,163,184,0.22)', 'rgba(255,255,255,0.12)');
@@ -451,7 +450,7 @@ const GestionEstudiantes = () => {
           padding: '0.5rem',
           boxShadow: 'none',
           borderRadius: '0.375rem',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`
         }}
       >
         <div className="responsive-filters">
@@ -467,8 +466,8 @@ const GestionEstudiantes = () => {
                 style={{
                   width: '100%',
                   padding: '0 0.5rem 0 2rem',
-                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : '#ffffff',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
                   borderRadius: '0.5rem',
                   color: theme.inputText,
                   fontSize: '0.75rem',
@@ -620,7 +619,7 @@ const GestionEstudiantes = () => {
                   key={estudiante.id_usuario}
                   style={{
                     background: theme.cardBackground,
-                    border: `1px solid ${pick('rgba(148,163,184,0.22)', 'rgba(239, 68, 68, 0.2)')}`,
+                    border: `1px solid ${pick('rgba(148,163,184,0.22)', 'rgba(255, 255, 255, 0.08)')}`,
                     borderRadius: '0.75rem',
                     padding: '0.5rem',
                     transition: 'all 0.3s ease',
@@ -674,7 +673,7 @@ const GestionEstudiantes = () => {
                           apellido={estudiante.apellido}
                           size={1.8}
                           showBorder={true}
-                          borderColor={darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.18)'}
+                          borderColor={darkMode ? 'rgba(239, 68, 68, 0.3)' : '#cbd5e1'}
                           fotoUrl={estudiante.foto_perfil}
                         />
                         <div>
@@ -919,12 +918,12 @@ const GestionEstudiantes = () => {
             {/* Indicador de scroll en móvil */}
             {isSmallScreen && (
               <div style={{
-                background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
-                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
+                background: pick('#f1f5f9', 'rgba(255,255,255,0.05)'),
+                border: `1px solid ${pick('#cbd5e1', 'rgba(255,255,255,0.1)')}`,
                 borderRadius: '0.5rem',
                 padding: '8px 0.75rem',
                 marginBottom: '0.75rem',
-                color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
+                color: pick('#64748b', 'rgba(248,250,252,0.85)'),
                 fontSize: '0.75rem',
                 textAlign: 'center',
                 display: 'flex',
@@ -943,7 +942,7 @@ const GestionEstudiantes = () => {
               style={{
                 overflowX: 'auto',
                 borderRadius: isMobile ? '12px' : '0.75rem',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
                 background: darkMode
                   ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
                   : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
@@ -970,26 +969,26 @@ const GestionEstudiantes = () => {
               )}
               <table style={{ width: '100%', borderCollapse: 'collapse', position: 'relative', zIndex: 1 }}>
                 <thead style={{
-                  borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`,
-                  background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
+                  borderBottom: `1px solid ${theme.tableRowBorder}`,
+                  background: theme.tableHeaderBg
                 }}>
                   <tr>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
                       Estudiante
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
                       Identificación
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: theme.tableHeaderText, fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
                       Usuario
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
                       Estado
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
                       Registro
                     </th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: theme.tableHeaderText, fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>
                       Acciones
                     </th>
                   </tr>
@@ -1002,7 +1001,7 @@ const GestionEstudiantes = () => {
                       </td>
                     </tr>
                   ) : (
-                    estudiantesFiltrados.map((estudiante, index) => (
+                    estudiantesFiltrados.map((estudiante) => (
                       <tr
                         key={estudiante.id_usuario}
                         style={{
@@ -1010,7 +1009,7 @@ const GestionEstudiantes = () => {
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                          e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.04)' : '#f8fafc';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'transparent';
@@ -1636,8 +1635,8 @@ const GestionEstudiantes = () => {
                                   justifyContent: 'center',
                                   gap: '0.4rem',
                                   padding: isMobile ? '0.6rem 0.85rem' : '0.7rem 0.95rem',
-                                  background: 'rgba(239,68,68,0.12)',
-                                  border: '1px solid rgba(239,68,68,0.28)',
+                                  background: toggleGroupBg,
+                                  border: `1px solid ${modalSectionBorder}`,
                                   borderRadius: isMobile ? 9 : 11,
                                   color: modalAccent,
                                   fontSize: '0.8rem',
@@ -1646,7 +1645,7 @@ const GestionEstudiantes = () => {
                                   transition: 'all 0.2s ease'
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = 'rgba(239,68,68,0.18)';
+                                  e.currentTarget.style.background = modalAccentBg;
                                   e.currentTarget.style.transform = 'translateY(-1px)';
                                 }}
                                 onMouseLeave={(e) => {

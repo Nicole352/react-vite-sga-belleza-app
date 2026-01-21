@@ -73,43 +73,44 @@ const GestionTiposCurso: React.FC = () => {
   const pick = (light: string, dark: string) => (darkMode ? dark : light);
 
   // Color variables matching ControlUsuarios.tsx exactly
+  // Color variables matching ControlUsuarios.tsx clean white/slate theme
   const textPrimaryColor = pick('#0f172a', 'rgba(255,255,255,0.98)');
-  const textSecondaryColor = pick('rgba(71,85,105,0.85)', 'rgba(226,232,240,0.7)');
-  const textMutedColor = pick('rgba(100,116,139,0.7)', 'rgba(148,163,184,0.65)');
+  const textSecondaryColor = pick('#475569', 'rgba(226,232,240,0.7)');
+  const textMutedColor = pick('#64748b', 'rgba(148,163,184,0.65)');
 
-  const filterInputBg = pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.1)');
-  const filterInputBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.18)');
-  const filterIconColor = pick('rgba(100,116,139,0.6)', 'rgba(226,232,240,0.6)');
+  const filterInputBg = pick('#ffffff', 'rgba(255,255,255,0.1)');
+  const filterInputBorder = pick('#e2e8f0', 'rgba(255,255,255,0.18)');
+  const filterIconColor = pick('#94a3b8', 'rgba(226,232,240,0.6)');
 
   const tableContainerBg = pick(
-    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    '#ffffff',
     'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
   );
-  const tableBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.2)');
-  const tableHeaderBg = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)');
-  const tableHeaderBorder = pick('rgba(248,113,113,0.18)', 'rgba(248,113,113,0.3)');
-  const tableHeaderText = pick('#9f1239', '#ffffff');
-  const tableRowDivider = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
-  const tableRowHover = pick('rgba(248,113,113,0.1)', 'rgba(248,113,113,0.08)');
+  const tableBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
+  const tableHeaderBg = pick('#f8fafc', 'rgba(255,113,113,0.02)');
+  const tableHeaderBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
+  const tableHeaderText = pick('#64748b', '#ffffff');
+  const tableRowDivider = pick('#f1f5f9', 'rgba(255,255,255,0.05)');
+  const tableRowHover = pick('#f8fafc', 'rgba(248,113,113,0.08)');
 
   const paginationSurface = pick(
-    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    '#ffffff',
     'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
   );
-  const paginationBorder = pick('rgba(239,68,68,0.14)', 'rgba(239,68,68,0.25)');
-  const paginationText = pick('rgba(30,41,59,0.85)', 'rgba(226,232,240,0.8)');
-  const paginationButtonBg = pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.1)');
-  const paginationButtonBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.2)');
-  const paginationButtonText = pick('rgba(30,41,59,0.85)', '#f8fafc');
-  const paginationButtonDisabledBg = pick('rgba(226,232,240,0.6)', 'rgba(255,255,255,0.05)');
-  const paginationButtonDisabledText = pick('rgba(148,163,184,0.6)', 'rgba(255,255,255,0.3)');
+  const paginationBorder = pick('#e2e8f0', 'rgba(239,68,68,0.25)');
+  const paginationText = pick('#64748b', 'rgba(226,232,240,0.8)');
+  const paginationButtonBg = pick('#ffffff', 'rgba(255,255,255,0.1)');
+  const paginationButtonBorder = pick('#e2e8f0', 'rgba(255,255,255,0.2)');
+  const paginationButtonText = pick('#475569', '#f8fafc');
+  const paginationButtonDisabledBg = pick('#f1f5f9', 'rgba(255,255,255,0.05)');
+  const paginationButtonDisabledText = pick('#94a3b8', 'rgba(255,255,255,0.3)');
   const activePageBg = pick(
     `linear-gradient(135deg, ${RedColorPalette.primaryLight} 0%, ${RedColorPalette.primary} 100%)`,
     `linear-gradient(135deg, ${RedColorPalette.primary} 0%, ${RedColorPalette.primaryDark} 100%)`
   );
-  const activePageBorder = pick('rgba(239,68,68,0.3)', 'rgba(239,68,68,0.4)');
-  const inactivePageBg = pick('rgba(226,232,240,0.9)', 'rgba(255,255,255,0.08)');
-  const inactivePageBorder = pick('rgba(148,163,184,0.45)', 'rgba(255,255,255,0.15)');
+  const activePageBorder = pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.4)');
+  const inactivePageBg = pick('#f8fafc', 'rgba(255,255,255,0.08)');
+  const inactivePageBorder = pick('#e2e8f0', 'rgba(255,255,255,0.15)');
 
   // Legacy theme object for backwards compatibility with existing code
   const theme = useMemo(() => ({
@@ -136,8 +137,8 @@ const GestionTiposCurso: React.FC = () => {
     tableHeaderBorder: tableHeaderBorder,
     tableHeaderText: tableHeaderText,
     tableRowDivider: tableRowDivider,
-    tableRowAlt: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(248,113,113,0.04)',
-    tableRowHover: tableRowHover,
+    tableRowAlt: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
+    tableRowHover: darkMode ? 'rgba(255,255,255,0.04)' : '#f8fafc',
     tableText: textPrimaryColor,
     tableMuted: textMutedColor,
     emptyStateBg: darkMode

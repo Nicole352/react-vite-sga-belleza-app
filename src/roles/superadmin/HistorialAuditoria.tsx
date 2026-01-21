@@ -65,31 +65,31 @@ const HistorialAuditoria: React.FC = () => {
   const theme = {
     pageBg: darkMode
       ? 'linear-gradient(135deg, #0a0a0f 0%, #0f0f15 50%, #0a0a0f 100%)'
-      : 'linear-gradient(135deg, #f8f9fa 0%, #fff5f5 50%, #f8f9fa 100%)',
+      : '#f8fafc', // Gris muy claro y limpio
     cardBg: darkMode ? 'rgba(20, 20, 28, 0.95)' : '#ffffff',
-    cardBorder: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)',
+    cardBorder: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(226, 232, 240, 1)', // Borde gris neutro
     cardShadow: darkMode
       ? '0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)'
       : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
     textPrimary: darkMode ? 'rgba(255, 255, 255, 0.95)' : '#111827',
     textSecondary: darkMode ? 'rgba(255, 255, 255, 0.75)' : '#4b5563',
-    textMuted: darkMode ? 'rgba(255, 255, 255, 0.55)' : '#6b7280',
+    textMuted: darkMode ? 'rgba(255, 255, 255, 0.55)' : '#94a3b8',
     inputBg: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
     inputBorder: darkMode ? 'rgba(255, 255, 255, 0.15)' : '#d1d5db',
-    inputBorderHover: darkMode ? 'rgba(239, 68, 68, 0.4)' : '#ef4444',
-    recordBg: darkMode ? 'rgba(30, 30, 38, 0.8)' : '#f9fafb',
-    recordBgHover: darkMode ? 'rgba(40, 40, 48, 0.9)' : '#f3f4f6',
-    recordBorder: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e5e7eb',
-    recordBorderHover: darkMode ? 'rgba(239, 68, 68, 0.3)' : '#d1d5db',
+    inputBorderHover: darkMode ? 'rgba(239, 68, 68, 0.4)' : '#cbd5e1', // Borde gris en hover
+    recordBg: darkMode ? 'rgba(30, 30, 38, 0.8)' : '#f8fafc',
+    recordBgHover: darkMode ? 'rgba(40, 40, 48, 0.9)' : '#f1f5f9',
+    recordBorder: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0',
+    recordBorderHover: darkMode ? 'rgba(239, 68, 68, 0.3)' : '#cbd5e1',
     iconBg: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
     modalBg: darkMode ? 'rgba(15, 15, 20, 0.98)' : '#ffffff',
     modalOverlay: darkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.6)',
-    buttonSecondary: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f3f4f6',
-    buttonSecondaryHover: darkMode ? 'rgba(255, 255, 255, 0.15)' : '#e5e7eb',
-    buttonSecondaryText: darkMode ? 'rgba(255, 255, 255, 0.9)' : '#374151',
+    buttonSecondary: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9',
+    buttonSecondaryHover: darkMode ? 'rgba(255, 255, 255, 0.15)' : '#e2e8f0',
+    buttonSecondaryText: darkMode ? 'rgba(255, 255, 255, 0.9)' : '#1e293b',
   };
 
-  const pick = (light: string, dark: string) => (darkMode ? dark : light);
+
 
   // ========== ESTADOS ==========
   const [auditorias, setAuditorias] = useState<Auditoria[]>([]);
@@ -266,153 +266,7 @@ const HistorialAuditoria: React.FC = () => {
     setPaginaActual(1);
   };
 
-  const renderDetalles = () => {
-    if (!modalDetalle || !modalDetalle.detalles) return null;
 
-    // Función para formatear nombres de campos
-    const formatearNombreCampo = (campo: string) => {
-      return campo
-        .replace(/_/g, ' ')
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-    };
-
-    // Función para formatear valores
-    const formatearValor = (valor: any, key?: string) => {
-      console.log('formatearValor:', { key, valor, type: typeof valor });
-      if (typeof valor === 'boolean') {
-        return valor ? 'Sí' : 'No';
-      }
-      if (typeof valor === 'number') {
-        // Si parece un monto (tiene decimales o es un campo de dinero)
-        if (valor % 1 !== 0 || String(valor).includes('.')) {
-          return `$${valor.toFixed(2)}`;
-        }
-        return valor.toString();
-      }
-      if (valor === null || valor === undefined) {
-        return 'N/A';
-      }
-      if (typeof valor === 'string') {
-        // Formateo específico para días
-        if (key && key.toLowerCase() === 'dias') {
-          return valor
-            .split(',')
-            .map(d => d.trim())
-            .map(d => d.charAt(0).toUpperCase() + d.slice(1).toLowerCase())
-            .join(', ');
-        }
-
-        // Si es una fecha (formato ISO)
-        if (/^\d{4}-\d{2}-\d{2}/.test(valor)) {
-          try {
-            return new Date(valor).toLocaleDateString('es-EC', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
-          } catch {
-            // Si falla, capitalizar la primera letra
-            return valor.charAt(0).toUpperCase() + valor.slice(1);
-          }
-        }
-        // Capitalizar la primera letra de strings
-        if (valor.length > 0) {
-          return valor.charAt(0).toUpperCase() + valor.slice(1);
-        }
-        return valor;
-      }
-      return String(valor);
-    };
-
-    // Asegurar que detalles sea un objeto (si viene como string JSON)
-    let detallesObj = modalDetalle.detalles;
-    if (typeof detallesObj === 'string') {
-      try {
-        detallesObj = JSON.parse(detallesObj);
-      } catch (e) {
-        console.error('Error al parsear detalles:', e);
-        return <p style={{ color: '#fff' }}>{String(detallesObj)}</p>;
-      }
-    }
-
-    // Filtrar campos que no queremos mostrar
-    const camposIgnorados = ['id', 'id_curso', 'id_estudiante', 'id_docente', 'password', 'token'];
-    const detallesFiltrados = Object.entries(detallesObj).filter(([key, value]) => {
-      if (camposIgnorados.includes(key)) return false;
-      if (key.startsWith('id_')) return false; // Ignorar IDs foráneos
-      return true;
-    });
-
-    if (detallesFiltrados.length === 0) return null;
-
-    return (
-      <div style={{ marginTop: '1.5rem' }}>
-        <h4 style={{
-          margin: '0 0 1rem 0',
-          fontSize: '1rem',
-          fontWeight: '600',
-          color: theme.textPrimary,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          <FileText size={18} color="#ef4444" />
-          Información Detallada
-        </h4>
-        <div
-          style={{
-            backgroundColor: darkMode ? 'rgba(0, 0, 0, 0.2)' : '#f9fafb',
-            border: `1px solid ${theme.recordBorder}`,
-            borderRadius: '10px',
-            overflow: 'hidden',
-          }}
-        >
-          {detallesFiltrados.map(([key, value], index) => (
-            <div
-              key={key}
-              style={{
-                padding: '0.875rem 1rem',
-                borderBottom: index < detallesFiltrados.length - 1
-                  ? `1px solid ${theme.recordBorder}`
-                  : 'none',
-                display: 'grid',
-                gridTemplateColumns: '1fr 2fr',
-                gap: '1rem',
-                alignItems: 'start',
-                transition: 'background-color 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <p style={{
-                margin: 0,
-                fontSize: '0.8125rem',
-                fontWeight: '500',
-                color: theme.textMuted
-              }}>
-                {formatearNombreCampo(key)}
-              </p>
-              <p style={{
-                margin: 0,
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                color: theme.textPrimary,
-                wordBreak: 'break-word'
-              }}>
-                {formatearValor(value, key)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   // ========== RENDER ==========
   return (

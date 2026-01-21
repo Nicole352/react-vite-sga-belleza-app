@@ -876,7 +876,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
 
   // Estilos usando variables CSS del tema docente
   const theme = {
-    bg: darkMode ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.5)",
+    bg: darkMode ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.5)",
     modalBg: darkMode ? "var(--docente-card-bg)" : "#ffffff",
     textPrimary: "var(--docente-text-primary)",
     textSecondary: "var(--docente-text-secondary)",
@@ -945,7 +945,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.background = darkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)';
+              e.currentTarget.style.background = darkMode ? 'rgba(255, 255, 255, 0.06)' : 'rgba(59, 130, 246, 0.05)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.opacity = '0.8';
@@ -1034,7 +1034,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
               <div style={{
                 padding: '0.35rem',
                 borderRadius: '0.4rem',
-                background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)',
+                background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.08)',
                 color: theme.accent
               }}>
                 <User size={13} />
@@ -1556,8 +1556,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                 color: theme.textPrimary,
                                 fontWeight: "700",
                                 background: darkMode
-                                  ? "rgba(245, 158, 11, 0.15)"
-                                  : "rgba(245, 158, 11, 0.08)",
+                                  ? "rgba(255, 255, 255, 0.05)"
+                                  : "rgba(0, 0, 0, 0.02)",
                                 minWidth: "6.25rem",
                                 borderBottom: `1px solid ${theme.border}`,
                                 fontSize: '0.75rem'
@@ -1665,7 +1665,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               textAlign: "left",
                               color: theme.textPrimary,
                               fontWeight: "700",
-                              background: darkMode ? '#1e293b' : '#f8fafc',
+                              background: darkMode ? '#262626' : '#f8fafc',
                               position: "sticky",
                               left: 0,
                               zIndex: 10,
@@ -1684,8 +1684,8 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                 color: theme.textPrimary,
                                 fontWeight: "700",
                                 background: darkMode
-                                  ? "rgba(245, 158, 11, 0.15)"
-                                  : "rgba(245, 158, 11, 0.08)",
+                                  ? "rgba(255, 255, 255, 0.05)"
+                                  : "rgba(0, 0, 0, 0.02)",
                                 minWidth: "6.25rem",
                                 fontSize: '0.75rem',
                                 borderBottom: `1px solid ${theme.border}`
@@ -1712,7 +1712,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               color: theme.textPrimary,
                               fontWeight: "700",
                               background: darkMode
-                                ? "rgba(59, 130, 246, 0.15)"
+                                ? "rgba(255, 255, 255, 0.05)"
                                 : "rgba(59, 130, 246, 0.08)",
                               minWidth: "6.25rem",
                               fontSize: '0.75rem',
@@ -1759,7 +1759,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                               fontSize: '0.8125rem',
                               position: "sticky",
                               left: 0,
-                              background: darkMode ? '#1e293b' : '#f8fafc',
+                              background: darkMode ? '#262626' : '#f8fafc',
                               zIndex: 9,
                               borderRight: `1px solid ${theme.border}`
                             }}
@@ -1915,7 +1915,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                                 padding: "0.25rem 0.4rem",
                                 textAlign: "center",
                                 background: darkMode
-                                  ? "rgba(59, 130, 246, 0.08)"
+                                  ? "rgba(255, 255, 255, 0.03)"
                                   : "rgba(59, 130, 246, 0.03)",
                               }}
                             >

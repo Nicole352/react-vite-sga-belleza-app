@@ -125,51 +125,51 @@ const GestionPromociones: React.FC = () => {
   const theme = useMemo(() => ({
     pageBackground: darkMode
       ? 'linear-gradient(135deg, rgba(10,10,18,0.95) 0%, rgba(17,17,27,0.95) 100%)'
-      : 'linear-gradient(135deg, rgba(248,250,252,0.98) 0%, rgba(255,255,255,0.98) 100%)',
+      : '#f8fafc',
     contentBackground: darkMode
       ? 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,245,245,0.92) 100%)', // Consistent with other components
-    surfaceShadow: 'none', // Removed for flat look
-    textPrimary: darkMode ? '#ffffff' : '#1f2937',
-    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#384152',
-    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : '#6b7280',
-    accentText: '#ef4444',
+      : '#ffffff',
+    surfaceShadow: 'none',
+    textPrimary: darkMode ? '#ffffff' : '#0f172a',
+    textSecondary: darkMode ? 'rgba(255,255,255,0.7)' : '#475569',
+    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : '#64748b',
+    accentText: darkMode ? '#ef4444' : '#ef4444',
     inputBg: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
-    inputBorder: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(148,163,184,0.45)',
-    inputText: darkMode ? '#f8fafc' : '#1f2937',
-    inputIcon: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(148,163,184,0.7)',
-    controlGroupBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
-    controlGroupBorder: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.04)',
-    controlInactiveText: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)',
-    controlActiveBg: darkMode ? 'rgba(239,68,68,0.15)' : '#ffffff',
-    controlActiveBorder: darkMode ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(239,68,68,0.2)',
+    inputBorder: darkMode ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+    inputText: darkMode ? '#f8fafc' : '#0f172a',
+    inputIcon: darkMode ? 'rgba(255,255,255,0.5)' : '#94a3b8',
+    controlGroupBg: darkMode ? 'rgba(255,255,255,0.08)' : '#f1f5f9',
+    controlGroupBorder: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e2e8f0',
+    controlInactiveText: darkMode ? 'rgba(255,255,255,0.6)' : '#64748b',
+    controlActiveBg: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
+    controlActiveBorder: darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e2e8f0',
     cardBackground: darkMode
       ? 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(255,245,245,0.92) 100%)',
-    cardBorderActive: darkMode ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.5)',
-    cardBorderInactive: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.25)',
+      : '#ffffff',
+    cardBorderActive: darkMode ? 'rgba(255, 255, 255, 0.12)' : '#e2e8f0',
+    cardBorderInactive: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0',
     cardShadow: 'none',
-    cardHoverShadow: darkMode ? '0 0.5rem 1.5rem rgba(239, 68, 68, 0.24)' : '0 12px 28px rgba(239, 68, 68, 0.12)',
-    badgeActiveBg: darkMode ? mapToRedScheme('rgba(16,185,129,0.15)') : 'rgba(16,185,129,0.12)',
-    badgeActiveBorder: darkMode ? mapToRedScheme('rgba(16,185,129,0.3)') : 'rgba(16,185,129,0.3)',
-    badgeInactiveBg: darkMode ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.12)',
-    badgeInactiveBorder: darkMode ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.3)',
-    divider: 'rgba(239, 68, 68, 0.15)',
+    cardHoverShadow: darkMode ? '0 0.5rem 1.5rem rgba(0, 0, 0, 0.4)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    badgeActiveBg: darkMode ? mapToRedScheme('rgba(16,185,129,0.15)') : '#f0fdf4',
+    badgeActiveBorder: darkMode ? mapToRedScheme('rgba(16,185,129,0.3)') : '#bbf7d0',
+    badgeInactiveBg: darkMode ? 'rgba(239,68,68,0.15)' : '#fef2f2',
+    badgeInactiveBorder: darkMode ? 'rgba(239,68,68,0.3)' : '#fecaca',
+    divider: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0',
     paginationBg: darkMode ? 'rgba(0,0,0,0.2)' : '#ffffff',
-    paginationBorder: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-    paginationText: darkMode ? '#ffffff' : '#1f2937',
+    paginationBorder: darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+    paginationText: darkMode ? '#ffffff' : '#0f172a',
     overlay: darkMode ? 'rgba(0,0,0,0.65)' : 'rgba(248,250,252,0.65)',
-    modalBorder: darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.25)',
-    modalDivider: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(239, 68, 68, 0.2)',
-    tableHeaderBg: darkMode ? 'rgba(248, 113, 113, 0.1)' : 'rgba(248, 113, 113, 0.05)',
+    modalBorder: darkMode ? 'rgba(255,255,255,0.12)' : '#e2e8f0',
+    modalDivider: darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+    tableHeaderBg: darkMode ? 'rgba(255, 255, 255, 0.02)' : '#f8fafc',
   }), [darkMode]);
 
   const accentGradient = `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`;
 
   const benefitTokens = {
-    background: pick('linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.1) 100%)', 'linear-gradient(135deg, rgba(239,68,68,0.22) 0%, rgba(220,38,38,0.18) 100%)'),
-    border: pick('1px solid rgba(239,68,68,0.22)', '1px solid rgba(239,68,68,0.3)'),
-    title: '#ef4444'
+    background: pick('#f8fafc', 'linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(220,38,38,0.1) 100%)'),
+    border: pick('1px solid #e2e8f0', '1px solid rgba(239,68,68,0.22)'),
+    title: darkMode ? '#ef4444' : '#0f172a'
   } as const;
 
   const labelStyle = {
@@ -548,8 +548,8 @@ const GestionPromociones: React.FC = () => {
     marginBottom: isMobile ? '0.5rem' : '0.5rem',
     padding: '0.5rem',
     borderRadius: '0.375rem',
-    border: `1px solid ${pick('rgba(239,68,68,0.24)', 'rgba(239,68,68,0.4)')}`,
-    background: pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.04)'),
+    border: `1px solid ${pick('#e2e8f0', 'rgba(255,255,255,0.08)')}`,
+    background: pick('#ffffff', 'rgba(255,255,255,0.95)'),
     boxShadow: 'none'
   } as const;
   const controlsRowStyle = {
@@ -775,12 +775,12 @@ const GestionPromociones: React.FC = () => {
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
-              border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
+              background: pick('#eff6ff', 'rgba(30, 41, 59, 0.4)'),
+              border: `1px solid ${pick('#bfdbfe', 'rgba(56, 189, 248, 0.2)')}`,
               borderRadius: '0.5rem',
               padding: '8px 0.75rem',
               marginBottom: '0.75rem',
-              color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
+              color: pick('#1e40af', '#38bdf8'),
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
@@ -799,7 +799,7 @@ const GestionPromociones: React.FC = () => {
             style={{
               overflowX: 'auto',
               borderRadius: isMobile ? '12px' : '1rem',
-              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(239,68,68,0.18)'}`,
               background: darkMode
                 ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
                 : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
@@ -809,17 +809,17 @@ const GestionPromociones: React.FC = () => {
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? 'min(56.25rem, 95vw)' : 'auto' }}>
               <thead style={{
-                borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`,
-                background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
+                borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
+                background: darkMode ? 'rgba(255,255,255,0.02)' : '#f8fafc'
               }}>
                 <tr>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Estado</th>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Promoción</th>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Curso Principal</th>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Curso Promocional</th>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Beneficio</th>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Cupos</th>
-                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#9f1239', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Acciones</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Estado</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Promoción</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Curso Principal</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Curso Promocional</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'left', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Beneficio</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Cupos</th>
+                  <th style={{ padding: '0.25rem 0.5rem', color: darkMode ? '#ffffff' : '#0f172a', textAlign: 'center', fontWeight: 600, fontSize: '0.65rem', textTransform: 'uppercase' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -843,7 +843,7 @@ const GestionPromociones: React.FC = () => {
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                        e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.04)' : '#f8fafc';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'transparent';
@@ -1389,7 +1389,7 @@ const GestionPromociones: React.FC = () => {
           background: darkMode
             ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
             : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.14)'}`,
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(239,68,68,0.14)'}`,
           borderRadius: '0.75rem',
           marginTop: '0.5rem',
           marginBottom: isMobile ? '0.75rem' : '0.5rem'
@@ -1527,7 +1527,7 @@ const GestionPromociones: React.FC = () => {
                 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
                 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)'
               ),
-              border: `1px solid ${pick('rgba(239,68,68,0.2)', 'rgba(239,68,68,0.24)')}`,
+              border: `1px solid ${pick('rgba(255,255,255,0.12)', 'rgba(255,255,255,0.12)')}`,
               borderRadius: '12px',
               width: isMobile ? '92vw' : '600px',
               maxWidth: isMobile ? '92vw' : '600px',
@@ -1569,7 +1569,7 @@ const GestionPromociones: React.FC = () => {
                   border: `1px solid ${theme.modalDivider}`,
                   borderRadius: '0.6rem',
                   padding: '6px',
-                  color: theme.textPrimary,
+                  color: darkMode ? '#ffffff' : theme.textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -2180,6 +2180,7 @@ const GestionPromociones: React.FC = () => {
                   border: `1px solid ${theme.modalDivider}`,
                   borderRadius: '0.5rem',
                   padding: '0.375rem',
+                  color: darkMode ? '#ffffff' : theme.textPrimary,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',

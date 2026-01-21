@@ -162,25 +162,24 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
         </p>
       </div>
 
-      {/* Tabs */}
       <div style={{
         display: 'flex',
-        gap: '0.4rem',
-        marginBottom: '0.75rem',
-        borderBottom: `1px solid ${theme.border}`,
-        paddingBottom: '0.5rem'
+        gap: '0.75rem',
+        marginBottom: '1rem',
+        padding: '0.25rem',
+        background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+        borderRadius: '0.75rem',
+        width: 'fit-content'
       }}>
         <button
           onClick={() => setVistaActual('activos')}
           style={{
-            padding: '0.35rem 0.85rem',
+            padding: '0.5rem 1.25rem',
             background: vistaActual === 'activos'
-              ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
-              : darkMode
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(0, 0, 0, 0.05)',
+              ? '#f59e0b'
+              : 'transparent',
             border: 'none',
-            borderRadius: '0.375rem',
+            borderRadius: '0.625rem',
             color: vistaActual === 'activos' ? '#fff' : theme.textSecondary,
             cursor: 'pointer',
             fontSize: '0.75rem',
@@ -188,38 +187,23 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
             transition: 'all 0.2s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
-          }}
-          onMouseEnter={(e) => {
-            if (vistaActual !== 'activos') {
-              e.currentTarget.style.background = darkMode
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.1)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (vistaActual !== 'activos') {
-              e.currentTarget.style.background = darkMode
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(0, 0, 0, 0.05)';
-            }
+            gap: '0.5rem',
+            boxShadow: vistaActual === 'activos' ? '0 4px 12px rgba(245, 158, 11, 0.2)' : 'none'
           }}
         >
           <BookOpen size={14} />
-          Cursos Activos ({cursosActivos.length})
+          Activos ({cursosActivos.length})
         </button>
 
         <button
           onClick={() => setVistaActual('finalizados')}
           style={{
-            padding: '0.35rem 0.85rem',
+            padding: '0.5rem 1.25rem',
             background: vistaActual === 'finalizados'
-              ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
-              : darkMode
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(0, 0, 0, 0.05)',
+              ? '#f59e0b'
+              : 'transparent',
             border: 'none',
-            borderRadius: '0.375rem',
+            borderRadius: '0.625rem',
             color: vistaActual === 'finalizados' ? '#fff' : theme.textSecondary,
             cursor: 'pointer',
             fontSize: '0.75rem',
@@ -227,25 +211,12 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
             transition: 'all 0.2s ease',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
-          }}
-          onMouseEnter={(e) => {
-            if (vistaActual !== 'finalizados') {
-              e.currentTarget.style.background = darkMode
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.1)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (vistaActual !== 'finalizados') {
-              e.currentTarget.style.background = darkMode
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(0, 0, 0, 0.05)';
-            }
+            gap: '0.5rem',
+            boxShadow: vistaActual === 'finalizados' ? '0 4px 12px rgba(245, 158, 11, 0.2)' : 'none'
           }}
         >
           <Award size={14} />
-          Cursos Finalizados ({cursosFinalizados.length})
+          Finalizados ({cursosFinalizados.length})
         </button>
       </div>
 
@@ -292,11 +263,12 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                 style={{
                   background: theme.cardBg,
                   border: `0.0625rem solid ${theme.border}`,
-                  borderRadius: '0.5rem',
+                  borderRadius: '1rem',
                   overflow: 'hidden',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.3s ease',
                   cursor: 'pointer',
-                  position: 'relative'
+                  position: 'relative',
+                  boxShadow: darkMode ? '0 4px 20px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.05)'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-0.5rem)';
@@ -309,46 +281,42 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                {/* Header con gradiente */}
+                {/* Header Neutral */}
                 <div style={{
-                  background: `linear-gradient(135deg, ${color1}, ${color2})`,
-                  padding: '0.5rem',
+                  padding: '1rem',
                   position: 'relative',
-                  overflow: 'hidden'
+                  borderBottom: `1px solid ${theme.border}`,
+                  background: darkMode ? 'rgba(251, 191, 36, 0.03)' : '#fff'
                 }}>
-                  {/* Patrón de fondo */}
+                  {/* Línea de acento superior sutil */}
                   <div style={{
                     position: 'absolute',
                     top: 0,
+                    left: 0,
                     right: 0,
-                    width: '6.25rem',
-                    height: '6.25rem',
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '50%',
-                    transform: 'translate(30%, -30%)'
+                    height: '3px',
+                    background: `linear-gradient(90deg, ${color1}, ${color2})`
                   }} />
 
                   <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                       <div style={{
-                        background: 'rgba(255,255,255,0.2)',
-                        backdropFilter: 'blur(0.625rem)',
-                        padding: '0.25em 0.625em',
-                        borderRadius: '0.75em',
+                        background: darkMode ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+                        padding: '0.25em 0.75em',
+                        borderRadius: '0.5rem',
                         fontSize: '0.65rem',
                         fontWeight: '700',
-                        color: '#fff'
+                        color: theme.textSecondary
                       }}>
                         {curso.codigo_curso}
                       </div>
                       <div style={{
-                        background: esFinalizado ? 'rgba(251, 191, 36, 0.4)' : 'rgba(16, 185, 129, 0.3)',
-                        backdropFilter: 'blur(0.625rem)',
-                        padding: '0.25em 0.625em',
-                        borderRadius: '0.75em',
+                        background: esFinalizado ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                        padding: '0.25em 0.75em',
+                        borderRadius: '0.5rem',
                         fontSize: '0.65rem',
                         fontWeight: '700',
-                        color: '#fff',
+                        color: esFinalizado ? '#ef4444' : '#10b981',
                         textTransform: 'uppercase',
                         display: 'flex',
                         alignItems: 'center',
@@ -360,15 +328,14 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                     </div>
 
                     <h3 style={{
-                      fontSize: '1rem',
+                      fontSize: '1.1rem',
                       fontWeight: '700',
-                      color: '#fff',
-                      margin: '0 0 0.25em 0',
+                      color: theme.textPrimary,
+                      margin: '0',
                       lineHeight: '1.3'
                     }}>
                       {curso.nombre}
                     </h3>
-
                   </div>
                 </div>
 
@@ -492,93 +459,42 @@ const HistorialAcademico: React.FC<HistorialAcademicoProps> = ({ darkMode }) => 
                     </div>
                   )}
 
-                  {/* Estadísticas Compactas */}
+                  {/* Estadísticas Centradas (Estilo Mobile) */}
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: esFinalizado ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
-                    gap: '0.5rem',
-                    paddingTop: '0.5rem',
-                    borderTop: `1px solid ${theme.border}`
+                    gap: '1rem',
+                    padding: '1rem 0',
+                    borderTop: `1px solid ${theme.border}`,
+                    marginTop: '0.5rem'
                   }}>
                     {/* Progreso */}
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '0.35rem',
-                      background: darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.05)',
-                      borderRadius: '0.35rem'
-                    }}>
-                      <div style={{
-                        fontSize: '0.9rem',
-                        fontWeight: '700',
-                        color: theme.accent,
-                        marginBottom: '0.1rem',
-                        lineHeight: 1
-                      }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: '800', color: theme.accent, marginBottom: '0.25rem' }}>
                         {curso.progreso}%
                       </div>
-                      <div style={{
-                        fontSize: '0.55rem',
-                        color: theme.textMuted,
-                        textTransform: 'uppercase',
-                        fontWeight: '600'
-                      }}>
+                      <div style={{ fontSize: '0.6rem', color: theme.textMuted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                         Progreso
                       </div>
                     </div>
 
                     {/* Promedio */}
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '0.35rem',
-                      background: curso.calificacion >= 7
-                        ? (darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)')
-                        : (darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)'),
-                      borderRadius: '0.35rem'
-                    }}>
-                      <div style={{
-                        fontSize: '0.9rem',
-                        fontWeight: '700',
-                        color: curso.calificacion >= 7 ? theme.success : theme.warning,
-                        marginBottom: '0.1rem',
-                        lineHeight: 1
-                      }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: '800', color: curso.calificacion >= 7 ? theme.success : theme.warning, marginBottom: '0.25rem' }}>
                         {curso.calificacion != null ? Number(curso.calificacion).toFixed(2) : '0.00'}
                       </div>
-                      <div style={{
-                        fontSize: '0.55rem',
-                        color: theme.textMuted,
-                        textTransform: 'uppercase',
-                        fontWeight: '600'
-                      }}>
+                      <div style={{ fontSize: '0.6rem', color: theme.textMuted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                         Promedio
                       </div>
                     </div>
 
-                    {/* Pendientes (si aplica) */}
+                    {/* Pendientes */}
                     {!esFinalizado && (
-                      <div style={{
-                        textAlign: 'center',
-                        padding: '0.35rem',
-                        background: curso.tareasPendientes > 0
-                          ? (darkMode ? 'rgba(245, 158, 11, 0.1)' : 'rgba(245, 158, 11, 0.05)')
-                          : (darkMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)'),
-                        borderRadius: '0.35rem'
-                      }}>
-                        <div style={{
-                          fontSize: '0.9rem',
-                          fontWeight: '700',
-                          color: curso.tareasPendientes > 0 ? theme.warning : theme.success,
-                          marginBottom: '0.1rem',
-                          lineHeight: 1
-                        }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: curso.tareasPendientes > 0 ? theme.warning : theme.success, marginBottom: '0.25rem' }}>
                           {curso.tareasPendientes}
                         </div>
-                        <div style={{
-                          fontSize: '0.55rem',
-                          color: theme.textMuted,
-                          textTransform: 'uppercase',
-                          fontWeight: '600'
-                        }}>
+                        <div style={{ fontSize: '0.6rem', color: theme.textMuted, textTransform: 'uppercase', fontWeight: '700', letterSpacing: '0.05em' }}>
                           Pendientes
                         </div>
                       </div>

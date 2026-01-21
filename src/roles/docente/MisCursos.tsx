@@ -99,25 +99,25 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(30, 41, 59, 0.7)',
-        textPrimary: '#f8fafc',
-        textSecondary: '#cbd5e1',
-        textMuted: '#94a3b8',
-        border: 'rgba(255, 255, 255, 0.08)',
+        cardBg: '#1e1e1e',
+        textPrimary: '#ffffff',
+        textSecondary: 'rgba(255, 255, 255, 0.8)',
+        textMuted: 'rgba(255, 255, 255, 0.6)',
+        border: 'rgba(255, 255, 255, 0.1)',
         accent: '#3b82f6',
-        success: '#34d399',
-        warning: '#fbbf24'
+        success: '#10b981',
+        warning: '#f59e0b'
       };
     } else {
       return {
         cardBg: '#ffffff',
-        textPrimary: '#0f172a',
-        textSecondary: '#475569',
-        textMuted: '#64748b',
-        border: 'rgba(15, 23, 42, 0.08)',
-        accent: '#2563eb',
-        success: '#059669',
-        warning: '#d97706'
+        textPrimary: '#1e293b',
+        textSecondary: 'rgba(30, 41, 59, 0.8)',
+        textMuted: 'rgba(30, 41, 59, 0.7)',
+        border: '#e2e8f0',
+        accent: '#3b82f6',
+        success: '#10b981',
+        warning: '#f59e0b'
       };
     }
   };
@@ -253,16 +253,6 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
       ) : (
         <div className="responsive-grid-auto" style={{ gap: '0.75rem' }}>
           {filteredCursos.map((curso, index) => {
-            const coloresGradiente = [
-              ['#3b82f6', '#2563eb'],
-              ['#10b981', '#059669'],
-              ['#f59e0b', '#d97706'],
-              ['#8b5cf6', '#7c3aed'],
-              ['#ec4899', '#db2777'],
-              ['#06b6d4', '#0891b2']
-            ];
-            const [color1, color2] = coloresGradiente[index % coloresGradiente.length];
-
             return (
               <div
                 key={`curso-${curso.id_curso}-${index}`}
@@ -276,56 +266,45 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                   position: 'relative'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-0.5rem)';
+                  e.currentTarget.style.transform = 'translateY(-0.375rem)';
                   e.currentTarget.style.boxShadow = darkMode
-                    ? `0 1.25rem 2.5rem ${color1}40`
-                    : `0 1.25rem 2.5rem ${color1}30`;
+                    ? `0 1rem 2rem rgba(0, 0, 0, 0.4)`
+                    : `0 1rem 2rem rgba(59, 130, 246, 0.08)`;
+                  e.currentTarget.style.borderColor = theme.accent;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                {/* Header con gradiente */}
+                {/* Header Neutral */}
                 <div style={{
-                  background: `linear-gradient(135deg, ${color1}, ${color2})`,
-                  padding: '0.875rem',
+                  background: theme.cardBg,
+                  padding: '1rem',
                   position: 'relative',
-                  overflow: 'hidden'
+                  borderBottom: `1px solid ${theme.border}`
                 }}>
-                  {/* Patrón de fondo */}
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    width: '6.25rem',
-                    height: '6.25rem',
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '50%',
-                    transform: 'translate(30%, -30%)'
-                  }} />
-
                   <div style={{ position: 'relative', zIndex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75em' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75em' }}>
                       <div style={{
-                        background: 'rgba(255,255,255,0.2)',
-                        backdropFilter: 'blur(0.625rem)',
-                        padding: '0.2rem 0.5rem',
+                        background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.08)',
+                        padding: '0.25rem 0.625rem',
                         borderRadius: '0.5rem',
-                        fontSize: '0.6rem',
+                        fontSize: '0.65rem',
                         fontWeight: '700',
-                        color: '#fff'
+                        color: theme.accent
                       }}>
                         {curso.codigo_curso}
                       </div>
                       <div style={{
-                        background: curso.estado === 'activo' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)',
-                        backdropFilter: 'blur(0.625rem)',
-                        padding: '0.2rem 0.5rem',
+                        background: curso.estado === 'activo'
+                          ? (darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.08)')
+                          : (darkMode ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.08)'),
+                        padding: '0.25rem 0.625rem',
                         borderRadius: '0.5rem',
-                        fontSize: '0.6rem',
+                        fontSize: '0.65rem',
                         fontWeight: '700',
-                        color: '#fff',
+                        color: curso.estado === 'activo' ? theme.success : theme.warning,
                         textTransform: 'uppercase'
                       }}>
                         {curso.estado}
@@ -333,58 +312,58 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     </div>
 
                     <h3 style={{
-                      fontSize: '0.85rem',
+                      fontSize: '1rem',
                       fontWeight: '800',
-                      color: '#fff',
-                      margin: '0 0 0.5rem 0',
+                      color: theme.textPrimary,
+                      margin: '0 0 0.75rem 0',
                       lineHeight: 1.2
                     }}>
                       {curso.nombre}
                     </h3>
 
                     {/* Estadística destacada */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <div style={{
-                        background: 'rgba(255,255,255,0.15)',
-                        backdropFilter: 'blur(0.625rem)',
-                        padding: '0.4rem 0.65rem',
+                        background: darkMode ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc',
+                        padding: '0.5rem 0.75rem',
                         borderRadius: '0.5rem',
-                        flex: 1
+                        flex: 1,
+                        border: `1px solid ${theme.border}`
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.125rem' }}>
-                          <Users size={12} color="#fff" />
-                          <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.6rem', fontWeight: '600' }}>
+                          <Users size={12} color={theme.accent} />
+                          <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '600' }}>
                             Estudiantes
                           </span>
                         </div>
-                        <div style={{ color: '#fff', fontSize: '1.15rem', fontWeight: '800', lineHeight: 1 }}>
+                        <div style={{ color: theme.textPrimary, fontSize: '1.2rem', fontWeight: '800', lineHeight: 1 }}>
                           {curso.total_estudiantes}
                         </div>
-                        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.6rem', marginTop: '0.125rem' }}>
-                          de {curso.capacidad_maxima} hay cupo
+                        <div style={{ color: theme.textMuted, fontSize: '0.6rem', marginTop: '0.125rem' }}>
+                          de {curso.capacidad_maxima} estudiantes
                         </div>
                       </div>
 
                       {/* Circular progress */}
-                      <div style={{ position: 'relative', width: '2.75rem', height: '2.75rem' }}>
-                        <svg width="44" height="44" style={{ transform: 'rotate(-90deg)' }}>
+                      <div style={{ position: 'relative', width: '3rem', height: '3rem' }}>
+                        <svg width="48" height="48" style={{ transform: 'rotate(-90deg)' }}>
                           <circle
-                            cx="22"
-                            cy="22"
-                            r="19"
+                            cx="24"
+                            cy="24"
+                            r="20"
                             fill="none"
-                            stroke="rgba(255,255,255,0.15)"
+                            stroke={darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}
                             strokeWidth="4"
                           />
                           <circle
-                            cx="22"
-                            cy="22"
-                            r="19"
+                            cx="24"
+                            cy="24"
+                            r="20"
                             fill="none"
-                            stroke="#fff"
+                            stroke={theme.accent}
                             strokeWidth="4"
-                            strokeDasharray={`${2 * Math.PI * 19}`}
-                            strokeDashoffset={`${2 * Math.PI * 19 * (1 - (curso.total_estudiantes / curso.capacidad_maxima))}`}
+                            strokeDasharray={`${2 * Math.PI * 20}`}
+                            strokeDashoffset={`${2 * Math.PI * 20 * (1 - (curso.total_estudiantes / curso.capacidad_maxima))}`}
                             strokeLinecap="round"
                           />
                         </svg>
@@ -393,8 +372,8 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                           top: '50%',
                           left: '50%',
                           transform: 'translate(-50%, -50%)',
-                          color: '#fff',
-                          fontSize: '0.65rem',
+                          color: theme.textPrimary,
+                          fontSize: '0.7rem',
                           fontWeight: '800'
                         }}>
                           {Math.round((curso.total_estudiantes / curso.capacidad_maxima) * 100)}%
@@ -442,7 +421,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                         border: `1px solid ${theme.border}`
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
-                          <Clock size={10} color={color1} />
+                          <Clock size={10} color={theme.accent} />
                           <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
                             Horario
                           </span>
@@ -456,7 +435,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
 
                   {/* Período */}
                   <div style={{
-                    background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                    background: darkMode ? 'rgba(255,255,255,0.02)' : '#f8fafc',
                     padding: '0.5rem',
                     borderRadius: '0.5rem',
                     border: `1px solid ${theme.border}`,
@@ -465,16 +444,16 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
                       <Calendar size={10} color={theme.warning} />
                       <span style={{ color: theme.textMuted, fontSize: '0.55rem', fontWeight: '600', textTransform: 'uppercase' }}>
-                        Período
+                        Período Académico
                       </span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '600' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
                         {new Date(curso.fecha_inicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
                       </div>
                       <ChevronRight size={10} color={theme.textMuted} />
-                      <div style={{ color: theme.textPrimary, fontSize: '0.7rem', fontWeight: '600' }}>
-                        {new Date(curso.fecha_fin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                      <div style={{ color: theme.textPrimary, fontSize: '0.75rem', fontWeight: '700' }}>
+                        {new Date(curso.fecha_fin).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
                     </div>
                   </div>
@@ -483,7 +462,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                     <button style={{
                       padding: '0.5rem',
-                      background: `linear-gradient(135deg, ${color1}, ${color2})`,
+                      background: theme.accent,
                       border: 'none',
                       borderRadius: '0.5rem',
                       color: '#fff',
@@ -504,9 +483,9 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                     <button style={{
                       padding: '0.5rem',
                       background: 'transparent',
-                      border: `1px solid ${color1}`,
+                      border: `1px solid ${theme.accent}`,
                       borderRadius: '0.5rem',
-                      color: color1,
+                      color: theme.accent,
                       fontSize: '0.7rem',
                       fontWeight: '700',
                       cursor: 'pointer',

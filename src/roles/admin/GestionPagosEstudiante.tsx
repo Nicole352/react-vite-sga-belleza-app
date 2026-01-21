@@ -160,15 +160,13 @@ const GestionPagosEstudiante = () => {
   };
 
   const tableContainerBg = pick(
-    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    '#ffffff',
     'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
   );
-  const tableBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.2)');
-  const tableHeaderBg = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)');
-  const tableHeaderBorder = pick('rgba(248,113,113,0.18)', 'rgba(248,113,113,0.3)');
-  const tableHeaderText = pick('#9f1239', '#ffffff');
-  const tableRowDivider = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
-  const tableRowHover = pick('rgba(248,113,113,0.1)', 'rgba(248,113,113,0.08)');
+  const tableBorder = pick('#e2e8f0', 'rgba(255,255,255,0.1)');
+  const tableHeaderBg = pick('#f8fafc', 'rgba(30,41,59,0.4)');
+  const tableHeaderBorder = pick('#e2e8f0', 'rgba(51,65,85,1)');
+  const tableHeaderText = pick('#0f172a', '#ffffff');
 
   const tabTypographyStyles = `
     .admin-course-tab[data-active="false"][data-dark="false"] .admin-course-tab-title {
@@ -635,8 +633,8 @@ const GestionPagosEstudiante = () => {
           <div style={{
             width: '3.125rem',
             height: '3.125rem',
-            border: '0.25rem solid rgba(239, 68, 68, 0.2)',
-            borderTop: '0.25rem solid #ef4444',
+            border: '0.25rem solid rgba(59, 130, 246, 0.2)',
+            borderTop: '0.25rem solid #3b82f6',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 1rem'
@@ -873,7 +871,7 @@ const GestionPagosEstudiante = () => {
           padding: '0.5rem',
           boxShadow: 'none',
           borderRadius: '0.375rem',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : '#e2e8f0'}`
         }}
       >
         <div className="responsive-filters" style={{ gap: '0.75rem', alignItems: 'center' }}>
@@ -892,7 +890,7 @@ const GestionPagosEstudiante = () => {
                 width: '100%',
                 padding: '0 0.5rem 0 2rem',
                 background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : '#e2e8f0'}`,
                 borderRadius: '0.5rem',
                 color: theme.textPrimary,
                 fontSize: '0.75rem',
@@ -1103,12 +1101,12 @@ const GestionPagosEstudiante = () => {
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(254,226,226,0.9)',
-              border: `1px solid ${darkMode ? 'rgba(248,113,113,0.4)' : 'rgba(248,113,113,0.35)'}`,
+              background: darkMode ? 'rgba(239,68,68,0.12)' : '#f1f5f9',
+              border: `1px solid ${darkMode ? 'rgba(248,113,113,0.4)' : '#cbd5e1'}`,
               borderRadius: '0.5rem',
               padding: '8px 0.75rem',
               marginBottom: '0.75rem',
-              color: darkMode ? 'rgba(248,250,252,0.85)' : 'rgba(153,27,27,0.85)',
+              color: darkMode ? 'rgba(248,250,252,0.85)' : '#64748b',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
@@ -1125,10 +1123,8 @@ const GestionPagosEstudiante = () => {
           <div className="responsive-table-container" style={{
             overflowX: 'auto',
             borderRadius: isMobile ? '12px' : '0.75rem',
-            border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
-            background: darkMode
-              ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
-              : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+            border: `1px solid ${tableBorder}`,
+            background: tableContainerBg,
             marginBottom: isMobile ? '12px' : '0.5rem',
             position: 'relative'
           }}>
@@ -1151,20 +1147,20 @@ const GestionPagosEstudiante = () => {
             )}
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', position: 'relative', zIndex: 1 }}>
               <thead style={{
-                background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`
+                background: tableHeaderBg,
+                borderBottom: `1px solid ${tableHeaderBorder}`
               }}>
                 <tr>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Estudiante</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Identificación</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Curso</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Cuota</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Monto</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Vencimiento</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Método</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Estado</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Comprobante</th>
-                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Acciones</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Estudiante</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Identificación</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Curso</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Cuota</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Monto</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Vencimiento</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Método</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Estado</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Comprobante</th>
+                  <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -1205,7 +1201,7 @@ const GestionPagosEstudiante = () => {
                           borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
                           transition: 'all 0.2s ease'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)'}
+                        onMouseEnter={(e) => e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : '#f8fafc'}
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
                         <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, fontWeight: 600, fontSize: '0.7rem', verticalAlign: 'middle' }}>
@@ -1518,7 +1514,7 @@ const GestionPagosEstudiante = () => {
                   style={{
                     background: 'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))',
                     backdropFilter: 'blur(1.25rem)',
-                    border: '1px solid var(--admin-border, rgba(239, 68, 68, 0.2))',
+                    border: '1px solid var(--admin-border, #e2e8f0)',
                     borderRadius: '0.5rem',
                     padding: '0.35rem 0.5rem',
                     boxShadow: '0 0.125rem 0.5rem rgba(0, 0, 0, 0.1)',
@@ -3422,7 +3418,7 @@ const GestionPagosEstudiante = () => {
         darkMode={true}
         duration={500}
         onComplete={() => setShowLoadingModal(false)}
-        colorTheme="red"
+        colorTheme="blue"
       />
     </div >
   );

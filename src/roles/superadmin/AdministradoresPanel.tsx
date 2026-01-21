@@ -125,17 +125,17 @@ const AdministradoresPanel: React.FC = () => {
     textMuted: darkMode ? 'rgba(255,255,255,0.5)' : '#94a3b8',
     controlBg: darkMode ? 'rgba(255,255,255,0.05)' : '#ffffff',
     controlBorder: darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
-    tableHeaderBg: darkMode ? 'rgba(239, 68, 68, 0.15)' : 'rgba(254, 226, 226, 0.5)',
-    tableHeaderText: darkMode ? '#fca5a5' : '#b91c1c',
+    tableHeaderBg: darkMode ? 'rgba(239, 68, 68, 0.15)' : '#f8fafc', // Gris muy claro en light
+    tableHeaderText: darkMode ? '#fca5a5' : '#64748b', // Gris azulado en light
     tableRowHover: darkMode ? 'rgba(255,255,255,0.03)' : '#f8fafc',
-    tableRowAltBg: darkMode ? 'rgba(255,255,255,0.02)' : '#fcfcfc',
+    tableRowAltBg: darkMode ? 'rgba(255,255,255,0.02)' : '#ffffff',
     iconMuted: darkMode ? 'rgba(255,255,255,0.4)' : '#94a3b8',
     toggleGroupBg: darkMode ? 'rgba(0,0,0,0.2)' : '#f1f5f9',
     toggleActiveBg: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
     toggleActiveText: darkMode ? '#fff' : '#0f172a',
     toggleInactiveText: darkMode ? 'rgba(255,255,255,0.5)' : '#64748b',
     sectionSurface: darkMode ? 'rgba(20,20,25,0.6)' : '#ffffff',
-    sectionBorder: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+    sectionBorder: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226, 232, 240, 1)', // Borde gris neutro
   }), [darkMode]);
 
   const primaryActionButtonStyles = {

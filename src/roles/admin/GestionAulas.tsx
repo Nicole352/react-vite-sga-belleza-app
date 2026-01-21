@@ -80,7 +80,7 @@ const GestionAulas = () => {
       'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
       'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
     ),
-    paginationBorder: pick('rgba(239, 68, 68, 0.14)', 'rgba(239, 68, 68, 0.25)'),
+    paginationBorder: pick('#e2e8f0', 'rgba(148, 163, 184, 0.25)'),
     paginationText: pick('rgba(30, 41, 59, 0.85)', 'rgba(226, 232, 240, 0.9)'),
     paginationButtonBg: pick('rgba(248, 250, 252, 0.9)', 'rgba(255, 255, 255, 0.1)'),
     paginationButtonBorder: pick('rgba(226, 232, 240, 0.7)', 'rgba(255, 255, 255, 0.2)'),
@@ -430,18 +430,18 @@ const GestionAulas = () => {
   const isCardsView = viewMode === 'cards';
   const isTableView = viewMode === 'table';
 
-  const searchInputStyles: (CSSProperties & Record<'--gestion-aulas-placeholder', string>) = {
+  const searchInputStyles: CSSProperties = {
     width: '100%',
-    padding: '10px 0.625rem 0.625rem 2.375rem',
-    background: palette.inputBg,
-    border: `1px solid ${palette.inputBorder}`,
+    padding: '0 0.5rem 0 2rem',
+    background: darkMode ? 'rgba(255,255,255,0.06)' : '#ffffff',
+    border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
     borderRadius: '0.5rem',
     color: palette.inputText,
-    fontSize: '0.8rem',
-    transition: 'background 0.2s ease, border 0.2s ease, box-shadow 0.2s ease',
+    fontSize: '0.75rem',
+    boxShadow: 'none',
+    height: '2rem',
     outline: 'none',
-    boxShadow: darkMode ? '0 0.35rem 1rem rgba(15,23,42,0.08)' : '0 0.25rem 0.75rem rgba(15,23,42,0.08)',
-    '--gestion-aulas-placeholder': palette.placeholder
+    transition: 'all 0.2s ease'
   };
 
   return (
@@ -472,21 +472,8 @@ const GestionAulas = () => {
             alignItems: isMobile ? 'stretch' : 'center',
             flex: 1
           }}>
-            {/* Búsqueda */}
-            <div style={{ position: 'relative', flex: '1', minWidth: isMobile ? 'auto' : '15rem' }}>
-              <Search
-                size={isMobile ? 14 : 16}
-                style={{
-                  position: 'absolute',
-                  left: '0.75rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: palette.searchIcon,
-                  transition: 'color 0.2s ease',
-                  pointerEvents: 'none'
-                }}
-                color={palette.searchIcon}
-              />
+            <div style={{ position: 'relative', flex: 1, width: isMobile ? '100%' : 'auto' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: palette.searchIcon }} />
               <input
                 className="gestion-aulas-search-input"
                 type="text"
@@ -498,7 +485,7 @@ const GestionAulas = () => {
             </div>
 
             {/* Filtros */}
-            <div style={{ minWidth: isMobile ? 'auto' : 'min(12.5rem, 20vw)', flex: isMobile ? '1' : 'initial' }}>
+            <div style={{ minWidth: isSmallScreen ? 'auto' : 'min(12.5rem, 25vw)', width: isSmallScreen ? '100%' : 'auto' }}>
 
               <StyledSelect
                 name="filterEstado"
@@ -514,14 +501,15 @@ const GestionAulas = () => {
               />
             </div>
 
-            {/* Toggle Vista */}
             <div style={{
               display: 'flex',
               gap: '0.375rem',
-              background: palette.toggleGroupBg,
-              borderRadius: '0.625rem',
-              padding: '0.1875em',
-              width: isSmallScreen ? '100%' : 'auto'
+              background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+              borderRadius: '0.65rem',
+              padding: '0.1875rem',
+              width: isSmallScreen ? '100%' : 'auto',
+              border: 'none',
+              boxShadow: 'none'
             }}>
               <button
                 onClick={() => setViewMode('cards')}
@@ -529,26 +517,21 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35em',
-                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
-                  background: isCardsView ? palette.toggleActiveBg : 'transparent',
-                  border: `0.0625rem solid ${isCardsView ? palette.toggleInactiveBorder : 'transparent'}`,
-                  borderRadius: '0.5rem',
-                  color: isCardsView ? RedColorPalette.primary : palette.toggleInactiveText,
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: isCardsView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
-                  boxShadow: isCardsView ? palette.toggleActiveShadow : 'none',
                   flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <Grid size={16} color={isCardsView ? RedColorPalette.primary : palette.toggleInactiveText} />
-                {!isMobile && (
-                  <span style={{ color: isCardsView ? RedColorPalette.primary : palette.toggleInactiveText }}>
-                    Tarjetas
-                  </span>
-                )}
+                <Grid size={16} color={isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} />
+                {!isMobile && 'Tarjetas'}
               </button>
               <button
                 onClick={() => setViewMode('table')}
@@ -556,26 +539,21 @@ const GestionAulas = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35em',
-                  padding: isMobile ? '8px 0.75rem' : '9px 1rem',
-                  background: isTableView ? palette.toggleActiveBg : 'transparent',
-                  border: `0.0625rem solid ${isTableView ? palette.toggleInactiveBorder : 'transparent'}`,
-                  borderRadius: '0.5rem',
-                  color: isTableView ? RedColorPalette.primary : palette.toggleInactiveText,
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: isTableView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   transition: 'all 0.2s ease',
-                  boxShadow: isTableView ? palette.toggleActiveShadow : 'none',
                   flex: isSmallScreen ? 1 : 'initial'
                 }}
               >
-                <List size={16} color={isTableView ? RedColorPalette.primary : palette.toggleInactiveText} />
-                {!isMobile && (
-                  <span style={{ color: isTableView ? RedColorPalette.primary : palette.toggleInactiveText }}>
-                    Tabla
-                  </span>
-                )}
+                <List size={16} color={isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} />
+                {!isMobile && 'Tabla'}
               </button>
             </div>
           </div>
@@ -594,16 +572,17 @@ const GestionAulas = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.5em',
-              padding: isMobile ? '0.625em 1em' : '0.75em 1.5em',
+              padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
               background: `linear-gradient(135deg, ${RedColorPalette.primary}, ${RedColorPalette.primaryDark})`,
               border: 'none',
               borderRadius: '0.625em',
-              color: textPrimary,
-              fontSize: '0.875rem',
+              color: '#ffffff',
+              fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: '0 0.25rem 0.75em rgba(239, 68, 68, 0.3)',
-              width: isSmallScreen ? '100%' : 'auto'
+              width: isSmallScreen ? '100%' : 'auto',
+              boxShadow: `0 4px 6px -1px rgba(0,0,0,0.1)`,
+              transition: 'all 0.2s ease'
             }}
           >
             <Plus size={16} />
@@ -630,7 +609,7 @@ const GestionAulas = () => {
               <GlassEffect
                 key={aula.id_aula}
                 variant="card"
-                tint="red"
+                tint="neutral"
                 intensity="light"
                 style={{
                   padding: '0.45rem',
@@ -871,8 +850,8 @@ const GestionAulas = () => {
             {/* Indicador de scroll en móvil */}
             {isSmallScreen && (
               <div style={{
-                background: darkMode ? 'rgba(239,68,68,0.12)' : 'rgba(254,226,226,0.9)',
-                border: `1px solid ${darkMode ? 'rgba(248,113,113,0.4)' : 'rgba(248,113,113,0.35)'}`,
+                background: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,0.95)',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
                 borderRadius: '0.5rem',
                 padding: '8px 0.75rem',
                 marginBottom: '0.75rem',
@@ -896,11 +875,11 @@ const GestionAulas = () => {
                 : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
               borderRadius: '0.75rem',
               overflow: 'hidden',
-              border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+              border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
               marginBottom: '0.5rem',
               boxShadow: darkMode
                 ? '0 8px 32px rgba(0,0,0,0.3)'
-                : '0 4px 20px rgba(239,68,68,0.08)',
+                : '0 4px 6px -1px rgba(0,0,0,0.1)',
               position: 'relative'
             }}>
               {/* Marca de agua de scroll */}
@@ -920,25 +899,25 @@ const GestionAulas = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{
-                      background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                      borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`
+                      background: darkMode ? 'rgba(255,255,255,0.02)' : '#f8fafc',
+                      borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : '#e2e8f0'}`
                     }}>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                         Código
                       </th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                         NOMBRE
                       </th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                         Ubicación
                       </th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                         Estado
                       </th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: darkMode ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                         Fecha Creación
                       </th>
-                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#9f1239', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: darkMode ? '#ffffff' : '#0f172a', fontWeight: '600', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>
                         Acciones
                       </th>
                     </tr>
@@ -966,7 +945,7 @@ const GestionAulas = () => {
                             transition: 'all 0.2s ease'
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                            e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.04)' : '#f8fafc';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'transparent';
@@ -1309,8 +1288,8 @@ const GestionAulas = () => {
               onClick={(e) => e.stopPropagation()}
               style={{
                 position: 'relative',
-                background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                background: darkMode ? 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))' : '#ffffff',
+                border: darkMode ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #e2e8f0',
                 borderRadius: '12px',
                 width: '92vw',
                 maxWidth: '600px',
@@ -1330,7 +1309,7 @@ const GestionAulas = () => {
                   alignItems: 'center',
                   marginBottom: isMobile ? 12 : 14,
                   paddingBottom: isMobile ? 8 : 10,
-                  borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderBottom: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0'}`,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1668,7 +1647,7 @@ const GestionAulas = () => {
               style={{
                 position: 'relative',
                 background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
                 width: '92vw',
                 maxWidth: '600px',
@@ -1688,7 +1667,7 @@ const GestionAulas = () => {
                   alignItems: 'center',
                   marginBottom: isMobile ? 12 : 14,
                   paddingBottom: isMobile ? 8 : 10,
-                  borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderBottom: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.1)'}`,
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1741,11 +1720,7 @@ const GestionAulas = () => {
               </div>
 
               <div style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                marginBottom: '1.25rem',
-                border: '1px solid rgba(239, 68, 68, 0.3)'
+                border: '1px solid rgba(255, 255, 255, 0.08)'
               }}>
                 <div style={{
                   display: 'flex',
@@ -2147,7 +2122,7 @@ const GestionAulas = () => {
                 boxShadow: darkMode
                   ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                   : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.2)'}`,
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.1)'}`,
                 animation: 'modalSlideIn 0.3s ease-out'
               }}
             >
@@ -2304,7 +2279,7 @@ const GestionAulas = () => {
                 boxShadow: darkMode
                   ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                   : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.2)'}`,
+                border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.1)'}`,
                 animation: 'modalSlideIn 0.3s ease-out'
               }}
             >

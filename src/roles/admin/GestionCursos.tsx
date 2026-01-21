@@ -87,33 +87,33 @@ const GestionCursos = () => {
   }, [darkMode]);
 
   const themeColors = useMemo(() => ({
-    textPrimary: darkMode ? '#f8fafc' : '#1f2937',
-    textSecondary: darkMode ? 'rgba(248,250,252,0.75)' : 'rgba(71,85,105,0.85)',
-    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.85)',
-    iconMuted: darkMode ? 'rgba(255,255,255,0.5)' : 'rgba(148,163,184,0.7)',
+    textPrimary: darkMode ? '#f8fafc' : '#0f172a',
+    textSecondary: darkMode ? 'rgba(248,250,252,0.75)' : '#475569',
+    textMuted: darkMode ? 'rgba(255,255,255,0.6)' : '#64748b',
+    iconMuted: darkMode ? 'rgba(255,255,255,0.5)' : '#94a3b8',
     controlBg: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
-    controlBgSoft: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,0.9)',
-    controlBorder: darkMode ? 'rgba(255,255,255,0.2)' : 'rgba(148,163,184,0.45)',
+    controlBgSoft: darkMode ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+    controlBorder: darkMode ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
     sectionSurface: darkMode
       ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(254,242,242,0.95) 100%)',
-    sectionBorder: darkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(252, 165, 165, 0.45)',
-    surfaceHover: darkMode ? 'rgba(248,113,113,0.2)' : 'rgba(252, 165, 165, 0.35)',
-    tableHeaderBg: darkMode ? 'rgba(248, 113, 113, 0.15)' : 'rgba(254, 226, 226, 0.9)',
-    tableHeaderText: darkMode ? '#ffffff' : '#991b1b',
-    tableRowAltBg: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.85)',
-    tableRowHover: darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(254,226,226,0.6)',
-    infoSurface: darkMode ? 'rgba(239, 68, 68, 0.1)' : 'rgba(254, 226, 226, 0.85)',
-    infoBorder: darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(252, 165, 165, 0.65)',
+      : '#ffffff',
+    sectionBorder: darkMode ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0',
+    surfaceHover: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+    tableHeaderBg: darkMode ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc',
+    tableHeaderText: darkMode ? '#ffffff' : '#64748b',
+    tableRowAltBg: darkMode ? 'rgba(255,255,255,0.02)' : '#f8fafc',
+    tableRowHover: darkMode ? 'rgba(255,255,255,0.04)' : '#f8fafc',
+    infoSurface: darkMode ? 'rgba(239, 68, 68, 0.1)' : '#ffffff',
+    infoBorder: darkMode ? 'rgba(239, 68, 68, 0.3)' : '#e2e8f0',
     successTint: darkMode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(187, 247, 208, 0.7)',
     neutralTint: darkMode ? 'rgba(156, 163, 175, 0.2)' : 'rgba(226,232,240,0.7)',
     paginationBg: darkMode
       ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
-      : 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(254,242,242,0.96) 100%)',
-    toggleGroupBg: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+      : '#ffffff',
+    toggleGroupBg: darkMode ? 'rgba(255,255,255,0.08)' : '#f1f5f9',
     toggleActiveBg: darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff',
     toggleActiveText: darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary,
-    toggleInactiveText: darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'
+    toggleInactiveText: darkMode ? 'rgba(255,255,255,0.6)' : '#64748b'
   }), [darkMode]);
 
   const excelButtonStyles = useMemo(() => ({
@@ -137,24 +137,24 @@ const GestionCursos = () => {
 
   const statusStyles = useMemo<Record<Course['estado'], { background: string; color: string; border: string }>>(() => ({
     planificado: {
-      background: darkMode ? 'rgba(248,113,113,0.18)' : 'rgba(254,215,215,0.95)',
-      color: darkMode ? RedColorPalette.primaryLight : '#b91c1c',
-      border: darkMode ? `1px solid ${RedColorPalette.primaryLight}` : '1px solid rgba(252,165,165,0.85)'
+      background: darkMode ? 'rgba(59, 130, 246, 0.18)' : '#eff6ff',
+      color: darkMode ? '#60a5fa' : '#2563eb',
+      border: darkMode ? '1px solid #60a5fa' : '1px solid #bfdbfe'
     },
     activo: {
-      background: darkMode ? 'rgba(220,38,38,0.18)' : 'rgba(254, 226, 226, 0.95)',
-      color: darkMode ? RedColorPalette.primary : '#b91c1c',
-      border: darkMode ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(248,113,113,0.9)'
+      background: darkMode ? 'rgba(16, 185, 129, 0.18)' : '#f0fdf4',
+      color: darkMode ? '#34d399' : '#16a34a',
+      border: darkMode ? '1px solid #34d399' : '1px solid #bbf7d0'
     },
     finalizado: {
-      background: darkMode ? 'rgba(156,163,175,0.22)' : 'rgba(226,232,240,0.85)',
-      color: darkMode ? '#9ca3af' : '#475569',
-      border: darkMode ? '1px solid rgba(156,163,175,0.28)' : '1px solid rgba(203,213,225,0.8)'
+      background: darkMode ? 'rgba(156,163,175,0.22)' : '#f8fafc',
+      color: darkMode ? '#9ca3af' : '#64748b',
+      border: darkMode ? '1px solid rgba(156,163,175,0.28)' : '1px solid #e2e8f0'
     },
     cancelado: {
-      background: darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(254, 202, 202, 0.95)',
-      color: darkMode ? RedColorPalette.primary : '#b91c1c',
-      border: darkMode ? `1px solid ${RedColorPalette.primary}` : '1px solid rgba(252,165,165,0.9)'
+      background: darkMode ? 'rgba(239,68,68,0.2)' : '#fef2f2',
+      color: darkMode ? '#f87171' : '#dc2626',
+      border: darkMode ? '1px solid #f87171' : '1px solid #fecaca'
     }
   }), [darkMode]);
 
@@ -1297,13 +1297,13 @@ const GestionCursos = () => {
           >
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: isSmallScreen ? 'min(56.25rem, 95vw)' : 'auto' }}>
               <thead style={{
-                borderBottom: `1px solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.18)'}`,
-                background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)'
+                borderBottom: `1px solid ${themeColors.tableHeaderBg}`,
+                background: themeColors.tableHeaderBg
               }}>
                 <tr>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'left',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1313,7 +1313,7 @@ const GestionCursos = () => {
                   </th>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'left',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1323,7 +1323,7 @@ const GestionCursos = () => {
                   </th>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'center',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1333,7 +1333,7 @@ const GestionCursos = () => {
                   </th>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'center',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1343,7 +1343,7 @@ const GestionCursos = () => {
                   </th>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'center',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1353,7 +1353,7 @@ const GestionCursos = () => {
                   </th>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'center',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1363,7 +1363,7 @@ const GestionCursos = () => {
                   </th>
                   <th style={{
                     padding: '0.25rem 0.5rem',
-                    color: darkMode ? '#ffffff' : '#9f1239',
+                    color: themeColors.tableHeaderText,
                     textAlign: 'center',
                     fontWeight: 600,
                     fontSize: '0.65rem',
@@ -1374,26 +1374,17 @@ const GestionCursos = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedCursos.map((curso, index) => {
+                {paginatedCursos.map((curso) => {
                   const estadoBadge = statusStyles[curso.estado];
-                  const viewActionColor = darkMode ? RedColorPalette.primary : '#b91c1c';
-                  const editActionColor = themeColors.textPrimary;
-                  const deleteActionColor = excelButtonStyles.text;
-                  const toggleActionColor = curso.estado === 'cancelado'
-                    ? (darkMode ? mapToRedScheme('#10b981') : '#047857')
-                    : (darkMode ? '#9ca3af' : '#475569');
-                  const toggleIconColor = curso.estado === 'cancelado'
-                    ? (darkMode ? mapToRedScheme('#10b981') : '#047857')
-                    : (darkMode ? '#9ca3af' : '#475569');
                   return (
                     <tr
                       key={curso.id_curso}
                       style={{
-                        borderBottom: `1px solid ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'}`,
+                        borderBottom: `1px solid ${themeColors.controlBorder}`,
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                        e.currentTarget.style.background = themeColors.tableRowHover;
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'transparent';

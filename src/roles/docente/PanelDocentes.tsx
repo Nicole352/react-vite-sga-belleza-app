@@ -141,26 +141,26 @@ const PanelDocentes = () => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
-        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1))',
-        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)',
+        background: 'linear-gradient(135deg, #000 0%, #1a1a1a 50%, #000 100%)',
+        sidebarBg: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,26,0.95) 100%)',
+        navbarBg: darkMode ? '#262626' : '#ffffff',
+        contentBg: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)',
         textPrimary: '#fff',
         textSecondary: 'rgba(255,255,255,0.8)',
         textMuted: 'rgba(255,255,255,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
+        border: darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0',
         accent: '#3b82f6'
       };
     } else {
       return {
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
-        sidebarBg: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
-        navbarBg: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(37, 99, 235, 0.05))',
-        contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
+        sidebarBg: '#ffffff',
+        navbarBg: darkMode ? '#262626' : '#ffffff',
+        contentBg: '#ffffff',
         textPrimary: '#1e293b',
         textSecondary: 'rgba(30,41,59,0.8)',
         textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(59, 130, 246, 0.2)',
+        border: '#e2e8f0',
         accent: '#3b82f6'
       };
     }
@@ -190,10 +190,10 @@ const PanelDocentes = () => {
           --docente-text-muted: ${theme.textMuted};
           --docente-border: ${theme.border};
           --docente-accent: ${theme.accent};
-          --docente-input-bg: ${darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'};
+          --docente-input-bg: ${darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
           --docente-input-border: ${darkMode ? 'rgba(255,255,255,0.1)' : '#e5e7eb'};
-          --docente-card-bg: ${darkMode ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%)' : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)'};
-          --docente-hover-bg: ${darkMode ? 'rgba(59, 130, 246, 0.08)' : 'rgba(0,0,0,0.05)'};
+          --docente-card-bg: ${darkMode ? 'rgba(26, 26, 26, 0.95)' : '#ffffff'};
+          --docente-hover-bg: ${darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.02)'};
         }
         
         .docente-panel input,
@@ -247,15 +247,15 @@ const PanelDocentes = () => {
         <div style={{
           width: isSmallScreen ? '16rem' : (sidebarCollapsed ? '4.5rem' : '16rem'),
           background: theme.sidebarBg,
-          border: `0.0625rem solid ${theme.border}`,
-          borderRadius: isSmallScreen ? '0' : '0 1em 1em 0',
+          borderRight: `0.0625rem solid ${theme.border}`,
+          borderRadius: isSmallScreen ? '0' : '0',
           padding: (isSmallScreen || !sidebarCollapsed) ? '0.625em 1em 1.25em 1em' : '0.625em 0.375em 1.25em 0.375em',
           position: 'fixed',
           height: '100vh',
           left: isSmallScreen ? (mobileMenuOpen ? '0' : '-16rem') : '0',
           top: 0,
           zIndex: 1000,
-          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.1)',
+          boxShadow: darkMode ? '0.25rem 0 1.25rem rgba(0, 0, 0, 0.3)' : '0.25rem 0 1.25rem rgba(0, 0, 0, 0.02)',
           transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           overflowY: isSmallScreen ? 'auto' : 'hidden',
           display: 'flex',
@@ -470,7 +470,7 @@ const PanelDocentes = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0.5rem 1.25rem rgba(59, 130, 246, 0.3)',
+                boxShadow: darkMode ? `0 0.5rem 1.25rem ${theme.accent}20` : `0 0.5rem 1.25rem rgba(59, 130, 246, 0.15)`,
                 flexShrink: 0
               }}>
                 {(() => {

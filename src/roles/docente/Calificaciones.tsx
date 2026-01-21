@@ -57,14 +57,14 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
   const getThemeColors = () => {
     if (darkMode) {
       return {
-        cardBg: 'rgba(30, 41, 59, 0.7)',
-        textPrimary: '#f8fafc',
-        textSecondary: '#cbd5e1',
-        textMuted: '#94a3b8',
-        border: 'rgba(255, 255, 255, 0.08)',
+        cardBg: 'rgba(26, 26, 26, 0.7)',
+        textPrimary: '#ffffff',
+        textSecondary: 'rgba(255, 255, 255, 0.8)',
+        textMuted: 'rgba(255, 255, 255, 0.6)',
+        border: 'rgba(255, 255, 255, 0.1)',
         accent: '#3b82f6',
-        success: '#34d399',
-        warning: '#fbbf24',
+        success: '#10b981',
+        warning: '#f59e0b',
         danger: '#ef4444'
       };
     } else {
@@ -301,7 +301,7 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
                       <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        background: darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.1)',
+                        background: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(59, 130, 246, 0.1)',
                         color: theme.accent,
                         padding: '0.15rem 0.5rem',
                         borderRadius: '0.375rem',

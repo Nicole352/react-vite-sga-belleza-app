@@ -107,18 +107,18 @@ const ControlUsuarios = () => {
     'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
     'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
   );
-  const tableBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.2)');
-  const tableHeaderBg = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)');
-  const tableHeaderBorder = pick('rgba(248,113,113,0.18)', 'rgba(248,113,113,0.3)');
-  const tableHeaderText = pick('#9f1239', '#ffffff');
+  const tableBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
+  const tableHeaderBg = pick('#f8fafc', 'rgba(248,250,252,0.05)');
+  const tableHeaderBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
+  const tableHeaderText = pick('#64748b', '#e2e8f0');
   const tableRowDivider = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
-  const tableRowHover = pick('rgba(248,113,113,0.1)', 'rgba(248,113,113,0.08)');
+  const tableRowHover = pick('#f1f5f9', 'rgba(255,255,255,0.05)');
 
   const paginationSurface = pick(
     'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
     'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
   );
-  const paginationBorder = pick('rgba(239,68,68,0.14)', 'rgba(239,68,68,0.25)');
+  const paginationBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
   const paginationText = pick('rgba(30,41,59,0.85)', 'rgba(226,232,240,0.8)');
   const paginationButtonBg = pick('rgba(255,255,255,0.95)', 'rgba(255,255,255,0.1)');
   const paginationButtonBorder = pick('rgba(226,232,240,0.75)', 'rgba(255,255,255,0.2)');
@@ -129,7 +129,7 @@ const ControlUsuarios = () => {
     `linear-gradient(135deg, ${RedColorPalette.primaryLight} 0%, ${RedColorPalette.primary} 100%)`,
     `linear-gradient(135deg, ${RedColorPalette.primary} 0%, ${RedColorPalette.primaryDark} 100%)`
   );
-  const activePageBorder = pick('rgba(239,68,68,0.3)', 'rgba(239,68,68,0.4)');
+  const activePageBorder = pick('#e2e8f0', 'rgba(255,255,255,0.2)');
   const inactivePageBg = pick('rgba(226,232,240,0.9)', 'rgba(255,255,255,0.08)');
   const inactivePageBorder = pick('rgba(148,163,184,0.45)', 'rgba(255,255,255,0.15)');
 
@@ -570,7 +570,7 @@ const ControlUsuarios = () => {
           padding: '0.5rem',
           boxShadow: 'none',
           borderRadius: '0.375rem',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`
         }}
       >
         <div className="responsive-filters" style={{ gap: '0.75rem', alignItems: 'center', display: 'flex', flexWrap: 'wrap' }}>
@@ -600,7 +600,7 @@ const ControlUsuarios = () => {
                 width: '100%',
                 padding: '0 0.5rem 0 2rem',
                 borderRadius: '0.5rem',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
                 backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : '#ffffff',
                 fontSize: '0.75rem',
                 color: filterInputText,
@@ -678,12 +678,12 @@ const ControlUsuarios = () => {
             {/* Indicador de scroll en móvil */}
             {isSmallScreen && (
               <div style={{
-                background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
-                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
+                background: pick('rgba(241,245,249,0.9)', 'rgba(255,255,255,0.05)'),
+                border: `1px solid ${pick('#e2e8f0', 'rgba(255,255,255,0.08)')}`,
                 borderRadius: '0.5rem',
                 padding: '8px 0.75rem',
                 marginBottom: '0.75rem',
-                color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
+                color: textSecondaryColor,
                 fontSize: '0.75rem',
                 textAlign: 'center',
                 display: 'flex',
@@ -778,19 +778,19 @@ const ControlUsuarios = () => {
                               style={{
                                 padding: '0.25rem',
                                 borderRadius: '0.5rem',
-                                border: `1px solid ${RedColorPalette.primary}`,
+                                border: '1px solid #3b82f6',
                                 backgroundColor: 'transparent',
-                                color: RedColorPalette.primary,
+                                color: '#3b82f6',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = RedColorPalette.primary;
+                                e.currentTarget.style.backgroundColor = '#3b82f6';
                                 e.currentTarget.style.color = 'white';
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = RedColorPalette.primary;
+                                e.currentTarget.style.color = '#3b82f6';
                               }}
                               title="Ver detalle"
                             >
@@ -1384,8 +1384,8 @@ const ModalDetalle = ({
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(254,226,226,0.9)';
-              e.currentTarget.style.borderColor = darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(248,113,113,0.45)';
+              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(15,23,42,0.1)';
+              e.currentTarget.style.borderColor = darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)';
@@ -2277,7 +2277,7 @@ const ModalConfirmacion = ({ show, accion, onConfirm, onCancel, motivoBloqueo, s
         style={{
           position: 'relative',
           background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
+          border: '1px solid var(--admin-border, rgba(255,255,255,0.1))',
           borderRadius: '12px',
           maxWidth: '31.25rem',
           padding: '1.5rem',

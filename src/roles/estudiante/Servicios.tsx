@@ -37,16 +37,16 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
       };
     } else {
       return {
-        cardBg: 'rgba(255, 255, 255, 0.8)',
+        cardBg: '#ffffff',
         textPrimary: '#1e293b',
         textSecondary: 'rgba(30,41,59,0.8)',
-        textMuted: 'rgba(30,41,59,0.7)',
-        border: 'rgba(251, 191, 36, 0.2)',
+        textMuted: 'rgba(30,41,59,0.6)',
+        border: '#e2e8f0',
         accent: '#f59e0b',
-        success: '#059669',
-        warning: '#d97706',
-        danger: '#dc2626',
-        info: '#2563eb'
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444',
+        info: '#3b82f6'
       };
     }
   };
@@ -183,9 +183,9 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                 padding: '0.5rem',
                 backdropFilter: 'blur(10px)',
                 boxShadow: darkMode
-                  ? '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(251, 191, 36, 0.1)'
-                  : '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(251, 191, 36, 0.1)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  ? '0 10px 30px rgba(0, 0, 0, 0.4)'
+                  : '0 10px 30px rgba(0, 0, 0, 0.04)',
+                transition: 'all 0.3s ease',
                 cursor: 'pointer',
                 position: 'relative',
                 overflow: 'hidden'
@@ -193,14 +193,14 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
                 e.currentTarget.style.boxShadow = darkMode
-                  ? '0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(251, 191, 36, 0.2)'
-                  : '0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(251, 191, 36, 0.2)';
+                  ? '0 20px 40px rgba(0, 0, 0, 0.5)'
+                  : '0 20px 40px rgba(0, 0, 0, 0.08)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = darkMode
-                  ? '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(251, 191, 36, 0.1)'
-                  : '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(251, 191, 36, 0.1)';
+                  ? '0 10px 30px rgba(0, 0, 0, 0.4)'
+                  : '0 10px 30px rgba(0, 0, 0, 0.04)';
               }}
             >
               {/* Header del servicio */}
@@ -209,15 +209,15 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                   <div style={{
                     width: '2.5rem',
                     height: '2.5rem',
-                    background: `linear-gradient(135deg, ${theme.accent}25, ${theme.accent}15)`,
-                    borderRadius: '0.5rem',
+                    background: darkMode ? 'rgba(251, 191, 36, 0.1)' : '#fffbeb',
+                    borderRadius: '0.75rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    border: `1px solid ${theme.accent}30`,
+                    border: `1px solid ${darkMode ? 'rgba(251, 191, 36, 0.2)' : '#fde68a'}`,
                     flexShrink: 0
                   }}>
-                    <Icon size={20} color={theme.accent} strokeWidth={2.5} />
+                    <Icon size={24} color={theme.accent} strokeWidth={2} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <h3 style={{
@@ -247,8 +247,8 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                       }} />
                       <span style={{
                         color: statusColor,
-                        fontSize: '0.75rem',
-                        fontWeight: '700'
+                        fontSize: '0.7rem',
+                        fontWeight: '800'
                       }}>
                         {getStatusText(service.status)}
                       </span>
@@ -260,9 +260,9 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
               {/* Descripción */}
               <p style={{
                 color: theme.textSecondary,
-                fontSize: '0.8rem',
-                margin: '0 0 0.5rem 0',
-                lineHeight: 1.4
+                fontSize: '0.85rem',
+                margin: '0.5rem 0 1rem 0',
+                lineHeight: 1.5
               }}>
                 {service.description}
               </p>
@@ -286,28 +286,25 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                       <div key={index} style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.4rem',
-                        padding: '0.35rem 0.5rem',
-                        background: darkMode ? 'rgba(251, 191, 36, 0.05)' : 'rgba(251, 191, 36, 0.08)',
-                        borderRadius: '0.35rem',
-                        border: `1px solid ${darkMode ? 'rgba(251, 191, 36, 0.1)' : 'rgba(251, 191, 36, 0.15)'}`,
-                        transition: 'all 0.2s ease'
+                        gap: '0.5rem',
+                        padding: '0.4rem 0.75rem',
+                        background: darkMode ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
+                        borderRadius: '0.5rem',
+                        border: `1px solid ${theme.border}`,
+                        transition: 'all 0.2s ease',
+                        width: 'fit-content'
                       }}>
                         <div style={{
-                          width: '1.75em',
-                          height: '1.75em',
-                          background: `${theme.accent}15`,
-                          borderRadius: '0.375em',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0
                         }}>
-                          <FeatureIcon size={14} color={theme.accent} strokeWidth={2.5} />
+                          <FeatureIcon size={14} color={theme.textMuted} strokeWidth={2} />
                         </div>
                         <span style={{
-                          color: theme.textPrimary,
-                          fontSize: '0.8125rem',
+                          color: theme.textSecondary,
+                          fontSize: '0.8rem',
                           fontWeight: '600'
                         }}>
                           {feature.text}
@@ -320,11 +317,11 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
 
               {/* Información de contacto */}
               <div style={{
-                background: darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
-                borderRadius: '0.5rem',
-                padding: '0.5rem',
-                marginBottom: '0.5rem',
-                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'}`
+                background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(248, 250, 252, 0.8)',
+                borderRadius: '0.75rem',
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                border: `1px solid ${theme.border}`
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.5em' }}>
                   <div style={{
@@ -369,41 +366,32 @@ const Servicios: React.FC<ServiciosProps> = ({ darkMode }) => {
                 }}
                 style={{
                   width: '100%',
-                  background: (service as any).isSpecial
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : `linear-gradient(135deg, ${theme.accent} 0%, ${theme.warning} 100%)`,
+                  background: '#f59e0b',
                   color: '#fff',
                   border: 'none',
-                  borderRadius: '0.5rem',
-                  padding: '0.5rem 0.75rem',
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  fontSize: '1rem',
+                  fontWeight: '800',
                   cursor: 'pointer',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transition: 'all 0.3s ease',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5em',
-                  boxShadow: (service as any).isSpecial
-                    ? '0 4px 12px rgba(16, 185, 129, 0.3)'
-                    : `0 4px 12px ${theme.accent}40`,
-                  position: 'relative',
-                  overflow: 'hidden'
+                  gap: '0.75rem',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = (service as any).isSpecial
-                    ? '0 6px 20px rgba(16, 185, 129, 0.4)'
-                    : `0 6px 20px ${theme.accent}50`;
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(245, 158, 11, 0.4)';
+                  e.currentTarget.style.background = '#d97706';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = (service as any).isSpecial
-                    ? '0 4px 12px rgba(16, 185, 129, 0.3)'
-                    : `0 4px 12px ${theme.accent}40`;
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                  e.currentTarget.style.background = '#f59e0b';
                 }}
               >
-                <CreditCard size={16} strokeWidth={2.5} color="#fff" />
                 {service.action}
               </button>
             </div>

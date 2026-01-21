@@ -140,10 +140,10 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
   const palette = {
     pageBg: `var(--theme-bg-content, ${pick('linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%)', 'linear-gradient(135deg, rgba(10,10,10,0.95) 0%, rgba(23,23,23,0.95) 100%)')})`,
     cardBg: `var(--theme-card-bg, ${pick('linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(244,246,249,0.95) 100%)', 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)')})`,
-    cardBorder: pick('rgba(239, 68, 68, 0.12)', 'rgba(248, 113, 113, 0.22)'),
-    cardShadow: pick('0 0.25em 0.75em rgba(15, 23, 42, 0.12)', '0 0.25em 0.75em rgba(0, 0, 0, 0.3)'),
-    cardHoverShadow: pick('0 0.45em 1.25em rgba(239, 68, 68, 0.18)', '0 0.5em 1.5em rgba(248, 113, 113, 0.3)'),
-    cardHoverBorder: pick('rgba(239, 68, 68, 0.22)', 'rgba(248, 113, 113, 0.4)'),
+    cardBorder: pick('rgba(226, 232, 240, 0.8)', 'rgba(255, 255, 255, 0.1)'),
+    cardShadow: pick('0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', '0 10px 15px -3px rgba(0, 0, 0, 0.5)'),
+    cardHoverShadow: pick('0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', '0 20px 25px -5px rgba(0, 0, 0, 0.5)'),
+    cardHoverBorder: pick('rgba(148, 163, 184, 0.3)', 'rgba(255, 255, 255, 0.2)'),
     labelMuted: pick('rgba(71, 85, 105, 0.7)', 'rgba(226, 232, 240, 0.65)'),
     textSecondary: 'var(--admin-text-secondary, rgba(30,41,59,0.8))',
     textMuted: 'var(--admin-text-muted, rgba(100,116,139,0.75))',
@@ -151,11 +151,11 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     softSurfaceBorder: pick('rgba(15, 23, 42, 0.08)', 'rgba(255, 255, 255, 0.12)'),
     occupancyTrack: pick('rgba(15, 23, 42, 0.08)', 'rgba(255, 255, 255, 0.1)'),
     emptyStateText: pick('rgba(100, 116, 139, 0.75)', 'rgba(226, 232, 240, 0.7)'),
-    tableHeaderBg: pick('rgba(248, 113, 113, 0.12)', 'rgba(248, 113, 113, 0.15)'),
-    tableHeaderBorder: pick('rgba(248, 113, 113, 0.18)', 'rgba(248, 113, 113, 0.3)'),
-    tableRowAlt: pick('rgba(248, 250, 252, 0.65)', 'rgba(255, 255, 255, 0.02)'),
-    tableDivider: pick('rgba(226, 232, 240, 0.5)', 'rgba(255, 255, 255, 0.05)'),
-    tableHover: pick('rgba(248, 113, 113, 0.18)', 'rgba(248, 113, 113, 0.08)'),
+    tableHeaderBg: pick('#f8fafc', 'rgba(255, 255, 255, 0.02)'),
+    tableHeaderBorder: pick('#e2e8f0', 'rgba(255, 255, 255, 0.06)'),
+    tableRowAlt: pick('rgba(248, 250, 252, 0.5)', 'rgba(255, 255, 255, 0.02)'),
+    tableDivider: pick('rgba(226, 232, 240, 0.8)', 'rgba(255, 255, 255, 0.05)'),
+    tableHover: pick('rgba(241, 245, 249, 0.8)', 'rgba(255, 255, 255, 0.04)'),
     tableSubtext: pick('rgba(100, 116, 139, 0.75)', 'rgba(148, 163, 184, 0.75)'),
     tableIconBg: pick('rgba(239, 68, 68, 0.12)', 'rgba(248, 113, 113, 0.2)'),
     tableIconColor: pick('#ef4444', '#f87171'),
@@ -191,7 +191,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     inputText: 'var(--admin-text-primary, #1f2937)',
     placeholder: pick('rgba(100, 116, 139, 0.6)', 'rgba(148, 163, 184, 0.65)'),
     paginationBg: pick('linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)', 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'),
-    paginationBorder: pick('rgba(239, 68, 68, 0.14)', 'rgba(239, 68, 68, 0.25)'),
+    paginationBorder: pick('rgba(239, 68, 68, 0.14)', 'rgba(255, 255, 255, 0.08)'),
     paginationText: pick('rgba(30, 41, 59, 0.85)', 'rgba(226, 232, 240, 0.9)'),
     paginationButtonBg: pick('rgba(248, 250, 252, 0.9)', 'rgba(255, 255, 255, 0.1)'),
     paginationButtonBorder: pick('rgba(226, 232, 240, 0.7)', 'rgba(255, 255, 255, 0.2)'),
@@ -212,8 +212,8 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     modalNeutralButtonText: pick('#475569', '#e2e8f0'),
     modalCloseBg: pick('rgba(148, 163, 184, 0.2)', 'rgba(255, 255, 255, 0.08)'),
     modalCloseBorder: pick('rgba(148, 163, 184, 0.35)', 'rgba(148, 163, 184, 0.25)'),
-    modalCloseHoverBg: pick('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.25)'),
-    modalCloseHoverBorder: pick('rgba(239, 68, 68, 0.35)', 'rgba(239, 68, 68, 0.45)'),
+    modalCloseHoverBg: pick('rgba(241, 245, 249, 1)', 'rgba(51, 65, 85, 0.8)'),
+    modalCloseHoverBorder: pick('rgba(203, 213, 225, 1)', 'rgba(71, 85, 105, 1)'),
     modalShadow: pick('0 1.5rem 5rem -1.25rem rgba(15, 23, 42, 0.3)', '0 1.5rem 5rem -1.25rem rgba(0, 0, 0, 0.6)')
   };
 
@@ -605,7 +605,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
           borderRadius: '0.375rem',
           padding: '0.5rem',
           boxShadow: 'none',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`
         }}
       >
         <div className="responsive-filters">
@@ -628,8 +628,8 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 style={{
                   width: '100%',
                   padding: '0 0.5rem 0 2rem',
-                  background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                  border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                  background: darkMode ? 'rgba(255,255,255,0.06)' : '#ffffff',
+                  border: `1px solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
                   borderRadius: '0.5rem',
                   color: palette.inputText,
                   fontSize: '0.75rem',
@@ -730,7 +730,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               fontSize: '0.8rem',
               fontWeight: '600',
               cursor: 'pointer',
-              boxShadow: `0 0.35rem 0.85rem ${RedColorPalette.primaryShadow}`
+              boxShadow: `0 4px 6px -1px rgba(0,0,0,0.1)`
             }}
           >
             <Plus size={16} color="currentColor" />
@@ -801,7 +801,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 >
                   {/* Header */}
                   <div style={{
-                    background: 'linear-gradient(135deg, #fca5a5 0%, #f87171 100%)',
+                    background: palette.softSurface,
                     padding: '0.35rem 0.6rem',
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -1060,12 +1060,12 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (
             <div style={{
-              background: darkMode ? 'rgba(239, 68, 68, 0.12)' : 'rgba(254, 226, 226, 0.9)',
-              border: `0.0625rem solid ${darkMode ? 'rgba(248, 113, 113, 0.4)' : 'rgba(248, 113, 113, 0.35)'}`,
+              background: darkMode ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+              border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
               borderRadius: '0.5rem',
               padding: '0.5rem 0.75rem',
               marginBottom: '0.75rem',
-              color: darkMode ? '#fca5a5' : '#dc2626',
+              color: darkMode ? '#94a3b8' : '#64748b',
               fontSize: '0.75rem',
               textAlign: 'center',
               display: 'flex',
@@ -1084,7 +1084,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               ? 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
               : 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(252,252,253,0.96) 100%)',
             backdropFilter: 'blur(1.25rem)',
-            border: `0.0625rem solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`,
+            border: `0.0625rem solid ${darkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0'}`,
             borderRadius: '0.75rem',
             overflow: 'hidden',
             marginBottom: '0.5rem',
@@ -1103,7 +1103,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                 opacity: 0.08,
                 pointerEvents: 'none',
                 zIndex: 0,
-                color: darkMode ? 'rgba(248, 113, 113, 0.6)' : 'rgba(239, 68, 68, 0.5)'
+                color: darkMode ? 'rgba(255, 255, 255, 0.04)' : 'rgba(239, 68, 68, 0.05)'
               }}
             />
 
@@ -1111,18 +1111,18 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{
-                    background: darkMode ? 'rgba(248,113,113,0.15)' : 'rgba(248,113,113,0.12)',
-                    borderBottom: `0.0625rem solid ${darkMode ? 'rgba(248,113,113,0.3)' : 'rgba(248,113,113,0.25)'}`
+                    background: palette.tableHeaderBg,
+                    borderBottom: `0.0625rem solid ${palette.tableHeaderBorder}`
                   }}>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: darkMode ? '#ffffff' : '#9f1239', fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Aula</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Curso</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Docente</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Horario</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Días</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Período</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', letterSpacing: '0.02em', textTransform: 'uppercase', verticalAlign: 'middle' }}>Ocupación</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Estado</th>
+                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', fontWeight: '600', color: palette.textSecondary, fontSize: '0.65rem', textTransform: 'uppercase', verticalAlign: 'middle' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1145,7 +1145,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = darkMode ? 'rgba(248,113,113,0.08)' : 'rgba(248,113,113,0.1)';
+                          e.currentTarget.style.background = palette.tableHover;
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'transparent';

@@ -85,48 +85,48 @@ const GestionMatricula = () => {
 
   const theme = {
     pageBackground: pick(
-      'linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
-      'linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(17,17,25,0.92) 100%)'
+      '#f8fafc',
+      'linear-gradient(135deg, rgba(10,10,18,0.95) 0%, rgba(17,17,27,0.95) 100%)'
     ),
     contentBackground: pick(
       '#ffffff',
-      '#0f172a'
+      'var(--admin-bg-secondary, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%))'
     ),
-    surface: pick('rgba(255,255,255,0.94)', 'rgba(12,12,24,0.94)'),
-    surfaceBorder: pick('rgba(15,23,42,0.08)', 'rgba(255,255,255,0.08)'),
-    accentBorder: pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.28)'),
+    surface: pick('#ffffff', 'rgba(12,12,24,0.94)'),
+    surfaceBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
+    accentBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
     textPrimary: pick('#0f172a', 'rgba(255,255,255,0.95)'),
-    textSecondary: pick('rgba(71,85,105,0.82)', 'rgba(226,232,240,0.74)'),
-    textMuted: pick('rgba(100,116,139,0.65)', 'rgba(148,163,184,0.6)'),
-    chipMutedBg: pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.08)'),
-    chipMutedBorder: pick('rgba(148,163,184,0.24)', 'rgba(148,163,184,0.28)'),
-    chipMutedText: pick('rgba(71,85,105,0.7)', 'rgba(226,232,240,0.75)'),
-    divider: pick('rgba(148,163,184,0.18)', 'rgba(255,255,255,0.1)'),
-    inputBg: pick('rgba(255,255,255,0.96)', 'rgba(255,255,255,0.08)'),
+    textSecondary: pick('#475569', 'rgba(226,232,240,0.74)'),
+    textMuted: pick('#64748b', 'rgba(148,163,184,0.6)'),
+    chipMutedBg: pick('#f1f5f9', 'rgba(255,255,255,0.08)'),
+    chipMutedBorder: pick('#e2e8f0', 'rgba(148,163,184,0.28)'),
+    chipMutedText: pick('#475569', 'rgba(226,232,240,0.75)'),
+    divider: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
+    inputBg: pick('#ffffff', 'rgba(255,255,255,0.08)'),
     inputBorder: pick('#e2e8f0', 'rgba(255,255,255,0.1)'),
     inputText: pick('#0f172a', '#f8fafc'),
-    inputIcon: pick('rgba(71,85,105,0.55)', 'rgba(255,255,255,0.55)'),
-    controlShadow: pick('0 0.25rem 0.75rem rgba(15, 23, 42, 0.12)', '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)'),
+    inputIcon: pick('#94a3b8', 'rgba(255,255,255,0.55)'),
+    controlShadow: pick('0 1px 2px 0 rgba(0, 0, 0, 0.05)', '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)'),
     paginationBackground: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%)',
+      '#ffffff',
       'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.92) 100%)'
     ),
-    paginationBorder: pick('rgba(15,23,42,0.08)', 'rgba(239,68,68,0.2)'),
-    paginationText: pick('rgba(71,85,105,0.82)', 'rgba(226,232,240,0.74)'),
-    paginationInactiveBg: pick('rgba(241,245,249,0.9)', 'rgba(255,255,255,0.08)'),
-    paginationInactiveText: pick('rgba(148,163,184,0.65)', 'rgba(255,255,255,0.45)')
+    paginationBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
+    paginationText: pick('#0f172a', 'rgba(226,232,240,0.74)'),
+    paginationInactiveBg: pick('#f1f5f9', 'rgba(255,255,255,0.08)'),
+    paginationInactiveText: pick('#64748b', 'rgba(255,255,255,0.45)')
   };
 
   const tableContainerBg = pick(
-    'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
+    '#ffffff',
     'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
   );
-  const tableBorder = pick('rgba(239,68,68,0.18)', 'rgba(239,68,68,0.2)');
-  const tableHeaderBg = pick('rgba(248,113,113,0.12)', 'rgba(248,113,113,0.15)');
-  const tableHeaderBorder = pick('rgba(248,113,113,0.18)', 'rgba(248,113,113,0.3)');
-  const tableHeaderText = pick('#9f1239', '#ffffff');
-  const tableRowDivider = pick('rgba(15,23,42,0.06)', 'rgba(255,255,255,0.05)');
-  const tableRowHover = pick('rgba(248,113,113,0.1)', 'rgba(248,113,113,0.08)');
+  const tableBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
+  const tableHeaderBg = pick('#f8fafc', 'rgba(255,255,255,0.02)');
+  const tableHeaderBorder = pick('#e2e8f0', 'rgba(255,255,255,0.08)');
+  const tableHeaderText = pick('#0f172a', '#ffffff');
+  const tableRowDivider = pick('#e2e8f0', 'rgba(255,255,255,0.05)');
+  const tableRowHover = pick('#f8fafc', 'rgba(255,255,255,0.04)');
 
   const estadoTokens: Record<Solicitud['estado'], { bg: string; border: string; text: string }> = {
     pendiente: {
@@ -155,14 +155,14 @@ const GestionMatricula = () => {
 
   const emptyStateTokens = {
     background: pick(
-      'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9))',
+      '#ffffff',
       'linear-gradient(135deg, rgba(17,24,39,0.88), rgba(15,23,42,0.92))'
     ),
-    border: pick('rgba(148,163,184,0.35)', 'rgba(148,163,184,0.25)'),
-    iconBg: pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.22)'),
-    iconColor: pick(RedColorPalette.primary, '#fca5a5'),
-    shadow: pick('0 0.25rem 0.75rem rgba(15, 23, 42, 0.12)', '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)'),
-    cardBorder: pick('rgba(239, 68, 68, 0.12)', 'rgba(248, 113, 113, 0.22)'),
+    border: pick('#e2e8f0', 'rgba(148,163,184,0.25)'),
+    iconBg: pick('#f1f5f9', 'rgba(255,255,255,0.08)'),
+    iconColor: pick('#64748b', '#fca5a5'),
+    shadow: pick('none', '0 0.25rem 0.75rem rgba(0, 0, 0, 0.3)'),
+    cardBorder: pick('#e2e8f0', 'rgba(255,255,255,0.08)'),
     borderRadius: '0.375rem',
     padding: '0.5rem'
   } as const;
@@ -678,7 +678,7 @@ const GestionMatricula = () => {
           padding: '0.5rem',
           boxShadow: 'none',
           borderRadius: '0.375rem',
-          border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
+          border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`
         }}
       >
         <div className="responsive-filters">
@@ -707,8 +707,8 @@ const GestionMatricula = () => {
               style={{
                 width: '100%',
                 padding: '0 0.5rem 0 2rem',
-                background: darkMode ? 'rgba(255,255,255,0.06)' : 'rgba(248,250,252,0.95)',
-                border: `1px solid ${darkMode ? 'rgba(239,68,68,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                background: darkMode ? 'rgba(255,255,255,0.06)' : '#ffffff',
+                border: `1px solid ${darkMode ? 'rgba(255,255,255,0.08)' : '#e2e8f0'}`,
                 borderRadius: '0.5rem',
                 color: theme.inputText,
                 fontSize: '0.75rem',
@@ -871,8 +871,8 @@ const GestionMatricula = () => {
             {/* Indicador de scroll en móvil */}
             {isSmallScreen && (
               <div style={{
-                background: pick('rgba(254,226,226,0.9)', 'rgba(239,68,68,0.12)'),
-                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(248,113,113,0.4)')}`,
+                background: pick('rgba(254,226,226,0.9)', 'rgba(255,255,255,0.04)'),
+                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(255,255,255,0.08)')}`,
                 borderRadius: '0.5rem',
                 padding: '8px 0.75rem',
                 marginBottom: '0.75rem',
@@ -1135,7 +1135,7 @@ const GestionMatricula = () => {
                       '#ffffff',
                       'linear-gradient(135deg, rgba(8, 8, 12, 0.96) 0%, rgba(18, 18, 26, 0.98) 100%)'
                     ),
-                    border: `1px solid ${pick('rgba(15,23,42,0.08)', 'rgba(239, 68, 68, 0.22)')}`,
+                    border: `1px solid ${pick('#e2e8f0', 'rgba(255, 255, 255, 0.08)')}`,
                     borderRadius: '0.875rem',
                     padding: '0.625rem 0.875rem',
                     boxShadow: darkMode
@@ -1150,7 +1150,7 @@ const GestionMatricula = () => {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.borderColor = pick('rgba(239, 68, 68, 0.25)', 'rgba(239, 68, 68, 0.45)');
+                    e.currentTarget.style.borderColor = pick('#94a3b8', 'rgba(239, 68, 68, 0.45)');
                     e.currentTarget.style.boxShadow = darkMode
                       ? '0 12px 25px -8px rgba(0, 0, 0, 0.8)'
                       : '0 8px 20px -4px rgba(15, 23, 42, 0.12)';
@@ -1206,7 +1206,7 @@ const GestionMatricula = () => {
                     </h3>
                   </div>
 
-                  <div style={{ width: '100%', height: '1px', background: pick('rgba(148,163,184,0.18)', 'rgba(239, 68, 68, 0.15)'), opacity: 0.6 }} />
+                  <div style={{ width: '100%', height: '1px', background: pick('rgba(148,163,184,0.18)', 'rgba(255, 255, 255, 0.08)'), opacity: 0.6 }} />
 
                   {/* Fila de Detalles (4 columnas) */}
                   <div style={{
@@ -1242,9 +1242,9 @@ const GestionMatricula = () => {
                     <div>
                       <div style={fieldLabelStyle}>Número Comprobante</div>
                       <div style={{
-                        background: 'rgba(239, 68, 68, 0.05)',
-                        border: '1px solid rgba(239, 68, 68, 0.1)',
-                        color: RedColorPalette.primary,
+                        background: 'rgba(148, 163, 184, 0.1)',
+                        border: '1px solid rgba(148, 163, 184, 0.2)',
+                        color: theme.textSecondary,
                         padding: '3px 6px',
                         borderRadius: '0.25rem',
                         fontSize: '0.65rem',
@@ -1303,9 +1303,9 @@ const GestionMatricula = () => {
                     <button
                       onClick={() => openModal(sol.id_solicitud)}
                       style={{
-                        background: pick('rgba(239, 68, 68, 0.06)', 'rgba(239, 68, 68, 0.1)'),
-                        border: `1px solid ${pick('rgba(239, 68, 68, 0.15)', 'rgba(239, 68, 68, 0.25)')}`,
-                        color: RedColorPalette.primary,
+                        background: pick('rgba(59, 130, 246, 0.06)', 'rgba(255, 255, 255, 0.04)'),
+                        border: `1px solid ${pick('rgba(59, 130, 246, 0.2)', 'rgba(255, 255, 255, 0.08)')}`,
+                        color: pick('#2563eb', RedColorPalette.primary),
                         padding: '3px 0.875rem',
                         borderRadius: '0.45rem',
                         fontSize: '0.65rem',
@@ -1317,10 +1317,10 @@ const GestionMatricula = () => {
                         transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = pick('rgba(239, 68, 68, 0.12)', 'rgba(239, 68, 68, 0.18)');
+                        e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.12)', 'rgba(239, 68, 68, 0.18)');
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = pick('rgba(239, 68, 68, 0.06)', 'rgba(239, 68, 68, 0.1)');
+                        e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.06)', 'rgba(239, 68, 68, 0.1)');
                       }}
                     >
                       <Eye size={13} /> Ver
@@ -1349,7 +1349,7 @@ const GestionMatricula = () => {
                 'linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%)',
                 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,26,0.9) 100%)'
               ),
-              border: `1px solid ${pick('rgba(239,68,68,0.14)', 'rgba(239,68,68,0.25)')}`,
+              border: `1px solid ${pick('#e2e8f0', 'rgba(255,255,255,0.08)')}`,
               borderRadius: '0.75rem',
               marginTop: '0.5rem',
               marginBottom: isMobile ? '0.75rem' : '0.5rem'
@@ -1490,7 +1490,7 @@ const GestionMatricula = () => {
               style={{
                 position: 'relative',
                 background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '0.75rem',
                 width: isMobile ? '92vw' : '700px',
                 maxWidth: isMobile ? '92vw' : '700px',
@@ -1510,7 +1510,7 @@ const GestionMatricula = () => {
                 alignItems: 'center',
                 marginBottom: isMobile ? 12 : 14,
                 paddingBottom: isMobile ? 8 : 10,
-                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <FileText size={isMobile ? 18 : 20} style={{ color: '#ef4444' }} />
@@ -2168,7 +2168,7 @@ const GestionMatricula = () => {
               style={{
                 position: 'relative',
                 background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
                 width: isMobile ? '92vw' : '600px',
                 maxWidth: isMobile ? '92vw' : '600px',
@@ -2190,7 +2190,7 @@ const GestionMatricula = () => {
                 alignItems: 'center',
                 marginBottom: isMobile ? 12 : 14,
                 paddingBottom: isMobile ? 8 : 10,
-                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -2366,7 +2366,7 @@ const GestionMatricula = () => {
               style={{
                 position: 'relative',
                 background: 'var(--admin-card-bg, linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(26,26,46,0.9) 100%))',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 borderRadius: '12px',
                 width: isMobile ? '92vw' : '700px',
                 maxWidth: isMobile ? '92vw' : '700px',
@@ -2386,7 +2386,7 @@ const GestionMatricula = () => {
                 alignItems: 'center',
                 marginBottom: isMobile ? 12 : 14,
                 paddingBottom: isMobile ? 8 : 10,
-                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Check size={isMobile ? 18 : 20} style={{ color: '#10b981' }} />
@@ -2722,7 +2722,7 @@ const GestionMatricula = () => {
               style={{
                 position: 'relative',
                 background: pick('#ffffff', 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)'),
-                border: `1px solid ${pick('rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.3)')}`,
+                border: `1px solid ${pick('rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.08)')}`,
                 borderRadius: '16px',
                 width: isMobile ? '92vw' : '600px',
                 padding: '2rem',
@@ -2736,7 +2736,7 @@ const GestionMatricula = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '1rem',
-                borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
                 paddingBottom: '0.75rem'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

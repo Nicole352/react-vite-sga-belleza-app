@@ -18,16 +18,16 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
     hoverBg: 'rgba(255,255,255,0.05)',
     modalBg: 'rgba(0,0,0,0.92)'
   } : {
-    textPrimary: '#1e293b',
-    textSecondary: 'rgba(30,41,59,0.8)',
-    textMuted: 'rgba(30,41,59,0.7)',
-    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
-    contentBg: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)',
-    border: 'rgba(239, 68, 68, 0.2)',
-    inputBg: 'rgba(0,0,0,0.05)',
-    inputBorder: 'rgba(0,0,0,0.15)',
-    hoverBg: 'rgba(0,0,0,0.05)',
-    modalBg: 'rgba(240,240,240,0.75)'
+    textPrimary: '#0f172a', // Slate-900
+    textSecondary: '#475569', // Slate-600
+    textMuted: '#64748b', // Slate-500 (Igual que móvil)
+    background: '#f8fafc', // Slate-50 (Igual que móvil)
+    contentBg: '#ffffff', // White
+    border: '#e2e8f0', // Slate-200 (Igual que móvil)
+    inputBg: '#ffffff',
+    inputBorder: '#e2e8f0',
+    hoverBg: '#f1f5f9', // Slate-100
+    modalBg: 'rgba(255,255,255,0.95)'
   };
 
   return (
@@ -94,9 +94,9 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         
         /* Estilos específicos para select y sus opciones - MUY AGRESIVOS */
         .admin-theme-wrapper select {
-          background: ${darkMode ? 'rgba(17,17,17,0.9)' : 'rgba(255,255,255,0.9)'} !important;
-          border: ${darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.2)'} !important;
-          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+          background: ${darkMode ? 'rgba(17,17,17,0.9)' : '#ffffff'} !important;
+          border: ${darkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid #e2e8f0'} !important;
+          color: ${darkMode ? '#fff' : '#0f172a'} !important;
           border-radius: 10px !important;
           font-size: 14px !important;
           font-family: inherit !important;
@@ -104,32 +104,32 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         
         .admin-theme-wrapper select option {
           background: ${darkMode ? '#111' : '#fff'} !important;
-          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+          color: ${darkMode ? '#fff' : '#0f172a'} !important;
           padding: 8px !important;
           border: none !important;
         }
         
         .admin-theme-wrapper select option:disabled {
-          background: ${darkMode ? '#111' : '#f8f9fa'} !important;
-          color: ${darkMode ? '#bbb' : '#6b7280'} !important;
+          background: ${darkMode ? '#111' : '#f8fafc'} !important;
+          color: ${darkMode ? '#bbb' : '#94a3b8'} !important;
         }
         
         .admin-theme-wrapper select option:hover,
         .admin-theme-wrapper select option:focus {
-          background: ${darkMode ? '#333' : '#f0f0f0'} !important;
+          background: ${darkMode ? '#333' : '#f1f5f9'} !important;
         }
         
         .admin-theme-wrapper select option:checked {
-          background: ${darkMode ? '#444' : '#e5e7eb'} !important;
+          background: ${darkMode ? '#444' : '#e2e8f0'} !important;
         }
         
         /* Sobrescribir estilos específicos de StyledSelect hardcodeados */
         .admin-theme-wrapper select[style*="background: rgba(17,17,17,0.9)"] {
-          background: ${darkMode ? 'rgba(17,17,17,0.9)' : 'rgba(255,255,255,0.9)'} !important;
+          background: ${darkMode ? 'rgba(17,17,17,0.9)' : '#ffffff'} !important;
         }
         
         .admin-theme-wrapper select[style*="color: #fff"] {
-          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+          color: ${darkMode ? '#fff' : '#0f172a'} !important;
         }
         
         .admin-theme-wrapper input::placeholder,
@@ -150,15 +150,15 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         
         /* Overlay del modal con clase modal-overlay */
         .admin-theme-wrapper .modal-overlay {
-          background: ${darkMode ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.65)'} !important;
+          background: ${darkMode ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.5)'} !important;
         }
         
         /* Contenido del modal con clase modal-content */
         .admin-theme-wrapper .modal-content {
-          background: ${darkMode ? 'rgba(17, 17, 17, 0.98)' : 'rgba(255, 255, 255, 0.98)'} !important;
+          background: ${darkMode ? 'rgba(17, 17, 17, 0.98)' : '#ffffff'} !important;
           backdrop-filter: blur(10px) !important;
-          border: 1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'} !important;
-          color: ${darkMode ? '#fff' : '#1e293b'} !important;
+          border: 1px solid ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(226, 232, 240, 1)'} !important;
+          color: ${darkMode ? '#fff' : '#0f172a'} !important;
         }
         
         /* Aplicar también a modales con position fixed (overlay) */
@@ -171,18 +171,18 @@ const AdminThemeWrapper: React.FC<AdminThemeWrapperProps> = ({ children, darkMod
         .admin-theme-wrapper div[style*="position: fixed"] > div[style*="background"],
         .admin-theme-wrapper div[style*="position: fixed"] div[style*="borderRadius"],
         .admin-theme-wrapper div[style*="position: fixed"] div[style*="border-radius"] {
-          background: ${darkMode ? 'rgba(17,17,17,0.98)' : 'rgba(255,255,255,0.98)'} !important;
+          background: ${darkMode ? 'rgba(17,17,17,0.98)' : '#ffffff'} !important;
           backdrop-filter: blur(10px) !important;
         }
         
-        /* Bordes - Forzar color rojo en todos los bordes */
+        /* Bordes - Usar variable de tema */
         .admin-theme-wrapper [style*="border: 1px solid"],
         .admin-theme-wrapper [style*="border:1px solid"],
         .admin-theme-wrapper [style*="border: 2px solid"],
         .admin-theme-wrapper [style*="border:2px solid"],
         .admin-theme-wrapper div[style*="border"],
         .admin-theme-wrapper .glass-effect {
-          border-color: ${darkMode ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'} !important;
+          border-color: var(--theme-border) !important;
         }
         
         /* Backgrounds específicos que aparecen en modo oscuro */

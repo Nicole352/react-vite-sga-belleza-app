@@ -187,14 +187,14 @@ const MiHorario: React.FC<MiHorarioProps> = ({ darkMode }) => {
                   padding: '0.4rem 0.25rem',
                   background: darkMode
                     ? `linear-gradient(to bottom, ${theme.cardBg}, rgba(255,255,255,0.02))`
-                    : `linear-gradient(to bottom, #f8fafc, #f1f5f9)`,
+                    : `linear-gradient(to bottom, #ffffff, #f8fafc)`,
                   borderRadius: '0.375rem 0.375rem 0 0',
                   textAlign: 'center',
                   borderBottom: 'none'
                 }}
               >
                 <div style={{
-                  color: theme.accent,
+                  color: darkMode ? '#ffffff' : theme.textPrimary,
                   fontSize: '0.7rem',
                   fontWeight: '700',
                   textTransform: 'uppercase',
