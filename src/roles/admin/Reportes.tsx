@@ -2453,7 +2453,7 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
           overflowY: 'auto'
         }}>
           <AdminSectionHeader
-            title="Reportes y Estadísticas"
+            title="Reportes"
             subtitle="Análisis detallado del rendimiento académico y financiero"
           />
 

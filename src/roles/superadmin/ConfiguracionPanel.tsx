@@ -192,7 +192,7 @@ const ConfiguracionPanel: React.FC = () => {
       {/* Header */}
       <AdminSectionHeader
         title="Configuración del Super Administrador"
-        subtitle="Información personal y configuración del sistema"
+        subtitle="Información personal del Super Administrador"
         marginBottom={isMobile ? '0.5rem' : '0.75rem'}
       />
 

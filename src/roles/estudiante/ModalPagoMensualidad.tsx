@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Upload, AlertCircle, CheckCircle, Info, CreditCard, Building } from 'lucide-react';
+import { X, CreditCard, Upload, Send, Info, Building, Camera, QrCode, CheckCircle, AlertCircle } from 'lucide-react';
 import EstudianteThemeWrapper from '../../components/EstudianteThemeWrapper';
 import { useBreakpoints } from '../../hooks/useMediaQuery';
 import { showToast } from '../../config/toastConfig';
@@ -61,6 +61,25 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
     'Banco del Pacífico',
     'Produbanco'
   ];
+
+  // Mapeo de detalles bancarios
+  const bankDetails = {
+    'Banco Pichincha': {
+      qr: 'https://res.cloudinary.com/di090ggjn/image/upload/v1764906337/sutkifytxyh6co1radby.jpg',
+      cuenta: '2203141379 (Cuenta de ahorros)',
+      titular: 'JÉSSICA VELEZ'
+    },
+    'Banco del Pacífico': {
+      qr: 'https://res.cloudinary.com/di090ggjn/image/upload/v1764906371/wbohej8ytmanqzkrhkbv.jpg',
+      cuenta: '00000-000 (Cuenta corriente)',
+      titular: 'JÉSSICA VELEZ'
+    },
+    'Produbanco': {
+      qr: null, // No image provided in reference
+      cuenta: '12060263933 (Cuenta de ahorros)',
+      titular: 'RICARDO XAVIER PILAGUANO'
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -667,6 +686,71 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       ))}
                     </select>
                   </div>
+
+                  {/* BANK DETAILS CARD - Dynamic Display */}
+                  {bancoComprobante && (
+                    <div style={{
+                      gridColumn: '1 / -1',
+                      marginTop: '0.5rem',
+                      marginBottom: '0.5rem',
+                      padding: '1rem',
+                      background: darkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.6)',
+                      borderRadius: '0.75rem',
+                      border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`
+                    }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        {/* QR Code Section */}
+                        <div style={{
+                          width: '100px',
+                          height: '100px',
+                          background: '#fff',
+                          borderRadius: '0.5rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          flexShrink: 0,
+                          border: '1px solid #e5e7eb'
+                        }}>
+                          {(bancoComprobante in bankDetails) && bankDetails[bancoComprobante as keyof typeof bankDetails]?.qr ? (
+                            <img
+                              src={bankDetails[bancoComprobante as keyof typeof bankDetails].qr!}
+                              alt={`QR ${bancoComprobante}`}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <QrCode size={40} color="#374151" />
+                          )}
+                        </div>
+
+                        {/* Account Details Section */}
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                          <h4 style={{
+                            margin: '0 0 0.5rem 0',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
+                            color: '#eab308' // Yellow/Orange accent like Pago.tsx
+                          }}>
+                            Datos para Transferencia
+                          </h4>
+                          <div style={{ fontSize: '0.75rem', lineHeight: '1.4', color: theme.textSecondary }}>
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ fontWeight: '600' }}>Banco:</span> {bancoComprobante}
+                            </div>
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ fontWeight: '600' }}>Cuenta:</span> {bankDetails[bancoComprobante as keyof typeof bankDetails]?.cuenta || 'N/A'}
+                            </div>
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ fontWeight: '600' }}>Titular:</span> {bankDetails[bancoComprobante as keyof typeof bankDetails]?.titular || 'N/A'}
+                            </div>
+                            <div>
+                              <span style={{ fontWeight: '600' }}>Monto:</span> <span style={{ color: '#10b981', fontWeight: '700' }}>{formatearMonto(parseFloat(montoPagar) || cuota.monto)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Número de comprobante */}
                   <div>
