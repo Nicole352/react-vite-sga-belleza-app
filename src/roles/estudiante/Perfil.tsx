@@ -121,6 +121,31 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       const token = sessionStorage.getItem('auth_token');
       if (!token || !estudiante) return;
 
+      // --- VALIDACIONES DE CONTACTO DE EMERGENCIA ---
+      const contacto = formData.contacto_emergencia?.trim() || '';
+      const telefonoPersonal = formData.telefono?.trim() || '';
+
+      if (contacto) {
+        // 1. Debe empezar con 09
+        if (!contacto.startsWith('09')) {
+          showToast.error('El contacto de emergencia debe empezar con 09', darkMode);
+          return;
+        }
+
+        // 2. Debe tener 10 dígitos
+        if (contacto.length !== 10 || !/^\d+$/.test(contacto)) {
+          showToast.error('El contacto de emergencia debe tener exactamente 10 números', darkMode);
+          return;
+        }
+
+        // 3. No puede ser igual al teléfono personal
+        if (contacto === telefonoPersonal) {
+          showToast.error('El contacto de emergencia no puede ser igual a tu número personal', darkMode);
+          return;
+        }
+      }
+      // ----------------------------------------------
+
       // Limpiar datos: convertir undefined a null o cadena vacía
       const cleanedData = {
         nombre: formData.nombres || '',
@@ -131,7 +156,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
         fecha_nacimiento: formData.fecha_nacimiento || null,
         genero: formData.genero || '',
         identificacion: formData.identificacion || '',
-        contacto_emergencia: formData.contacto_emergencia || ''
+        contacto_emergencia: contacto
       };
 
       const response = await fetch(`${API_BASE}/api/usuarios/mi-perfil`, {
@@ -153,7 +178,7 @@ const Perfil: React.FC<PerfilProps> = ({ darkMode }) => {
       }
     } catch (error) {
       console.error('Error:', error);
-      showToast.error('Error al actualizar el perfil', darkMode);
+      showToast.error(error instanceof Error ? error.message : 'Error al actualizar el perfil', darkMode);
     }
   };
 
