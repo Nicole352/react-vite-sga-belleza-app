@@ -122,6 +122,14 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       if (cursoExpandido) {
         loadCuotasMatricula(cursoExpandido);
       }
+    },
+    'pago_realizado_estudiante': (data: any) => {
+      // Sincronización en tiempo real con móvil
+      showToast.success('Nuevo pago registrado', darkMode);
+      loadData();
+      if (cursoExpandido) {
+        loadCuotasMatricula(cursoExpandido);
+      }
     }
   }, userId); // <-- Pasar userId como segundo parámetro
 
