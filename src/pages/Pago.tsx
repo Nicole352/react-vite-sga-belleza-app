@@ -67,6 +67,7 @@ import {
   Sunrise,
   Sunset,
   Users,
+  MousePointerClick,
   X,
   Clock,
   Ban,
@@ -379,6 +380,7 @@ const Pago: React.FC = () => {
   // Estados para datos del comprobante
   const [numeroComprobante, setNumeroComprobante] = useState('');
   const [bancoComprobante, setBancoComprobante] = useState('');
+  const [bancoOtro, setBancoOtro] = useState(''); // Nombre del banco personalizado cuando se selecciona "Otro"
   const [fechaTransferencia, setFechaTransferencia] = useState('');
 
   // Estados para pago en efectivo
@@ -1338,7 +1340,12 @@ const Pago: React.FC = () => {
         // Nuevos campos del comprobante (transferencia)
         if (selectedPayment === 'transferencia') {
           if (numeroComprobante) body.append('numero_comprobante', numeroComprobante);
-          if (bancoComprobante) body.append('banco_comprobante', bancoComprobante);
+          // Si seleccionó "otro", enviar el nombre del banco personalizado; si no, enviar el banco seleccionado
+          if (bancoComprobante === 'otro') {
+            body.append('banco_comprobante', bancoOtro);
+          } else if (bancoComprobante) {
+            body.append('banco_comprobante', bancoComprobante);
+          }
           if (fechaTransferencia) body.append('fecha_transferencia', fechaTransferencia);
         }
         // Nuevos campos del comprobante (efectivo)
@@ -4509,42 +4516,43 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                 gap: '24px',
                                 marginBottom: '24px'
                               }}>
-                                <div style={{
-                                  width: '220px',
-                                  height: '220px',
-                                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : '#fef3c7',
-                                  borderRadius: '12px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                                  flexShrink: 0,
-                                  overflow: 'hidden'
-                                }}>
-                                  {bancoComprobante === 'pichincha' ? (
-                                    <img
-                                      src="https://res.cloudinary.com/di090ggjn/image/upload/v1764906337/sutkifytxyh6co1radby.jpg"
-                                      alt="QR Banco Pichincha"
-                                      style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover'
-                                      }}
-                                    />
-                                  ) : bancoComprobante === 'pacifico' ? (
-                                    <img
-                                      src="https://res.cloudinary.com/di090ggjn/image/upload/v1764906371/wbohej8ytmanqzkrhkbv.jpg"
-                                      alt="QR Banco del Pacífico"
-                                      style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover'
-                                      }}
-                                    />
-                                  ) : (
-                                    <QrCode size={100} color={theme === 'dark' ? '#f9fafb' : '#1f2937'} />
-                                  )}
-                                </div>
+                                {/* QR Code placeholder - Ocultar para Produbanco y Otro */}
+                                {(bancoComprobante === 'pichincha' || bancoComprobante === 'pacifico') && (
+                                  <div style={{
+                                    width: '220px',
+                                    height: '220px',
+                                    background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : '#fef3c7',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                                    flexShrink: 0,
+                                    overflow: 'hidden'
+                                  }}>
+                                    {bancoComprobante === 'pichincha' ? (
+                                      <img
+                                        src="https://res.cloudinary.com/di090ggjn/image/upload/v1764906337/sutkifytxyh6co1radby.jpg"
+                                        alt="QR Banco Pichincha"
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          objectFit: 'cover'
+                                        }}
+                                      />
+                                    ) : (
+                                      <img
+                                        src="https://res.cloudinary.com/di090ggjn/image/upload/v1764906371/wbohej8ytmanqzkrhkbv.jpg"
+                                        alt="QR Banco del Pacífico"
+                                        style={{
+                                          width: '100%',
+                                          height: '100%',
+                                          objectFit: 'cover'
+                                        }}
+                                      />
+                                    )}
+                                  </div>
+                                )}
                                 <div style={{ flex: 1 }}>
                                   <div style={{
                                     background: theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.95)',
@@ -4552,41 +4560,112 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     borderRadius: '12px',
                                     marginBottom: '12px'
                                   }}>
-                                    <div style={{ marginBottom: '8px' }}>
-                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
-                                        {bancoComprobante === 'pichincha' ? 'Banco Pichincha' :
-                                          bancoComprobante === 'pacifico' ? 'Banco del Pacífico' :
-                                            bancoComprobante === 'produbanco' ? 'Produbanco' :
-                                              'Selecciona un banco'}
-                                      </span>
-                                    </div>
-                                    <div style={{ marginBottom: '8px' }}>
-                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
-                                        {bancoComprobante === 'pichincha' ? '2203141379 (Cuenta de ahorros)' :
-                                          bancoComprobante === 'pacifico' ? '00000-000 (Cuenta corriente)' :
-                                            bancoComprobante === 'produbanco' ? '12060263933 (Cuenta de ahorros)' :
-                                              'Selecciona un banco primero'}
-                                      </span>
-                                    </div>
-                                    <div style={{ marginBottom: '8px' }}>
-                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
-                                      <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
-                                        {bancoComprobante === 'produbanco' ? 'RICARDO XAVIER PILAGUANO' : 'JÉSSICA VELEZ'}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
-                                      <span style={{
-                                        color: '#fbbf24',
-                                        marginLeft: '8px',
-                                        fontWeight: '700',
-                                        fontSize: '1.1rem'
-                                      }}>
-                                        ${curso.precio.toLocaleString()}
-                                      </span>
-                                    </div>
+                                    {bancoComprobante === 'otro' ? (
+                                      <div style={{ padding: '8px', textAlign: 'center' }}>
+                                        <p style={{
+                                          color: '#b45309',
+                                          fontWeight: '600',
+                                          margin: 0,
+                                          fontSize: '0.95rem',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          gap: '8px'
+                                        }}>
+                                          <Info size={18} />
+                                          Información sobre Pagos QR
+                                        </p>
+                                        <p style={{
+                                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : '#4b5563',
+                                          fontSize: '0.85rem',
+                                          margin: '8px 0 0 0',
+                                          lineHeight: '1.5'
+                                        }}>
+                                          Estimado postulante, por el momento solo disponemos de códigos QR habilitados para <strong>Banco Pichincha</strong> y <strong>Banco del Pacífico</strong>.
+                                        </p>
+                                      </div>
+                                    ) : !bancoComprobante ? (
+                                      <div style={{ padding: '8px', textAlign: 'center' }}>
+                                        <p style={{
+                                          color: theme === 'dark' ? '#fbbf24' : '#d97706',
+                                          fontWeight: '600',
+                                          margin: 0,
+                                          fontSize: '0.95rem',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          gap: '8px'
+                                        }}>
+                                          <MousePointerClick size={18} />
+                                          Selecciona un banco para ver los datos
+                                        </p>
+                                        <p style={{
+                                          color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : '#4b5563',
+                                          fontSize: '0.85rem',
+                                          margin: '8px 0 0 0',
+                                          lineHeight: '1.4'
+                                        }}>
+                                          Por favor elige un banco de la lista o la opción "Otro".
+                                        </p>
+                                        <div style={{
+                                          marginTop: '12px',
+                                          padding: '8px 12px',
+                                          backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.15)' : '#eff6ff',
+                                          borderRadius: '8px',
+                                          border: `1px solid ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`
+                                        }}>
+                                          <p style={{
+                                            color: theme === 'dark' ? '#60a5fa' : '#1e40af',
+                                            fontSize: '0.8rem',
+                                            margin: 0,
+                                            lineHeight: '1.3',
+                                            display: 'flex',
+                                            gap: '6px'
+                                          }}>
+                                            <Info size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                                            Recuerda: Los valores de comisiones o impuestos bancarios NO están incluidos en el costo del curso y corren por cuenta del postulante.
+                                          </p>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        <div style={{ marginBottom: '8px' }}>
+                                          <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Banco:</strong>
+                                          <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
+                                            {bancoComprobante === 'pichincha' ? 'Banco Pichincha' :
+                                              bancoComprobante === 'pacifico' ? 'Banco del Pacífico' :
+                                                bancoComprobante === 'produbanco' ? 'Produbanco' :
+                                                  ''}
+                                          </span>
+                                        </div>
+                                        <div style={{ marginBottom: '8px' }}>
+                                          <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Cuenta:</strong>
+                                          <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
+                                            {bancoComprobante === 'pichincha' ? '2203141379 (Cuenta de ahorros)' :
+                                              bancoComprobante === 'pacifico' ? '7508166 (Cuenta corriente)' :
+                                                bancoComprobante === 'produbanco' ? '12060263933 (Cuenta de ahorros)' :
+                                                  ''}
+                                          </span>
+                                        </div>
+                                        <div style={{ marginBottom: '8px' }}>
+                                          <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Titular:</strong>
+                                          <span style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', marginLeft: '8px' }}>
+                                            {bancoComprobante === 'produbanco' ? 'RICARDO XAVIER PILAGUANO' : 'JÉSSICA VELEZ'}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <strong style={{ color: theme === 'dark' ? '#fff' : '#1f2937' }}>Monto:</strong>
+                                          <span style={{
+                                            color: '#fbbf24',
+                                            marginLeft: '8px',
+                                            fontWeight: '700',
+                                            fontSize: '1.1rem'
+                                          }}>
+                                            ${curso.precio.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      </>
+                                    )}
                                   </div>
                                   <p style={{
                                     color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)',
@@ -4628,7 +4707,13 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                     </label>
                                     <select
                                       value={bancoComprobante}
-                                      onChange={(e) => setBancoComprobante(e.target.value)}
+                                      onChange={(e) => {
+                                        setBancoComprobante(e.target.value);
+                                        // Limpiar el campo de banco personalizado si se selecciona un banco predefinido
+                                        if (e.target.value !== 'otro') {
+                                          setBancoOtro('');
+                                        }
+                                      }}
                                       required
                                       style={{
                                         width: '100%',
@@ -4644,6 +4729,7 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                       <option value="pichincha">Banco Pichincha</option>
                                       <option value="pacifico">Banco del Pacífico</option>
                                       <option value="produbanco">Produbanco</option>
+                                      <option value="otro">Otro</option>
                                     </select>
                                   </div>
 
@@ -4711,6 +4797,79 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
                                       Puedes seleccionar la fecha en que realizaste el pago (solo fechas pasadas)
                                     </p>
                                   </div>
+
+                                  {/* Campo de texto para banco personalizado */}
+                                  {bancoComprobante === 'otro' && (
+                                    <div style={{ gridColumn: '1 / -1' }}>
+                                      <label style={{
+                                        display: 'block',
+                                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)',
+                                        fontSize: '0.9rem',
+                                        marginBottom: '8px',
+                                        fontWeight: '500'
+                                      }}>
+                                        Nombre del banco *
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={bancoOtro}
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          if (val.length === 0) {
+                                            setBancoOtro('');
+                                            return;
+                                          }
+                                          // Capitalizar primera letra de cada palabra
+                                          const formatted = val.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+                                          setBancoOtro(formatted);
+                                        }}
+                                        placeholder="Ej: Banco Guayaquil, Banco Bolivariano, etc."
+                                        required
+                                        style={{
+                                          width: '100%',
+                                          padding: '12px 16px',
+                                          borderRadius: '12px',
+                                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                                          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : '#ffffff',
+                                          color: theme === 'dark' ? '#fff' : '#1f2937',
+                                          fontSize: '1rem'
+                                        }}
+                                      />
+
+                                      {/* Mensaje de advertencia sobre cargos adicionales */}
+                                      <div style={{
+                                        marginTop: '12px',
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%)',
+                                        border: '1.5px solid rgba(251, 191, 36, 0.35)',
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '12px'
+                                      }}>
+                                        <Info size={20} style={{ color: '#fbbf24', flexShrink: 0, marginTop: '2px' }} />
+                                        <div>
+                                          <p style={{
+                                            margin: 0,
+                                            color: theme === 'dark' ? '#fde68a' : '#92400e',
+                                            fontSize: '0.9rem',
+                                            lineHeight: '1.5',
+                                            fontWeight: '600'
+                                          }}>
+                                            Importante: Cargos bancarios adicionales
+                                          </p>
+                                          <p style={{
+                                            margin: '6px 0 0 0',
+                                            color: theme === 'dark' ? 'rgba(253, 230, 138, 0.85)' : '#78350f',
+                                            fontSize: '0.85rem',
+                                            lineHeight: '1.4'
+                                          }}>
+                                            Si realizas la transferencia desde otro banco, tu banco puede cobrarte una comisión por transferencia interbancaria. Este cargo NO está incluido en el precio del curso y deberás pagarlo directamente a tu banco.
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* Número de comprobante */}
@@ -5302,10 +5461,10 @@ Realiza una nueva transferencia o verifica si ya tienes una solicitud previa reg
         {/* FIN DEL GRID DE DOS COLUMNAS */}
 
         <Footer />
-      </div>
+      </div >
 
       {/* Modal de Promociones - se muestra después de crear la solicitud exitosamente */}
-      <ModalPromocion
+      < ModalPromocion
         isOpen={showPromoModal}
         onClose={() => { }} // No permitir cerrar con X, debe decidir
         promociones={promocionesDisponibles}

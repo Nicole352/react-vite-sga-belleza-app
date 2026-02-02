@@ -32,6 +32,7 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
   const [montoPagar, setMontoPagar] = useState<string>(cuota.monto.toString());
   const [numeroComprobante, setNumeroComprobante] = useState('');
   const [bancoComprobante, setBancoComprobante] = useState('');
+  const [bancoOtro, setBancoOtro] = useState('');
   // Inicializar con la fecha actual de Ecuador (UTC-5)
   const getFechaEcuador = () => {
     return new Intl.DateTimeFormat('en-CA', {
@@ -69,9 +70,10 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
       cuenta: '2203141379 (Cuenta de ahorros)',
       titular: 'JÉSSICA VELEZ'
     },
-    'Banco del Pacífico': {
+    'pacifico': {
+      nombre: 'Banco del Pacífico',
       qr: 'https://res.cloudinary.com/di090ggjn/image/upload/v1764906371/wbohej8ytmanqzkrhkbv.jpg',
-      cuenta: '00000-000 (Cuenta corriente)',
+      cuenta: '7508166 (Cuenta corriente)',
       titular: 'JÉSSICA VELEZ'
     },
     'Produbanco': {
@@ -192,7 +194,11 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
 
       // Solo agregar banco y fecha si es transferencia
       if (metodoPago === 'transferencia') {
-        formData.append('banco_comprobante', bancoComprobante);
+        if (bancoComprobante === 'otro') {
+          formData.append('banco_comprobante', bancoOtro);
+        } else {
+          formData.append('banco_comprobante', bancoComprobante);
+        }
         formData.append('fecha_transferencia', fechaTransferencia);
       } else {
         // Para efectivo, enviar valores por defecto y quien recibió
@@ -650,9 +656,9 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
             {/* Campos específicos para transferencia */}
             {metodoPago === 'transferencia' && (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.625em', marginBottom: '0.75em' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '0.625em', marginBottom: '0.75em' }}>
                   {/* Banco */}
-                  <div style={{ gridColumn: '1 / -1' }}>
+                  <div>
                     <label style={{
                       display: 'block',
                       color: theme.textPrimary,
@@ -664,7 +670,12 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                     </label>
                     <select
                       value={bancoComprobante}
-                      onChange={(e) => setBancoComprobante(e.target.value)}
+                      onChange={(e) => {
+                        setBancoComprobante(e.target.value);
+                        if (e.target.value !== 'otro') {
+                          setBancoOtro('');
+                        }
+                      }}
                       required
                       style={{
                         width: '100%',
@@ -684,110 +695,8 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                           {banco}
                         </option>
                       ))}
+                      <option value="otro" style={{ background: darkMode ? '#1e293b' : '#ffffff', color: darkMode ? '#fff' : '#374151' }}>Otro</option>
                     </select>
-                  </div>
-
-                  {/* BANK DETAILS CARD - Dynamic Display */}
-                  {bancoComprobante && (
-                    <div style={{
-                      gridColumn: '1 / -1',
-                      marginTop: '0.5rem',
-                      marginBottom: '0.5rem',
-                      padding: '1rem',
-                      background: darkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.6)',
-                      borderRadius: '0.75rem',
-                      border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`
-                    }}>
-                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        {/* QR Code Section */}
-                        <div style={{
-                          width: '100px',
-                          height: '100px',
-                          background: '#fff',
-                          borderRadius: '0.5rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          overflow: 'hidden',
-                          flexShrink: 0,
-                          border: '1px solid #e5e7eb'
-                        }}>
-                          {(bancoComprobante in bankDetails) && bankDetails[bancoComprobante as keyof typeof bankDetails]?.qr ? (
-                            <img
-                              src={bankDetails[bancoComprobante as keyof typeof bankDetails].qr!}
-                              alt={`QR ${bancoComprobante}`}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                          ) : (
-                            <QrCode size={40} color="#374151" />
-                          )}
-                        </div>
-
-                        {/* Account Details Section */}
-                        <div style={{ flex: 1, overflow: 'hidden' }}>
-                          <h4 style={{
-                            margin: '0 0 0.5rem 0',
-                            fontSize: '0.85rem',
-                            fontWeight: '700',
-                            color: '#eab308' // Yellow/Orange accent like Pago.tsx
-                          }}>
-                            Datos para Transferencia
-                          </h4>
-                          <div style={{ fontSize: '0.75rem', lineHeight: '1.4', color: theme.textSecondary }}>
-                            <div style={{ marginBottom: '2px' }}>
-                              <span style={{ fontWeight: '600' }}>Banco:</span> {bancoComprobante}
-                            </div>
-                            <div style={{ marginBottom: '2px' }}>
-                              <span style={{ fontWeight: '600' }}>Cuenta:</span> {bankDetails[bancoComprobante as keyof typeof bankDetails]?.cuenta || 'N/A'}
-                            </div>
-                            <div style={{ marginBottom: '2px' }}>
-                              <span style={{ fontWeight: '600' }}>Titular:</span> {bankDetails[bancoComprobante as keyof typeof bankDetails]?.titular || 'N/A'}
-                            </div>
-                            <div>
-                              <span style={{ fontWeight: '600' }}>Monto:</span> <span style={{ color: '#10b981', fontWeight: '700' }}>{formatearMonto(parseFloat(montoPagar) || cuota.monto)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Número de comprobante */}
-                  <div>
-                    <label style={{
-                      display: 'block',
-                      color: theme.textPrimary,
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
-                      marginBottom: '0.375em'
-                    }}>
-                      Número de Comprobante *
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={numeroComprobante}
-                      onChange={(e) => {
-                        const valor = e.target.value;
-                        // Solo permitir números
-                        if (/^\d*$/.test(valor)) {
-                          setNumeroComprobante(valor);
-                        }
-                      }}
-                      placeholder="Ej: 1234567890"
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '0.625em 0.875em',
-                        background: theme.inputBg,
-                        border: `0.0625rem solid ${theme.inputBorder}`,
-                        borderRadius: '0.5em',
-                        color: theme.textPrimary,
-                        fontSize: '0.8rem',
-                        outline: 'none'
-                      }}
-                    />
                   </div>
 
                   {/* Fecha de transferencia */}
@@ -829,6 +738,182 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
                       }}
                     />
                   </div>
+
+                  {/* Campo Otro Banco */}
+                  {bancoComprobante === 'otro' && (
+                    <div style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
+                      <label style={{
+                        display: 'block',
+                        color: theme.textPrimary,
+                        fontSize: '0.8rem',
+                        fontWeight: '800',
+                        marginBottom: '0.375em'
+                      }}>
+                        Nombre del banco *
+                      </label>
+                      <input
+                        type="text"
+                        value={bancoOtro}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val.length === 0) {
+                            setBancoOtro('');
+                            return;
+                          }
+                          // Capitalizar primera letra de cada palabra
+                          const formatted = val.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+                          setBancoOtro(formatted);
+                        }}
+                        placeholder="Ej: Banco Guayaquil, Banco Bolivariano, etc."
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '0.625em 0.875em',
+                          background: theme.inputBg,
+                          border: `0.0625rem solid ${theme.inputBorder}`,
+                          borderRadius: '0.5em',
+                          color: theme.textPrimary,
+                          fontSize: '0.8rem',
+                          outline: 'none'
+                        }}
+                      />
+
+                      {/* Mensaje de advertencia */}
+                      <div style={{
+                        marginTop: '0.75rem',
+                        padding: '0.875rem 1rem',
+                        borderRadius: '0.75rem',
+                        background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%)',
+                        border: '1.5px solid rgba(251, 191, 36, 0.35)',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '0.75rem'
+                      }}>
+                        <Info size={20} style={{ color: '#fbbf24', flexShrink: 0, marginTop: '2px' }} />
+                        <div>
+                          <p style={{
+                            margin: 0,
+                            color: darkMode ? '#fde68a' : '#92400e',
+                            fontSize: '0.85rem',
+                            lineHeight: '1.5',
+                            fontWeight: '700'
+                          }}>
+                            Importante: Cargos bancarios adicionales
+                          </p>
+                          <p style={{
+                            margin: '0.375rem 0 0 0',
+                            color: darkMode ? 'rgba(253, 230, 138, 0.85)' : '#78350f',
+                            fontSize: '0.8rem',
+                            lineHeight: '1.4'
+                          }}>
+                            Si realizas la transferencia desde otro banco, tu banco puede cobrarte una comisión por transferencia interbancaria. Este cargo NO está incluido en el precio del curso y deberás pagarlo directamente a tu banco.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* BANK DETAILS CARD - Dynamic Display */}
+                  {bancoComprobante && (bancoComprobante in bankDetails) && (
+                    <div style={{
+                      gridColumn: isMobile ? '1' : '1 / -1',
+                      marginTop: '0.5rem',
+                      marginBottom: '0.5rem',
+                      padding: '1rem',
+                      background: darkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.6)',
+                      borderRadius: '0.75rem',
+                      border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`
+                    }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        {/* QR Code Section - Only show if QR exists */}
+                        {bankDetails[bancoComprobante as keyof typeof bankDetails]?.qr && (
+                          <div style={{
+                            width: '100px',
+                            height: '100px',
+                            background: '#fff',
+                            borderRadius: '0.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                            border: '1px solid #e5e7eb'
+                          }}>
+                            <img
+                              src={bankDetails[bancoComprobante as keyof typeof bankDetails].qr!}
+                              alt={`QR ${bancoComprobante}`}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Account Details Section */}
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                          <h4 style={{
+                            margin: '0 0 0.5rem 0',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
+                            color: '#eab308' // Yellow/Orange accent like Pago.tsx
+                          }}>
+                            Datos para Transferencia
+                          </h4>
+                          <div style={{ fontSize: '0.75rem', lineHeight: '1.4', color: theme.textSecondary }}>
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ fontWeight: '600' }}>Banco:</span> {bancoComprobante}
+                            </div>
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ fontWeight: '600' }}>Cuenta:</span> {bankDetails[bancoComprobante as keyof typeof bankDetails]?.cuenta || 'N/A'}
+                            </div>
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ fontWeight: '600' }}>Titular:</span> {bankDetails[bancoComprobante as keyof typeof bankDetails]?.titular || 'N/A'}
+                            </div>
+                            <div>
+                              <span style={{ fontWeight: '600' }}>Monto:</span> <span style={{ color: '#10b981', fontWeight: '700' }}>{formatearMonto(parseFloat(montoPagar) || cuota.monto)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Número de comprobante - Full Width now */}
+                  <div style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
+                    <label style={{
+                      display: 'block',
+                      color: theme.textPrimary,
+                      fontSize: '0.8rem',
+                      fontWeight: '800',
+                      marginBottom: '0.375em'
+                    }}>
+                      Número de Comprobante *
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={numeroComprobante}
+                      onChange={(e) => {
+                        const valor = e.target.value;
+                        // Solo permitir números
+                        if (/^\d*$/.test(valor)) {
+                          setNumeroComprobante(valor);
+                        }
+                      }}
+                      placeholder="Ej: 1234567890"
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '0.625em 0.875em',
+                        background: theme.inputBg,
+                        border: `0.0625rem solid ${theme.inputBorder}`,
+                        borderRadius: '0.5em',
+                        color: theme.textPrimary,
+                        fontSize: '0.8rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
                 </div>
               </>
             )}

@@ -339,7 +339,7 @@ const PagosMenuales: React.FC<PagosMenualesProps> = ({ darkMode = false }) => {
       setCursosHistoricos(prev => {
         const filtrados = prev.filter(curso => matriculasValidas.has(curso.id_matricula));
         if (filtrados.length !== prev.length) {
-          console.log(`🧹 Limpiando ${prev.length - filtrados.length} matrículas inválidas del historial`);
+          console.log(`Limpiando ${prev.length - filtrados.length} matrículas inválidas del historial`);
           try {
             localStorage.setItem(storageKey, JSON.stringify(filtrados));
           } catch (error) {
