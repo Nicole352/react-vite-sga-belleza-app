@@ -147,7 +147,7 @@ const detallesCursos: DetallesCursos = {
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908293/cos2_se1xyb.jpg',
     rating: 4.9,
-    estudiantes: 650,
+    estudiantes: 100,
     instructor: 'Equipo Multidisciplinario',
     precio: '$90/mes',
     certificacion: 'Certificado Profesional en Belleza Integral'
@@ -181,7 +181,7 @@ const detallesCursos: DetallesCursos = {
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758902047/una_yzabr3.jpg',
     rating: 4.8,
-    estudiantes: 420,
+    estudiantes: 700,
     instructor: 'Especialista en Nail Art',
     precio: '$50 inicio + $15,40 por 15 clases (≈$280 total)',
     certificacion: 'Certificado en Técnica de Uñas'
@@ -246,7 +246,7 @@ const detallesCursos: DetallesCursos = {
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758899626/eff_rxclz1.jpg',
     rating: 4.9,
-    estudiantes: 520,
+    estudiantes: 200,
     instructor: 'Maquilladora Profesional',
     precio: '$90/mes',
     certificacion: 'Certificado Profesional en Maquillaje'
@@ -308,7 +308,7 @@ const detallesCursos: DetallesCursos = {
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758920782/pelu_hvfyfn.png',
     rating: 4.9,
-    estudiantes: 680,
+    estudiantes: 60,
     instructor: 'Estilista Profesional Certificado',
     precio: '$90/mes',
     certificacion: 'Certificado Profesional en Alta Peluquería'
@@ -994,7 +994,7 @@ const DetalleCurso: React.FC = () => {
                     <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.95rem' }}>
                       Modalidad Mixta
                     </div>
-                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.7rem' }}>Presencial + Virtual</div>
+                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.7rem' }}>Presencial</div>
                   </div>
                 </div>
                 <p style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.85rem', lineHeight: 1.6 }}>
