@@ -101,6 +101,8 @@ const AdministradoresPanel: React.FC = () => {
   // Estados de UI para formularios
   const [showPwd, setShowPwd] = useState(false);
   const [cedulaError, setCedulaError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [telefonoError, setTelefonoError] = useState<string | null>(null);
 
   const API_BASE = (import.meta as any).env?.VITE_API_URL ? `${(import.meta as any).env.VITE_API_URL}/api` : 'http://localhost:3000/api';
 
@@ -226,7 +228,13 @@ const AdministradoresPanel: React.FC = () => {
   const handleCreate = async () => {
     try {
       // Validaciones
-      if (!formData.cedula || !formData.nombre || !formData.apellido || !formData.email || !formData.password) {
+      if (cedulaError || emailError || telefonoError) {
+        showToast.error('Por favor corrige los errores antes de continuar', darkMode);
+        return;
+      }
+
+      if (!formData.cedula || !formData.nombre || !formData.apellido || !formData.email || !formData.password ||
+        !formData.telefono || !formData.fecha_nacimiento || !formData.direccion || !formData.genero) {
         showToast.error('Por favor completa los campos obligatorios', darkMode);
         return;
       }
@@ -245,6 +253,22 @@ const AdministradoresPanel: React.FC = () => {
       if (formData.password.length < 6) {
         showToast.error('La contraseña debe tener al menos 6 caracteres', darkMode);
         return;
+      }
+
+      // Validación de Teléfono
+      if (formData.telefono) {
+        if (!/^\d+$/.test(formData.telefono)) {
+          showToast.error('El teléfono debe contener solo números', darkMode);
+          return;
+        }
+        if (!formData.telefono.startsWith('09')) {
+          showToast.error('El número de teléfono debe empezar con 09', darkMode);
+          return;
+        }
+        if (formData.telefono.length !== 10) {
+          showToast.error('El número de teléfono debe tener 10 dígitos', darkMode);
+          return;
+        }
       }
 
       const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
@@ -294,6 +318,20 @@ const AdministradoresPanel: React.FC = () => {
   const handleUpdate = async () => {
     try {
       if (!selectedAdmin) return;
+
+      // Validaciones de campos obligatorios
+      if (!formData.nombre || !formData.apellido || !formData.email ||
+        !formData.telefono || !formData.fecha_nacimiento || !formData.direccion || !formData.genero) {
+        showToast.error('Por favor completa todos los campos obligatorios', darkMode);
+        return;
+      }
+
+      // Verificar errores de validación en tiempo real
+      if (cedulaError || emailError || telefonoError) {
+        showToast.error('Por favor corrige los errores antes de continuar', darkMode);
+        return;
+      }
+
       const token = sessionStorage.getItem('auth_token') || localStorage.getItem('auth_token');
 
       const roleName = 'administrativo';
@@ -310,6 +348,38 @@ const AdministradoresPanel: React.FC = () => {
         roleName: roleName,
         permisos: formData.permisos
       };
+
+      // Validación de Teléfono (Update)
+      if (payload.telefono) {
+        if (!/^\d+$/.test(payload.telefono)) {
+          showToast.error('El teléfono debe contener solo números', darkMode);
+          return;
+        }
+        if (!payload.telefono.startsWith('09')) {
+          showToast.error('El número de teléfono debe empezar con 09', darkMode);
+          return;
+        }
+        if (payload.telefono.length !== 10) {
+          showToast.error('El número de teléfono debe tener 10 dígitos', darkMode);
+          return;
+        }
+      }
+
+      // Validación de Teléfono (Update)
+      if (payload.telefono) {
+        if (!/^\d+$/.test(payload.telefono)) {
+          showToast.error('El teléfono debe contener solo números', darkMode);
+          return;
+        }
+        if (!payload.telefono.startsWith('09')) {
+          showToast.error('El número de teléfono debe empezar con 09', darkMode);
+          return;
+        }
+        if (payload.telefono.length !== 10) {
+          showToast.error('El número de teléfono debe tener 10 dígitos', darkMode);
+          return;
+        }
+      }
 
       const res = await fetch(`${API_BASE}/admins/${selectedAdmin.id}`, {
         method: 'PUT',
@@ -603,6 +673,8 @@ const AdministradoresPanel: React.FC = () => {
                 confirmPassword: newPassword,
                 rolId: '', permisos: []
               });
+              setEmailError(null);
+              setTelefonoError(null);
               setShowCreateModal(true);
             }} style={{
               padding: isMobile ? '0.5rem 0.75rem' : '0.5rem 1rem',
@@ -880,13 +952,46 @@ const AdministradoresPanel: React.FC = () => {
 
           <InputField themeColors={themeColors} darkMode={darkMode} label="Nombres *" value={formData.nombre} onChange={(e: any) => setFormData({ ...formData, nombre: e.target.value.toUpperCase() })} />
           <InputField themeColors={themeColors} darkMode={darkMode} label="Apellidos *" value={formData.apellido} onChange={(e: any) => setFormData({ ...formData, apellido: e.target.value.toUpperCase() })} />
-          <InputField themeColors={themeColors} darkMode={darkMode} label="Email *" type="email" value={formData.email} onChange={(e: any) => setFormData({ ...formData, email: e.target.value })} />
-          <InputField themeColors={themeColors} darkMode={darkMode} label="Teléfono" type="tel" value={formData.telefono} onChange={(e: any) => setFormData({ ...formData, telefono: e.target.value.replace(/\D/g, '') })} icon={Phone} />
+          <InputField
+            themeColors={themeColors}
+            darkMode={darkMode}
+            label="Email *"
+            type="email"
+            value={formData.email}
+            onChange={(e: any) => {
+              const val = e.target.value;
+              setFormData({ ...formData, email: val });
+              if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                setEmailError('Formato de email inválido');
+              } else {
+                setEmailError(null);
+              }
+            }}
+            error={emailError}
+          />
+          <InputField
+            themeColors={themeColors}
+            darkMode={darkMode}
+            label="Teléfono *"
+            type="tel"
+            value={formData.telefono}
+            onChange={(e: any) => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+              setFormData({ ...formData, telefono: val });
+              if (val.length > 0 && !val.startsWith('09')) {
+                setTelefonoError('El número debe empezar con 09');
+              } else {
+                setTelefonoError(null);
+              }
+            }}
+            icon={Phone}
+            error={telefonoError}
+          />
 
-          <InputField themeColors={themeColors} darkMode={darkMode} label="Fecha de Nacimiento" type="date" value={formData.fecha_nacimiento} onChange={(e: any) => setFormData({ ...formData, fecha_nacimiento: e.target.value })} icon={Calendar} />
+          <InputField themeColors={themeColors} darkMode={darkMode} label="Fecha de Nacimiento *" type="date" value={formData.fecha_nacimiento} onChange={(e: any) => setFormData({ ...formData, fecha_nacimiento: e.target.value })} icon={Calendar} />
 
           <div style={{ marginBottom: '0.5rem' }}>
-            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Género</label>
+            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Género *</label>
             <select
               value={formData.genero}
               onChange={e => setFormData({ ...formData, genero: e.target.value })}
@@ -911,7 +1016,7 @@ const AdministradoresPanel: React.FC = () => {
 
           <div style={{ gridColumn: '1 / -1' }}>
             <div style={{ marginBottom: '0.5rem' }}>
-              <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Dirección</label>
+              <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Dirección *</label>
               <div style={{ position: 'relative' }}>
                 <MapPin size={18} style={{ position: 'absolute', left: '0.75rem', top: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#64748b' }} />
                 <textarea
@@ -1050,13 +1155,46 @@ const AdministradoresPanel: React.FC = () => {
 
         <InputField themeColors={themeColors} darkMode={darkMode} label="Nombres" value={formData.nombre} onChange={(e: any) => setFormData({ ...formData, nombre: e.target.value.toUpperCase() })} />
         <InputField themeColors={themeColors} darkMode={darkMode} label="Apellidos" value={formData.apellido} onChange={(e: any) => setFormData({ ...formData, apellido: e.target.value.toUpperCase() })} />
-        <InputField themeColors={themeColors} darkMode={darkMode} label="Email" type="email" value={formData.email} onChange={(e: any) => setFormData({ ...formData, email: e.target.value })} />
-        <InputField themeColors={themeColors} darkMode={darkMode} label="Teléfono" type="tel" value={formData.telefono} onChange={(e: any) => setFormData({ ...formData, telefono: e.target.value.replace(/\D/g, '') })} icon={Phone} />
+        <InputField
+          themeColors={themeColors}
+          darkMode={darkMode}
+          label="Email"
+          type="email"
+          value={formData.email}
+          onChange={(e: any) => {
+            const val = e.target.value;
+            setFormData({ ...formData, email: val });
+            if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+              setEmailError('Formato de email inválido');
+            } else {
+              setEmailError(null);
+            }
+          }}
+          error={emailError}
+        />
+        <InputField
+          themeColors={themeColors}
+          darkMode={darkMode}
+          label="Teléfono *"
+          type="tel"
+          value={formData.telefono}
+          onChange={(e: any) => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+            setFormData({ ...formData, telefono: val });
+            if (val.length > 0 && !val.startsWith('09')) {
+              setTelefonoError('El número debe empezar con 09');
+            } else {
+              setTelefonoError(null);
+            }
+          }}
+          icon={Phone}
+          error={telefonoError}
+        />
 
-        <InputField themeColors={themeColors} darkMode={darkMode} label="Fecha de Nacimiento" type="date" value={formData.fecha_nacimiento} onChange={(e: any) => setFormData({ ...formData, fecha_nacimiento: e.target.value })} icon={Calendar} />
+        <InputField themeColors={themeColors} darkMode={darkMode} label="Fecha de Nacimiento *" type="date" value={formData.fecha_nacimiento} onChange={(e: any) => setFormData({ ...formData, fecha_nacimiento: e.target.value })} icon={Calendar} />
 
         <div style={{ marginBottom: '0.5rem' }}>
-          <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Género</label>
+          <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Género *</label>
           <select
             value={formData.genero}
             onChange={e => setFormData({ ...formData, genero: e.target.value })}
@@ -1081,7 +1219,7 @@ const AdministradoresPanel: React.FC = () => {
 
         <div style={{ gridColumn: '1 / -1' }}>
           <div style={{ marginBottom: '0.5rem' }}>
-            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Dirección</label>
+            <label style={{ display: 'block', color: darkMode ? 'rgba(255,255,255,0.9)' : '#1e293b', marginBottom: '0.25rem', fontSize: '0.8rem', fontWeight: 600 }}>Dirección *</label>
             <div style={{ position: 'relative' }}>
               <MapPin size={18} style={{ position: 'absolute', left: '0.75rem', top: '12px', color: darkMode ? 'rgba(255,255,255,0.5)' : '#64748b' }} />
               <textarea
