@@ -70,14 +70,14 @@ const ModalPagoMensualidad: React.FC<ModalPagoMensualidadProps> = ({ cuota, onCl
       cuenta: '2203141379 (Cuenta de ahorros)',
       titular: 'JÉSSICA VELEZ'
     },
-    'pacifico': {
+    'Banco del Pacífico': {
       nombre: 'Banco del Pacífico',
       qr: 'https://res.cloudinary.com/di090ggjn/image/upload/v1764906371/wbohej8ytmanqzkrhkbv.jpg',
       cuenta: '7508166 (Cuenta corriente)',
       titular: 'JÉSSICA VELEZ'
     },
     'Produbanco': {
-      qr: null, // No image provided in reference
+      qr: null,
       cuenta: '12060263933 (Cuenta de ahorros)',
       titular: 'RICARDO XAVIER PILAGUANO'
     }
