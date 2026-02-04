@@ -51,7 +51,7 @@ const GestionDocentes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [page, setPage] = useState(1);
-  const [limit] = useState(5); // 5 docentes por página
+  const [limit] = useState(10); // 10 docentes por página
   const [totalCount, setTotalCount] = useState(0);
   const [previewUsername, setPreviewUsername] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
@@ -59,6 +59,11 @@ const GestionDocentes = () => {
   // Estado para confirmación de cambio de estado
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [accionConfirmar, setAccionConfirmar] = useState<{ tipo: 'activar' | 'desactivar', docente: Docente } | null>(null);
+
+  // Estados para validación
+  const [phoneError, setPhoneError] = useState<string>('');
+  const [emailError, setEmailError] = useState<string>('');
+
 
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('admin-dark-mode');
@@ -427,8 +432,36 @@ const GestionDocentes = () => {
       setError('La identificación debe tener exactamente 10 dígitos.');
       showToast.error('La identificación debe tener exactamente 10 dígitos.', darkMode);
       setSubmitting(false);
+      setSubmitting(false);
       return;
     }
+
+    // Validar errores antes de enviar
+    if (phoneError || emailError) {
+      showToast.error('Por favor corrija los errores resaltados en el formulario.', darkMode);
+      setSubmitting(false);
+      return;
+    }
+
+    // Validación estricta final por si el usuario no interactuó con los campos
+    const telefono = formData.get('telefono') as string;
+    const gmail = formData.get('gmail') as string;
+
+    if (telefono && (telefono.length !== 10 || !telefono.startsWith('09'))) {
+      setPhoneError('El teléfono debe tener 10 dígitos y empezar con 09');
+      showToast.error('El teléfono debe tener 10 dígitos y empezar con 09', darkMode);
+      setSubmitting(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (gmail && !emailRegex.test(gmail)) {
+      setEmailError('Ingrese un correo electrónico válido');
+      showToast.error('Ingrese un correo electrónico válido', darkMode);
+      setSubmitting(false);
+      return;
+    }
+
 
     const docenteData = {
       identificacion,
@@ -738,6 +771,10 @@ const GestionDocentes = () => {
               setSelectedDocente(null);
               setModalMode('create');
               setPreviewUsername('');
+              setModalMode('create');
+              setPreviewUsername('');
+              setPhoneError('');
+              setEmailError('');
               setShowModal(true);
             }}
             style={{
@@ -1214,7 +1251,10 @@ const GestionDocentes = () => {
                             <button
                               onClick={() => {
                                 setSelectedDocente(docente);
+                                setSelectedDocente(docente);
                                 setModalMode('edit');
+                                setPhoneError('');
+                                setEmailError('');
                                 setShowModal(true);
                               }}
                               title="Editar"
@@ -1788,16 +1828,29 @@ const GestionDocentes = () => {
                         const formattedValue = formatEmail(e.target.value);
                         e.target.value = formattedValue;
                       }}
+                      onBlur={(e) => {
+                        const val = e.target.value;
+                        if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                          setEmailError('Correo inválido');
+                        } else {
+                          setEmailError('');
+                        }
+                      }}
                       style={{
                         width: '100%',
                         padding: '6px 10px',
                         borderRadius: 8,
-                        border: '1px solid var(--admin-border, rgba(255,255,255,0.2))',
+                        border: emailError ? '1px solid #ef4444' : '1px solid var(--admin-border, rgba(255,255,255,0.2))',
                         background: 'var(--admin-input-bg, rgba(255,255,255,0.1))',
                         color: 'var(--admin-text-primary, #fff)',
                         fontSize: '0.8rem'
                       }}
                     />
+                    {emailError && (
+                      <span style={{ color: '#ef4444', fontSize: '0.7rem', marginTop: '2px', display: 'block' }}>
+                        {emailError}
+                      </span>
+                    )}
                   </div>
 
                   {/* Teléfono */}
@@ -1820,16 +1873,38 @@ const GestionDocentes = () => {
                           e.preventDefault();
                         }
                       }}
+                      onKeyUp={(e) => {
+                        const val = (e.target as HTMLInputElement).value;
+                        if (val.length > 0) {
+                          if (!val.startsWith('09')) {
+                            setPhoneError('Debe empezar con 09');
+                          } else if (val.length !== 10) {
+                            // Opcional: mostrar error de longitud solo si ya terminó de escribir o es diferente a 10
+                            // Para feedback inmediato:
+                            setPhoneError('Debe tener 10 dígitos');
+                          } else {
+                            setPhoneError('');
+                          }
+                        } else {
+                          setPhoneError('');
+                        }
+                      }}
+                      maxLength={10}
                       style={{
                         width: '100%',
                         padding: '6px 10px',
                         borderRadius: 8,
-                        border: '1px solid var(--admin-border, rgba(255,255,255,0.2))',
+                        border: phoneError ? '1px solid #ef4444' : '1px solid var(--admin-border, rgba(255,255,255,0.2))',
                         background: 'var(--admin-input-bg, rgba(255,255,255,0.1))',
                         color: 'var(--admin-text-primary, #fff)',
                         fontSize: '0.8rem'
                       }}
                     />
+                    {phoneError && (
+                      <span style={{ color: '#ef4444', fontSize: '0.7rem', marginTop: '2px', display: 'block' }}>
+                        {phoneError}
+                      </span>
+                    )}
                   </div>
 
                   {/* Fecha de Nacimiento */}
