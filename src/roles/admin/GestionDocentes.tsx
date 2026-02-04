@@ -1840,7 +1840,7 @@ const GestionDocentes = () => {
                     <input
                       type="date"
                       name="fecha_nacimiento"
-                      defaultValue={selectedDocente?.fecha_nacimiento || ''}
+                      defaultValue={selectedDocente?.fecha_nacimiento ? new Date(selectedDocente.fecha_nacimiento).toISOString().split('T')[0] : ''}
                       style={{
                         width: '100%',
                         padding: '6px 10px',
