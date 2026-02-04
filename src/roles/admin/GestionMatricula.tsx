@@ -1684,6 +1684,9 @@ const GestionMatricula = () => {
                         <div style={{ color: 'var(--admin-text-primary, #fff)' }}>
                           {(() => {
                             const fecha = new Date(selected.fecha_transferencia);
+                            // Ajustar zona horaria para evitar que se reste un día
+                            fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset());
+
                             const meses = [
                               'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
