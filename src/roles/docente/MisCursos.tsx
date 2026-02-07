@@ -50,7 +50,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         const fechaFin = new Date(curso.fecha_fin);
         fechaFin.setHours(0, 0, 0, 0);
 
-        return (curso.estado === 'activo' || curso.estado === 'planificado') && fechaFin >= hoy;
+        return (curso.estado === 'activo' || curso.estado === 'planificado' || curso.estado === 'cancelado') && fechaFin >= hoy;
       }));
     } else {
       // Cursos finalizados: estado finalizado/cancelado O fecha de fin ya pasó
@@ -58,7 +58,7 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
         const fechaFin = new Date(curso.fecha_fin);
         fechaFin.setHours(0, 0, 0, 0);
 
-        return curso.estado === 'finalizado' || curso.estado === 'cancelado' || fechaFin < hoy;
+        return curso.estado === 'finalizado' || fechaFin < hoy;
       }));
     }
   }, [cursos, activeTab]);

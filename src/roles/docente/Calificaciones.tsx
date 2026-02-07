@@ -96,10 +96,10 @@ const Calificaciones: React.FC<{ darkMode: boolean }> = ({ darkMode }) => {
 
     if (activeTab === 'activos') {
       // Cursos activos: estado activo/planificado Y fecha de fin no ha pasado
-      return (cursoEstado === 'activo' || cursoEstado === 'planificado') && fechaFin >= hoy;
+      return (cursoEstado === 'activo' || cursoEstado === 'planificado' || cursoEstado === 'cancelado') && fechaFin >= hoy;
     } else {
       // Cursos finalizados: estado finalizado/cancelado O fecha de fin ya pasó
-      return cursoEstado === 'finalizado' || cursoEstado === 'cancelado' || fechaFin < hoy;
+      return cursoEstado === 'finalizado' || fechaFin < hoy;
     }
   });
 

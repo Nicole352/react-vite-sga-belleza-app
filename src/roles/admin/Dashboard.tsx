@@ -334,10 +334,26 @@ const Dashboard = () => {
         subtitle="Estadísticas generales del sistema"
         marginBottom={isMobile ? '12px' : '0.75rem'}
         rightSlot={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? '0.5rem' : '0.75rem',
+            flexDirection: isMobile ? 'column' : 'row',
+            width: isMobile ? '100%' : 'auto'
+          }}>
             {/* Filtro de Período */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>Período:</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              width: isMobile ? '100%' : 'auto'
+            }}>
+              <span style={{
+                color: theme.textSecondary,
+                fontSize: isMobile ? '0.75rem' : '0.7rem',
+                fontWeight: 500,
+                minWidth: isMobile ? '60px' : 'auto'
+              }}>Período:</span>
               <StyledSelect
                 name="periodFilter"
                 value={periodFilter}
@@ -349,13 +365,27 @@ const Dashboard = () => {
                   { value: 'year', label: 'Este año' },
                   { value: 'all', label: 'Todo' }
                 ]}
-                style={{ minWidth: '130px', fontSize: '0.7rem' }}
+                style={{
+                  minWidth: isMobile ? 'auto' : '130px',
+                  width: isMobile ? '100%' : 'auto',
+                  fontSize: isMobile ? '0.75rem' : '0.7rem'
+                }}
               />
             </div>
 
             {/* Filtro de Curso */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ color: theme.textSecondary, fontSize: '0.7rem', fontWeight: 500 }}>Curso:</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              width: isMobile ? '100%' : 'auto'
+            }}>
+              <span style={{
+                color: theme.textSecondary,
+                fontSize: isMobile ? '0.75rem' : '0.7rem',
+                fontWeight: 500,
+                minWidth: isMobile ? '60px' : 'auto'
+              }}>Curso:</span>
               <StyledSelect
                 name="courseFilter"
                 value={courseFilter}
@@ -364,7 +394,11 @@ const Dashboard = () => {
                   { value: 'all', label: 'Todos' },
                   ...tiposCursos.map(tc => ({ value: tc.id_tipo_curso.toString(), label: tc.nombre }))
                 ]}
-                style={{ minWidth: '140px', fontSize: '0.7rem' }}
+                style={{
+                  minWidth: isMobile ? 'auto' : '140px',
+                  width: isMobile ? '100%' : 'auto',
+                  fontSize: isMobile ? '0.75rem' : '0.7rem'
+                }}
               />
             </div>
           </div>

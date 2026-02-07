@@ -180,9 +180,10 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     purpleChipBg: pick('rgba(139, 92, 246, 0.12)', 'rgba(139, 92, 246, 0.2)'),
     purpleChipText: pick('#6d28d9', '#a78bfa'),
     purpleChipBorder: pick('rgba(139, 92, 246, 0.2)', 'rgba(139, 92, 246, 0.35)'),
-    toggleGroupBg: pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)'),
-    toggleInactiveText: pick('rgba(71, 85, 105, 0.75)', 'rgba(226, 232, 240, 0.7)'),
-    toggleActiveBg: pick('rgba(248, 250, 252, 0.95)', 'rgba(255, 255, 255, 0.12)'),
+    toggleGroupBg: pick('rgba(148,163,184,0.12)', 'rgba(255,255,255,0.08)'),
+    toggleActiveBg: pick('#ffffff', 'rgba(255,255,255,0.14)'),
+    toggleActiveText: pick(RedColorPalette.primary, RedColorPalette.primaryLight),
+    toggleInactiveText: pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)'),
     toggleActiveShadow: pick('0 0.15rem 0.35rem rgba(15, 23, 42, 0.12)', '0 0.15rem 0.35rem rgba(0, 0, 0, 0.4)'),
     toggleInactiveBorder: pick('rgba(148, 163, 184, 0.2)', 'rgba(148, 163, 184, 0.18)'),
     searchIcon: pick('rgba(100, 116, 139, 0.6)', 'rgba(226, 232, 240, 0.6)'),
@@ -214,7 +215,9 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     modalCloseBorder: pick('rgba(148, 163, 184, 0.35)', 'rgba(148, 163, 184, 0.25)'),
     modalCloseHoverBg: pick('rgba(241, 245, 249, 1)', 'rgba(51, 65, 85, 0.8)'),
     modalCloseHoverBorder: pick('rgba(203, 213, 225, 1)', 'rgba(71, 85, 105, 1)'),
-    modalShadow: pick('0 1.5rem 5rem -1.25rem rgba(15, 23, 42, 0.3)', '0 1.5rem 5rem -1.25rem rgba(0, 0, 0, 0.6)')
+    modalShadow: pick('0 1.5rem 5rem -1.25rem rgba(15, 23, 42, 0.3)', '0 1.5rem 5rem -1.25rem rgba(0, 0, 0, 0.6)'),
+
+
   };
 
   const getStatusStyles = (estado: EstadoAsignacion) => {
@@ -240,7 +243,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
     }
   };
 
-  // Función para formatear fechas: 03/Oct/2025
+  // Función para formatear fechas
   const formatearFecha = (fecha: string): string => {
     if (!fecha) return '';
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -659,9 +662,10 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
               <div style={{
                 display: 'flex',
                 gap: '0.375rem',
-                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+                background: palette.toggleGroupBg,
                 borderRadius: '0.65rem',
                 padding: '0.1875rem',
+                width: isSmallScreen ? '100%' : 'auto',
                 border: 'none',
                 boxShadow: 'none'
               }}>
@@ -673,18 +677,19 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     justifyContent: 'center',
                     gap: '0.3em',
                     padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: viewMode === 'cards' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                    background: viewMode === 'cards' ? palette.toggleActiveBg : 'transparent',
                     border: 'none',
                     borderRadius: '0.5em',
-                    color: viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                    color: viewMode === 'cards' ? palette.toggleActiveText : palette.toggleInactiveText,
                     cursor: 'pointer',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
+                    flex: isMobile ? 1 : 'initial'
                   }}
+                  title="Vista de Tarjetas"
                 >
-                  <Grid size={16} color={viewMode === 'cards' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tarjetas'}
+                  <Grid size={16} color={viewMode === 'cards' ? palette.toggleActiveText : palette.toggleInactiveText} /> {!isMobile && 'Tarjetas'}
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
@@ -694,18 +699,19 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     justifyContent: 'center',
                     gap: '0.3em',
                     padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: viewMode === 'table' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                    background: viewMode === 'table' ? palette.toggleActiveBg : 'transparent',
                     border: 'none',
                     borderRadius: '0.5em',
-                    color: viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                    color: viewMode === 'table' ? palette.toggleActiveText : palette.toggleInactiveText,
                     cursor: 'pointer',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
+                    flex: isMobile ? 1 : 'initial'
                   }}
+                  title="Vista de Tabla"
                 >
-                  <List size={16} color={viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tabla'}
+                  <List size={16} color={viewMode === 'table' ? palette.toggleActiveText : palette.toggleInactiveText} /> {!isMobile && 'Tabla'}
                 </button>
               </div>
 
@@ -1523,7 +1529,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
                     placeholder="Buscar curso..."
                     options={cursos.filter(c => {
                       // 1. Validar estado (whitelist)
-                      const estadoValido = c.estado === 'activo' || c.estado === 'planificado';
+                      const estadoValido = c.estado === 'activo' || c.estado === 'planificado' || c.estado === 'cancelado';
 
                       // 2. Validar que no esté ya asignado (excepto si es la asignación que estamos editando)
                       const yaAsignado = asignaciones.some(a =>

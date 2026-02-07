@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet, Wallet, Hourglass, Building2, ImageOff, ExternalLink, Bell, ClipboardCheck, List, LayoutGrid, CheckCircle, XOctagon, BadgeCheck, ShieldX, CircleCheckBig, Ban, RefreshCcw, ArrowLeftRight } from 'lucide-react';
+import { Search, DollarSign, Eye, Check, X, Download, AlertCircle, CheckCircle2, XCircle, Calendar, BarChart3, User, FileText, BookOpen, ChevronLeft, ChevronRight, Sheet, Wallet, Hourglass, Building2, ImageOff, ExternalLink, Bell, ClipboardCheck, List, LayoutGrid, Grid, CheckCircle, XOctagon, BadgeCheck, ShieldX, CircleCheckBig, Ban, RefreshCcw, ArrowLeftRight } from 'lucide-react';
 import { showToast } from '../../config/toastConfig';
 import { StyledSelect } from '../../components/StyledSelect';
 import { mapToRedScheme, RedColorPalette } from '../../utils/colorMapper';
@@ -167,6 +167,12 @@ const GestionPagosEstudiante = () => {
   const tableHeaderBg = pick('#f8fafc', 'rgba(30,41,59,0.4)');
   const tableHeaderBorder = pick('#e2e8f0', 'rgba(51,65,85,1)');
   const tableHeaderText = pick('#0f172a', '#ffffff');
+
+  // View Mode Token
+  const toggleGroupBg = pick('rgba(148,163,184,0.12)', 'rgba(255,255,255,0.08)');
+  const toggleActiveBg = pick('#ffffff', 'rgba(255,255,255,0.14)');
+  const toggleActiveText = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
+  const toggleInactiveText = pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)');
 
   const tabTypographyStyles = `
     .admin-course-tab[data-active="false"][data-dark="false"] .admin-course-tab-title {
@@ -933,64 +939,66 @@ const GestionPagosEstudiante = () => {
               ]}
             />
           </div>
-          {!isMobile && (
-            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-              <div style={{
-                display: 'flex',
-                gap: '0.375rem',
-                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
-                borderRadius: '0.65rem',
-                padding: '0.1875rem',
-                border: 'none',
-                boxShadow: 'none'
-              }}>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3em',
-                    padding: '0.3125rem 0.75rem',
-                    background: viewMode === 'grid' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
-                    border: 'none',
-                    borderRadius: '0.5em',
-                    color: viewMode === 'grid' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease'
-                  }}
-                  title="Vista de Tarjetas"
-                >
-                  <LayoutGrid size={16} color={viewMode === 'grid' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> Tarjetas
-                </button>
-                <button
-                  onClick={() => setViewMode('table')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3em',
-                    padding: '0.3125rem 0.75rem',
-                    background: viewMode === 'table' ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
-                    border: 'none',
-                    borderRadius: '0.5em',
-                    color: viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease'
-                  }}
-                  title="Vista de Tabla"
-                >
-                  <List size={16} color={viewMode === 'table' ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> Tabla
-                </button>
-              </div>
-
-
+          {/* View Mode Toggle */}
+          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+            <div style={{
+              display: 'flex',
+              gap: '0.375rem',
+              background: toggleGroupBg,
+              borderRadius: '0.65rem',
+              padding: '0.1875rem',
+              width: isSmallScreen ? '100%' : 'auto',
+              border: 'none',
+              boxShadow: 'none'
+            }}>
+              <button
+                onClick={() => setViewMode('grid')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'grid' ? toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: viewMode === 'grid' ? toggleActiveText : toggleInactiveText,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? 1 : 'initial'
+                }}
+                title="Vista de Tarjetas"
+              >
+                <Grid size={16} color={viewMode === 'grid' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'table' ? toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: viewMode === 'table' ? toggleActiveText : toggleInactiveText,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: isMobile ? 1 : 'initial'
+                }}
+                title="Vista de Tabla"
+              >
+                <List size={16} color={viewMode === 'table' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
+              </button>
             </div>
-          )}
+
+
+          </div>
           {/* Badge de Pagos Pendientes Compacto */}
           <div style={{ display: isSmallScreen ? 'none' : 'block' }}>
             {getAlertBadge({ compact: true })}
@@ -1096,7 +1104,7 @@ const GestionPagosEstudiante = () => {
       )}
 
       {/* Lista de estudiantes - Tabla o Tarjetas */}
-      {viewMode === 'table' && !isMobile ? (
+      {viewMode === 'table' ? (
         <>
           {/* Indicador de scroll en móvil */}
           {isSmallScreen && (

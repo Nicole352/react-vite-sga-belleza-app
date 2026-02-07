@@ -308,7 +308,7 @@ const GestionPromociones: React.FC = () => {
 
       // Filtrar solo cursos activos
       const cursosList = Array.isArray(data) ? data : [];
-      setCursos(cursosList.filter((c: Curso) => c.estado === 'activo'));
+      setCursos(cursosList.filter((c: Curso) => c.estado === 'activo' || c.estado === 'cancelado'));
     } catch (e: any) {
       console.error('Error cargando cursos:', e);
       showToast.error('Error cargando cursos', darkMode);
@@ -583,10 +583,23 @@ const GestionPromociones: React.FC = () => {
           border: `1px solid ${theme.inputBorder}`
         }}
       >
-        <div className="responsive-filters">
-          <div style={controlsRowStyle}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          flexWrap: 'wrap',
+          gap: '0.75em',
+          alignItems: isMobile ? 'stretch' : 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '0.75rem',
+            alignItems: isMobile ? 'stretch' : 'center',
+            flex: 1
+          }}>
             {/* Buscador */}
-            <div style={{ flex: 1, position: 'relative', width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ flex: 1, position: 'relative', width: isMobile ? '100%' : 'auto' }}>
               <Search
                 size={16}
                 style={{
@@ -600,7 +613,7 @@ const GestionPromociones: React.FC = () => {
               />
               <input
                 type="text"
-                placeholder="Buscar por nombre, descripción o curso..."
+                placeholder={isMobile ? "Buscar..." : "Buscar por nombre, descripción o curso..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -633,7 +646,12 @@ const GestionPromociones: React.FC = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+            <div style={{
+              display: 'flex',
+              gap: '0.375rem',
+              alignItems: 'center',
+              width: isSmallScreen ? '100%' : 'auto'
+            }}>
               <div style={{
                 display: 'flex',
                 gap: '0.375rem',
@@ -641,7 +659,8 @@ const GestionPromociones: React.FC = () => {
                 borderRadius: '0.65rem',
                 padding: '0.1875rem',
                 border: 'none',
-                boxShadow: 'none'
+                boxShadow: 'none',
+                width: isSmallScreen ? '100%' : 'auto'
               }}>
                 <button
                   onClick={() => setViewMode('cards')}
@@ -694,8 +713,6 @@ const GestionPromociones: React.FC = () => {
                   {!isMobile && 'Tabla'}
                 </button>
               </div>
-
-
             </div>
           </div>
 
@@ -722,7 +739,7 @@ const GestionPromociones: React.FC = () => {
             }}
           >
             <Plus size={16} color="currentColor" />
-            Nueva Promoción
+            {isMobile ? 'Crear' : 'Nueva Promoción'}
           </button>
         </div>
       </GlassEffect>
@@ -1027,9 +1044,9 @@ const GestionPromociones: React.FC = () => {
       {viewMode === 'cards' && !loading && paginatedPromociones.length > 0 && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: isMobile ? '8px' : '0.75rem',
-          marginBottom: isMobile ? '12px' : '0.5rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(16rem, 90vw), 1fr))',
+          gap: '0.9em',
+          marginBottom: '1.125em'
         }}>
           {paginatedPromociones.map((promo) => {
             const ahorro = calcularAhorro(promo);

@@ -293,7 +293,10 @@ const GestionEstudiantes = () => {
 
   const isCardsView = viewMode === 'cards';
   const isTableView = viewMode === 'table';
-  const toggleGroupBg = pick('rgba(148, 163, 184, 0.12)', 'rgba(255, 255, 255, 0.08)');
+  const toggleGroupBg = pick('rgba(148,163,184,0.12)', 'rgba(255,255,255,0.08)');
+  const toggleActiveBg = pick('#ffffff', 'rgba(255,255,255,0.14)');
+  const toggleActiveText = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
+  const toggleInactiveText = pick('rgba(100,116,139,0.7)', 'rgba(255,255,255,0.6)');
   const viewActionColor = pick('#1d4ed8', '#60a5fa');
   const modalAccent = pick(RedColorPalette.primary, RedColorPalette.primaryLight);
   const modalAccentBg = pick('rgba(239,68,68,0.12)', 'rgba(239,68,68,0.24)');
@@ -526,9 +529,10 @@ const GestionEstudiantes = () => {
               <div style={{
                 display: 'flex',
                 gap: '0.375rem',
-                background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.12)',
+                background: toggleGroupBg,
                 borderRadius: '0.65rem',
                 padding: '0.1875rem',
+                width: isSmallScreen ? '100%' : 'auto',
                 border: 'none',
                 boxShadow: 'none'
               }}>
@@ -540,18 +544,19 @@ const GestionEstudiantes = () => {
                     justifyContent: 'center',
                     gap: '0.3em',
                     padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: isCardsView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                    background: viewMode === 'cards' ? toggleActiveBg : 'transparent',
                     border: 'none',
                     borderRadius: '0.5em',
-                    color: isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                    color: viewMode === 'cards' ? toggleActiveText : toggleInactiveText,
                     cursor: 'pointer',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial',
+                    flex: isMobile ? 1 : 'initial'
                   }}
+                  title="Vista de Tarjetas"
                 >
-                  <Grid size={16} color={isCardsView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tarjetas'}
+                  <Grid size={16} color={viewMode === 'cards' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
@@ -561,18 +566,19 @@ const GestionEstudiantes = () => {
                     justifyContent: 'center',
                     gap: '0.3em',
                     padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: isTableView ? (darkMode ? 'rgba(255,255,255,0.14)' : '#ffffff') : 'transparent',
+                    background: viewMode === 'table' ? toggleActiveBg : 'transparent',
                     border: 'none',
                     borderRadius: '0.5em',
-                    color: isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)'),
+                    color: viewMode === 'table' ? toggleActiveText : toggleInactiveText,
                     cursor: 'pointer',
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
+                    flex: isMobile ? 1 : 'initial'
                   }}
+                  title="Vista de Tabla"
                 >
-                  <List size={16} color={isTableView ? (darkMode ? RedColorPalette.primaryLight : RedColorPalette.primary) : (darkMode ? 'rgba(255,255,255,0.6)' : 'rgba(100,116,139,0.7)')} /> {!isMobile && 'Tabla'}
+                  <List size={16} color={viewMode === 'table' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
                 </button>
               </div>
 

@@ -13,7 +13,7 @@ import {
   RefreshCcw,
   Sheet,
   List,
-  LayoutGrid,
+  Grid,
   ChevronLeft,
   ChevronRight,
   X,
@@ -745,67 +745,61 @@ const GestionMatricula = () => {
             />
           </div>
 
-          {/* View Mode Toggle */}
-          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-            <div style={{
-              display: 'flex',
-              gap: '0.375rem',
-              background: toggleGroupBg,
-              borderRadius: '0.65rem',
-              padding: '0.1875rem',
-              border: 'none',
-              boxShadow: 'none'
-            }}>
-              <button
-                onClick={() => setViewMode('grid')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                  background: viewMode === 'grid' ? toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: viewMode === 'grid' ? toggleActiveText : toggleInactiveText,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isMobile ? 1 : 'initial'
-                }}
-                title="Vista de Tarjetas"
-              >
-                <LayoutGrid size={16} color={viewMode === 'grid' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.3em',
-                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                  background: viewMode === 'table' ? toggleActiveBg : 'transparent',
-                  border: 'none',
-                  borderRadius: '0.5em',
-                  color: viewMode === 'table' ? toggleActiveText : toggleInactiveText,
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s ease',
-                  flex: isMobile ? 1 : 'initial'
-                }}
-                title="Vista de Tabla"
-              >
-                <List size={16} color={viewMode === 'table' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
-              </button>
-            </div>
-
-
+          <div style={{
+            display: 'flex',
+            gap: '0.375rem',
+            background: toggleGroupBg,
+            borderRadius: '0.65rem',
+            padding: '0.1875rem',
+            width: isSmallScreen ? '100%' : 'auto',
+            border: 'none',
+            boxShadow: 'none'
+          }}>
+            <button
+              onClick={() => setViewMode('grid')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3em',
+                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                background: viewMode === 'grid' ? toggleActiveBg : 'transparent',
+                border: 'none',
+                borderRadius: '0.5em',
+                color: viewMode === 'grid' ? toggleActiveText : toggleInactiveText,
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                transition: 'all 0.2s ease',
+                flex: 1
+              }}
+              title="Vista de Tarjetas"
+            >
+              <Grid size={16} color={viewMode === 'grid' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tarjetas'}
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3em',
+                padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                background: viewMode === 'table' ? toggleActiveBg : 'transparent',
+                border: 'none',
+                borderRadius: '0.5em',
+                color: viewMode === 'table' ? toggleActiveText : toggleInactiveText,
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                transition: 'all 0.2s ease',
+                flex: isMobile ? 1 : 'initial'
+              }}
+              title="Vista de Tabla"
+            >
+              <List size={16} color={viewMode === 'table' ? toggleActiveText : toggleInactiveText} /> {!isMobile && 'Tabla'}
+            </button>
           </div>
-
-
         </div>
       </GlassEffect>
 
@@ -866,471 +860,475 @@ const GestionMatricula = () => {
         }
 
         {/* Vista Tabla */}
-        {!loading && solicitudesFiltradas.length > 0 && viewMode === 'table' && (
-          <>
-            {/* Indicador de scroll en móvil */}
-            {isSmallScreen && (
-              <div style={{
-                background: pick('rgba(254,226,226,0.9)', 'rgba(255,255,255,0.04)'),
-                border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(255,255,255,0.08)')}`,
-                borderRadius: '0.5rem',
-                padding: '8px 0.75rem',
-                marginBottom: '0.75rem',
-                color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
-                fontSize: '0.75rem',
-                textAlign: 'center',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.375rem'
-              }}>
-                <ArrowLeftRight size={16} strokeWidth={2.25} />
-                <span>Desliza horizontalmente para ver toda la tabla</span>
-                <ArrowLeftRight size={16} strokeWidth={2.25} />
-              </div>
-            )}
-
-            <div className="responsive-table-container" style={{
-              overflowX: 'auto',
-              borderRadius: isMobile ? '12px' : '0.75rem',
-              border: `1px solid ${tableBorder}`,
-              background: tableContainerBg,
-              marginBottom: isMobile ? '12px' : '0.5rem',
-              position: 'relative'
-            }}>
-              {!isMobile && (
+        {
+          !loading && solicitudesFiltradas.length > 0 && viewMode === 'table' && (
+            <>
+              {/* Indicador de scroll en móvil */}
+              {isSmallScreen && (
                 <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  pointerEvents: 'none',
-                  zIndex: 0,
-                  opacity: 0.08,
+                  background: pick('rgba(254,226,226,0.9)', 'rgba(255,255,255,0.04)'),
+                  border: `1px solid ${pick('rgba(248,113,113,0.35)', 'rgba(255,255,255,0.08)')}`,
+                  borderRadius: '0.5rem',
+                  padding: '8px 0.75rem',
+                  marginBottom: '0.75rem',
+                  color: pick('rgba(153,27,27,0.85)', 'rgba(248,250,252,0.85)'),
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
                   display: 'flex',
-                  gap: '0.5rem',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.375rem'
                 }}>
-                  <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
-                  <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                  <ArrowLeftRight size={16} strokeWidth={2.25} />
+                  <span>Desliza horizontalmente para ver toda la tabla</span>
+                  <ArrowLeftRight size={16} strokeWidth={2.25} />
                 </div>
               )}
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', position: 'relative', zIndex: 1 }}>
-                <thead style={{
-                  borderBottom: `1px solid ${tableHeaderBorder}`,
-                  background: tableHeaderBg
-                }}>
-                  <tr>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Código</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Solicitante</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Identificación</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Detalles Curso</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Comprobante</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Estado</th>
-                    <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedSolicitudes.map((sol) => {
-                    const estadoVisual = getEstadoTokens(sol.estado);
-                    const formatearFecha = (fechaString: string) => {
-                      const fecha = new Date(fechaString);
-                      return `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
-                    };
-                    return (
-                      <tr key={sol.id_solicitud}
-                        style={{
-                          borderBottom: `1px solid ${tableRowDivider}`,
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textMuted, fontWeight: 500, verticalAlign: 'middle', fontSize: '0.7rem' }}>{sol.codigo_solicitud}</td>
-                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
-                          <div style={{ fontWeight: 600, color: theme.textPrimary, fontSize: '0.7rem' }}>{sol.apellido_solicitante}, {sol.nombre_solicitante}</div>
-                          <div style={{ fontSize: '0.65rem', color: theme.textSecondary }}>{sol.email_solicitante}</div>
-                        </td>
-                        <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, verticalAlign: 'middle', fontSize: '0.7rem' }}>{sol.identificacion_solicitante}</td>
-                        <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
-                          <div style={{ fontWeight: 500, color: theme.textPrimary, fontSize: '0.7rem' }}>{(sol as any).tipo_curso_nombre || 'N/A'}</div>
-                          <div style={{ fontSize: '0.65rem', color: theme.textSecondary }}>{formatearFecha(sol.fecha_solicitud)}</div>
-                        </td>
-                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                          <button
-                            onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
-                            title="Ver comprobante"
-                            style={{
-                              padding: '0.25rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #10b981',
-                              backgroundColor: 'transparent',
-                              color: '#10b981',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#10b981';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#10b981';
-                            }}
-                          >
-                            <Download style={{ width: '0.85rem', height: '0.85rem' }} />
-                          </button>
-                        </td>
-                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                          <span style={{
-                            padding: '2px 8px',
-                            borderRadius: '999px',
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            background: estadoVisual.bg,
-                            border: `1px solid ${estadoVisual.border}`,
-                            color: estadoVisual.text
-                          }}>
-                            {sol.estado}
-                          </span>
-                        </td>
-                        <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
-                          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', justifyContent: 'center' }}>
+
+              <div className="responsive-table-container" style={{
+                overflowX: 'auto',
+                borderRadius: isMobile ? '12px' : '0.75rem',
+                border: `1px solid ${tableBorder}`,
+                background: tableContainerBg,
+                marginBottom: isMobile ? '12px' : '0.5rem',
+                position: 'relative'
+              }}>
+                {!isMobile && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                    opacity: 0.08,
+                    display: 'flex',
+                    gap: '0.5rem',
+                    alignItems: 'center'
+                  }}>
+                    <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                    <ArrowLeftRight size={16} color={darkMode ? '#ffffff' : '#0f172a'} strokeWidth={2.25} />
+                  </div>
+                )}
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', position: 'relative', zIndex: 1 }}>
+                  <thead style={{
+                    borderBottom: `1px solid ${tableHeaderBorder}`,
+                    background: tableHeaderBg
+                  }}>
+                    <tr>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Código</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Solicitante</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Identificación</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Detalles Curso</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'left', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Comprobante</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Estado</th>
+                      <th style={{ padding: '0.25rem 0.5rem', textAlign: 'center', color: tableHeaderText, fontWeight: '600', textTransform: 'uppercase', fontSize: '0.65rem' }}>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedSolicitudes.map((sol) => {
+                      const estadoVisual = getEstadoTokens(sol.estado);
+                      const formatearFecha = (fechaString: string) => {
+                        const fecha = new Date(fechaString);
+                        return `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
+                      };
+                      return (
+                        <tr key={sol.id_solicitud}
+                          style={{
+                            borderBottom: `1px solid ${tableRowDivider}`,
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = tableRowHover}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <td style={{ padding: '0.25rem 0.5rem', color: theme.textMuted, fontWeight: 500, verticalAlign: 'middle', fontSize: '0.7rem' }}>{sol.codigo_solicitud}</td>
+                          <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                            <div style={{ fontWeight: 600, color: theme.textPrimary, fontSize: '0.7rem' }}>{sol.apellido_solicitante}, {sol.nombre_solicitante}</div>
+                            <div style={{ fontSize: '0.65rem', color: theme.textSecondary }}>{sol.email_solicitante}</div>
+                          </td>
+                          <td style={{ padding: '0.25rem 0.5rem', color: theme.textPrimary, verticalAlign: 'middle', fontSize: '0.7rem' }}>{sol.identificacion_solicitante}</td>
+                          <td style={{ padding: '0.25rem 0.5rem', verticalAlign: 'middle' }}>
+                            <div style={{ fontWeight: 500, color: theme.textPrimary, fontSize: '0.7rem' }}>{(sol as any).tipo_curso_nombre || 'N/A'}</div>
+                            <div style={{ fontSize: '0.65rem', color: theme.textSecondary }}>{formatearFecha(sol.fecha_solicitud)}</div>
+                          </td>
+                          <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
                             <button
-                              onClick={() => openModal(sol.id_solicitud)}
-                              title="Ver Detalles"
+                              onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
+                              title="Ver comprobante"
                               style={{
                                 padding: '0.25rem',
                                 borderRadius: '0.5rem',
-                                border: '1px solid #3b82f6',
+                                border: '1px solid #10b981',
                                 backgroundColor: 'transparent',
-                                color: '#3b82f6',
+                                color: '#10b981',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#3b82f6';
+                                e.currentTarget.style.backgroundColor = '#10b981';
                                 e.currentTarget.style.color = 'white';
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = '#3b82f6';
+                                e.currentTarget.style.color = '#10b981';
                               }}
                             >
-                              <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
+                              <Download style={{ width: '0.85rem', height: '0.85rem' }} />
                             </button>
-                            {sol.estado === 'pendiente' && (
-                              <>
-                                <button
-                                  onClick={() => openApprovalModal(sol)}
-                                  disabled={decidiendo}
-                                  title="Aprobar"
-                                  style={{
-                                    padding: '0.25rem',
-                                    borderRadius: '0.5rem',
-                                    border: '1px solid #10b981',
-                                    backgroundColor: 'transparent',
-                                    color: '#10b981',
-                                    cursor: decidiendo ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.2s',
-                                    opacity: decidiendo ? 0.5 : 1
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (!decidiendo) {
-                                      e.currentTarget.style.backgroundColor = '#10b981';
-                                      e.currentTarget.style.color = 'white';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.color = '#10b981';
-                                  }}
-                                >
-                                  <Check style={{ width: '0.85rem', height: '0.85rem' }} />
-                                </button>
-                                <button
-                                  onClick={() => openRejectionModal(sol)}
-                                  disabled={decidiendo}
-                                  title="Rechazar"
-                                  style={{
-                                    padding: '0.25rem',
-                                    borderRadius: '0.5rem',
-                                    border: '1px solid #ef4444',
-                                    backgroundColor: 'transparent',
-                                    color: '#ef4444',
-                                    cursor: decidiendo ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.2s',
-                                    opacity: decidiendo ? 0.5 : 1
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (!decidiendo) {
-                                      e.currentTarget.style.backgroundColor = '#ef4444';
-                                      e.currentTarget.style.color = 'white';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.color = '#ef4444';
-                                  }}
-                                >
-                                  <XCircle style={{ width: '0.85rem', height: '0.85rem' }} />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+                          </td>
+                          <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                            <span style={{
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              background: estadoVisual.bg,
+                              border: `1px solid ${estadoVisual.border}`,
+                              color: estadoVisual.text
+                            }}>
+                              {sol.estado}
+                            </span>
+                          </td>
+                          <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center', verticalAlign: 'middle' }}>
+                            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center', justifyContent: 'center' }}>
+                              <button
+                                onClick={() => openModal(sol.id_solicitud)}
+                                title="Ver Detalles"
+                                style={{
+                                  padding: '0.25rem',
+                                  borderRadius: '0.5rem',
+                                  border: '1px solid #3b82f6',
+                                  backgroundColor: 'transparent',
+                                  color: '#3b82f6',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                                  e.currentTarget.style.color = 'white';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                  e.currentTarget.style.color = '#3b82f6';
+                                }}
+                              >
+                                <Eye style={{ width: '0.85rem', height: '0.85rem' }} />
+                              </button>
+                              {sol.estado === 'pendiente' && (
+                                <>
+                                  <button
+                                    onClick={() => openApprovalModal(sol)}
+                                    disabled={decidiendo}
+                                    title="Aprobar"
+                                    style={{
+                                      padding: '0.25rem',
+                                      borderRadius: '0.5rem',
+                                      border: '1px solid #10b981',
+                                      backgroundColor: 'transparent',
+                                      color: '#10b981',
+                                      cursor: decidiendo ? 'not-allowed' : 'pointer',
+                                      transition: 'all 0.2s',
+                                      opacity: decidiendo ? 0.5 : 1
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!decidiendo) {
+                                        e.currentTarget.style.backgroundColor = '#10b981';
+                                        e.currentTarget.style.color = 'white';
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = 'transparent';
+                                      e.currentTarget.style.color = '#10b981';
+                                    }}
+                                  >
+                                    <Check style={{ width: '0.85rem', height: '0.85rem' }} />
+                                  </button>
+                                  <button
+                                    onClick={() => openRejectionModal(sol)}
+                                    disabled={decidiendo}
+                                    title="Rechazar"
+                                    style={{
+                                      padding: '0.25rem',
+                                      borderRadius: '0.5rem',
+                                      border: '1px solid #ef4444',
+                                      backgroundColor: 'transparent',
+                                      color: '#ef4444',
+                                      cursor: decidiendo ? 'not-allowed' : 'pointer',
+                                      transition: 'all 0.2s',
+                                      opacity: decidiendo ? 0.5 : 1
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!decidiendo) {
+                                        e.currentTarget.style.backgroundColor = '#ef4444';
+                                        e.currentTarget.style.color = 'white';
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = 'transparent';
+                                      e.currentTarget.style.color = '#ef4444';
+                                    }}
+                                  >
+                                    <XCircle style={{ width: '0.85rem', height: '0.85rem' }} />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )
+        }
 
         {/* Vista Cards - Modo Horizontal Compacto (Matching Ref image & GestionPagosEstudiante) */}
-        {!loading && solicitudesFiltradas.length > 0 && viewMode === 'grid' && (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.625rem',
-            padding: '0.25rem 0'
-          }}>
-            {paginatedSolicitudes.map((sol) => {
-              const estadoVisual = getEstadoTokens(sol.estado);
-              const labelColor = theme.textMuted;
-              const valueColor = theme.textPrimary;
+        {
+          !loading && solicitudesFiltradas.length > 0 && viewMode === 'grid' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.625rem',
+              padding: '0.25rem 0'
+            }}>
+              {paginatedSolicitudes.map((sol) => {
+                const estadoVisual = getEstadoTokens(sol.estado);
+                const labelColor = theme.textMuted;
+                const valueColor = theme.textPrimary;
 
-              const fieldLabelStyle = {
-                color: labelColor,
-                fontSize: '0.6rem',
-                fontWeight: 500,
-                marginBottom: '0.125rem'
-              } as CSSProperties;
+                const fieldLabelStyle = {
+                  color: labelColor,
+                  fontSize: '0.6rem',
+                  fontWeight: 500,
+                  marginBottom: '0.125rem'
+                } as CSSProperties;
 
-              const fieldValueStyle = {
-                color: valueColor,
-                fontSize: '0.7rem',
-                fontWeight: 700,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              } as CSSProperties;
+                const fieldValueStyle = {
+                  color: valueColor,
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                } as CSSProperties;
 
-              const formatearFecha = (fechaString: string) => {
-                const fecha = new Date(fechaString);
-                const meses = [
-                  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                ];
-                return `${fecha.getDate()}/${meses[fecha.getMonth()]}/${fecha.getFullYear()}`;
-              };
+                const formatearFecha = (fechaString: string) => {
+                  const fecha = new Date(fechaString);
+                  const meses = [
+                    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                  ];
+                  return `${fecha.getDate()}/${meses[fecha.getMonth()]}/${fecha.getFullYear()}`;
+                };
 
-              return (
-                <div
-                  key={sol.id_solicitud}
-                  style={{
-                    background: pick(
-                      '#ffffff',
-                      'linear-gradient(135deg, rgba(8, 8, 12, 0.96) 0%, rgba(18, 18, 26, 0.98) 100%)'
-                    ),
-                    border: `1px solid ${pick('#e2e8f0', 'rgba(255, 255, 255, 0.08)')}`,
-                    borderRadius: '0.875rem',
-                    padding: '0.625rem 0.875rem',
-                    boxShadow: darkMode
-                      ? '0 4px 20px -5px rgba(0, 0, 0, 0.7)'
-                      : '0 4px 12px -2px rgba(15, 23, 42, 0.08)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.625rem',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.borderColor = pick('#94a3b8', 'rgba(239, 68, 68, 0.45)');
-                    e.currentTarget.style.boxShadow = darkMode
-                      ? '0 12px 25px -8px rgba(0, 0, 0, 0.8)'
-                      : '0 8px 20px -4px rgba(15, 23, 42, 0.12)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = pick('rgba(15,23,42,0.08)', 'rgba(239, 68, 68, 0.22)');
-                    e.currentTarget.style.boxShadow = darkMode
-                      ? '0 4px 20px -5px rgba(0, 0, 0, 0.7)'
-                      : '0 4px 12px -2px rgba(15, 23, 42, 0.08)';
-                  }}
-                >
-                  {/* Header Row: Código y Estado */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{
-                      fontSize: '0.55rem',
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.35rem',
-                      fontWeight: 600,
-                      background: theme.chipMutedBg,
-                      border: `1px solid ${theme.chipMutedBorder}`,
-                      color: theme.chipMutedText,
-                      letterSpacing: '0.01em'
-                    }}>
-                      {sol.codigo_solicitud}
-                    </span>
-                    <span style={{
-                      padding: '2px 0.5rem',
-                      borderRadius: '0.35rem',
-                      fontSize: '0.55rem',
-                      fontWeight: 800,
-                      textTransform: 'uppercase',
-                      background: estadoVisual.bg,
-                      border: `1px solid ${estadoVisual.border}`,
-                      color: estadoVisual.text,
-                      letterSpacing: '0.025em'
-                    }}>
-                      {sol.estado}
-                    </span>
-                  </div>
-
-                  {/* Nombre del Solicitante */}
-                  <div>
-                    <h3 style={{
-                      margin: 0,
-                      fontSize: '0.8rem',
-                      fontWeight: 800,
-                      color: theme.textPrimary,
-                      textTransform: 'uppercase',
-                      letterSpacing: '-0.01em'
-                    }}>
-                      {sol.apellido_solicitante}, {sol.nombre_solicitante}
-                    </h3>
-                  </div>
-
-                  <div style={{ width: '100%', height: '1px', background: pick('rgba(148,163,184,0.18)', 'rgba(255, 255, 255, 0.08)'), opacity: 0.6 }} />
-
-                  {/* Fila de Detalles (4 columnas) */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
-                    gap: '0.625rem'
-                  }}>
-                    <div>
-                      <div style={fieldLabelStyle}>Identificación</div>
-                      <div style={fieldValueStyle}>{sol.identificacion_solicitante || '-'}</div>
-                    </div>
-                    <div>
-                      <div style={fieldLabelStyle}>Email</div>
-                      <div style={fieldValueStyle} title={sol.email_solicitante}>{sol.email_solicitante}</div>
-                    </div>
-                    <div>
-                      <div style={fieldLabelStyle}>Fecha de Solicitud</div>
-                      <div style={fieldValueStyle}>{formatearFecha(sol.fecha_solicitud)}</div>
-                    </div>
-                    <div>
-                      <div style={fieldLabelStyle}>Tipo de Curso</div>
-                      <div style={fieldValueStyle}>{(sol as any).tipo_curso_nombre || '-'}</div>
-                    </div>
-                  </div>
-
-                  {/* Fila de Comprobante (Boxes) */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                    gap: '0.625rem',
-                    alignItems: 'end'
-                  }}>
-                    <div>
-                      <div style={fieldLabelStyle}>Número Comprobante</div>
-                      <div style={{
-                        background: 'rgba(148, 163, 184, 0.1)',
-                        border: '1px solid rgba(148, 163, 184, 0.2)',
-                        color: theme.textSecondary,
-                        padding: '3px 6px',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        textAlign: 'center'
+                return (
+                  <div
+                    key={sol.id_solicitud}
+                    style={{
+                      background: pick(
+                        '#ffffff',
+                        'linear-gradient(135deg, rgba(8, 8, 12, 0.96) 0%, rgba(18, 18, 26, 0.98) 100%)'
+                      ),
+                      border: `1px solid ${pick('#e2e8f0', 'rgba(255, 255, 255, 0.08)')}`,
+                      borderRadius: '0.875rem',
+                      padding: '0.625rem 0.875rem',
+                      boxShadow: darkMode
+                        ? '0 4px 20px -5px rgba(0, 0, 0, 0.7)'
+                        : '0 4px 12px -2px rgba(15, 23, 42, 0.08)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.625rem',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.borderColor = pick('#94a3b8', 'rgba(239, 68, 68, 0.45)');
+                      e.currentTarget.style.boxShadow = darkMode
+                        ? '0 12px 25px -8px rgba(0, 0, 0, 0.8)'
+                        : '0 8px 20px -4px rgba(15, 23, 42, 0.12)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.borderColor = pick('rgba(15,23,42,0.08)', 'rgba(239, 68, 68, 0.22)');
+                      e.currentTarget.style.boxShadow = darkMode
+                        ? '0 4px 20px -5px rgba(0, 0, 0, 0.7)'
+                        : '0 4px 12px -2px rgba(15, 23, 42, 0.08)';
+                    }}
+                  >
+                    {/* Header Row: Código y Estado */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{
+                        fontSize: '0.55rem',
+                        padding: '2px 0.5rem',
+                        borderRadius: '0.35rem',
+                        fontWeight: 600,
+                        background: theme.chipMutedBg,
+                        border: `1px solid ${theme.chipMutedBorder}`,
+                        color: theme.chipMutedText,
+                        letterSpacing: '0.01em'
                       }}>
-                        {sol.numero_comprobante || 'N/A'}
+                        {sol.codigo_solicitud}
+                      </span>
+                      <span style={{
+                        padding: '2px 0.5rem',
+                        borderRadius: '0.35rem',
+                        fontSize: '0.55rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        background: estadoVisual.bg,
+                        border: `1px solid ${estadoVisual.border}`,
+                        color: estadoVisual.text,
+                        letterSpacing: '0.025em'
+                      }}>
+                        {sol.estado}
+                      </span>
+                    </div>
+
+                    {/* Nombre del Solicitante */}
+                    <div>
+                      <h3 style={{
+                        margin: 0,
+                        fontSize: '0.8rem',
+                        fontWeight: 800,
+                        color: theme.textPrimary,
+                        textTransform: 'uppercase',
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {sol.apellido_solicitante}, {sol.nombre_solicitante}
+                      </h3>
+                    </div>
+
+                    <div style={{ width: '100%', height: '1px', background: pick('rgba(148,163,184,0.18)', 'rgba(255, 255, 255, 0.08)'), opacity: 0.6 }} />
+
+                    {/* Fila de Detalles (4 columnas) */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
+                      gap: '0.625rem'
+                    }}>
+                      <div>
+                        <div style={fieldLabelStyle}>Identificación</div>
+                        <div style={fieldValueStyle}>{sol.identificacion_solicitante || '-'}</div>
+                      </div>
+                      <div>
+                        <div style={fieldLabelStyle}>Email</div>
+                        <div style={fieldValueStyle} title={sol.email_solicitante}>{sol.email_solicitante}</div>
+                      </div>
+                      <div>
+                        <div style={fieldLabelStyle}>Fecha de Solicitud</div>
+                        <div style={fieldValueStyle}>{formatearFecha(sol.fecha_solicitud)}</div>
+                      </div>
+                      <div>
+                        <div style={fieldLabelStyle}>Tipo de Curso</div>
+                        <div style={fieldValueStyle}>{(sol as any).tipo_curso_nombre || '-'}</div>
                       </div>
                     </div>
-                    <div>
-                      <div style={fieldLabelStyle}>Recibido por</div>
-                      <div style={{
-                        background: 'rgba(180, 83, 9, 0.05)',
-                        border: '1px solid rgba(180, 83, 9, 0.1)',
-                        color: '#b45309',
-                        padding: '3px 6px',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        textAlign: 'center',
-                        textTransform: 'uppercase'
-                      }}>
-                        {(sol as any).recibido_por || 'SECRETARIA'}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={fieldLabelStyle}>Comprobante</div>
-                      <button
-                        onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
-                        style={{
-                          background: 'rgba(16, 185, 129, 0.05)',
-                          border: '1px solid rgba(16, 185, 129, 0.15)',
-                          color: '#10b981',
-                          padding: '3px 0.75rem',
+
+                    {/* Fila de Comprobante (Boxes) */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                      gap: '0.625rem',
+                      alignItems: 'end'
+                    }}>
+                      <div>
+                        <div style={fieldLabelStyle}>Número Comprobante</div>
+                        <div style={{
+                          background: 'rgba(148, 163, 184, 0.1)',
+                          border: '1px solid rgba(148, 163, 184, 0.2)',
+                          color: theme.textSecondary,
+                          padding: '3px 6px',
                           borderRadius: '0.25rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          textAlign: 'center'
+                        }}>
+                          {sol.numero_comprobante || 'N/A'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={fieldLabelStyle}>Recibido por</div>
+                        <div style={{
+                          background: 'rgba(180, 83, 9, 0.05)',
+                          border: '1px solid rgba(180, 83, 9, 0.1)',
+                          color: '#b45309',
+                          padding: '3px 6px',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          textAlign: 'center',
+                          textTransform: 'uppercase'
+                        }}>
+                          {(sol as any).recibido_por || 'SECRETARIA'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={fieldLabelStyle}>Comprobante</div>
+                        <button
+                          onClick={() => openComprobanteModal(sol.comprobante_pago_url || '', sol.numero_comprobante)}
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.05)',
+                            border: '1px solid rgba(16, 185, 129, 0.15)',
+                            color: '#10b981',
+                            padding: '3px 0.75rem',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.65rem',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.25rem',
+                            cursor: 'pointer',
+                            width: '100%',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
+                        >
+                          <Download size={12} /> Ver Comprobante
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Botón Ver (Bottom Right) */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.125rem' }}>
+                      <button
+                        onClick={() => openModal(sol.id_solicitud)}
+                        style={{
+                          background: pick('rgba(59, 130, 246, 0.06)', 'rgba(255, 255, 255, 0.04)'),
+                          border: `1px solid ${pick('rgba(59, 130, 246, 0.2)', 'rgba(255, 255, 255, 0.08)')}`,
+                          color: pick('#2563eb', RedColorPalette.primary),
+                          padding: '3px 0.875rem',
+                          borderRadius: '0.45rem',
                           fontSize: '0.65rem',
                           fontWeight: 700,
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.25rem',
+                          gap: '0.3rem',
                           cursor: 'pointer',
-                          width: '100%',
                           transition: 'all 0.2s ease'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)'}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.12)', 'rgba(239, 68, 68, 0.18)');
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.06)', 'rgba(239, 68, 68, 0.1)');
+                        }}
                       >
-                        <Download size={12} /> Ver Comprobante
+                        <Eye size={13} /> Ver
                       </button>
                     </div>
                   </div>
-
-                  {/* Botón Ver (Bottom Right) */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.125rem' }}>
-                    <button
-                      onClick={() => openModal(sol.id_solicitud)}
-                      style={{
-                        background: pick('rgba(59, 130, 246, 0.06)', 'rgba(255, 255, 255, 0.04)'),
-                        border: `1px solid ${pick('rgba(59, 130, 246, 0.2)', 'rgba(255, 255, 255, 0.08)')}`,
-                        color: pick('#2563eb', RedColorPalette.primary),
-                        padding: '3px 0.875rem',
-                        borderRadius: '0.45rem',
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.12)', 'rgba(239, 68, 68, 0.18)');
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = pick('rgba(59, 130, 246, 0.06)', 'rgba(239, 68, 68, 0.1)');
-                      }}
-                    >
-                      <Eye size={13} /> Ver
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )
+        }
       </div >
 
       {/* Paginación */}

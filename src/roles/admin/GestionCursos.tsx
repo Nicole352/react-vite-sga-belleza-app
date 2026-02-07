@@ -152,9 +152,9 @@ const GestionCursos = () => {
       border: darkMode ? '1px solid rgba(156,163,175,0.28)' : '1px solid #e2e8f0'
     },
     cancelado: {
-      background: darkMode ? 'rgba(239,68,68,0.2)' : '#fef2f2',
-      color: darkMode ? '#f87171' : '#dc2626',
-      border: darkMode ? '1px solid #f87171' : '1px solid #fecaca'
+      background: darkMode ? 'rgba(251,146,60,0.2)' : '#fff7ed',
+      color: darkMode ? '#fb923c' : '#ea580c',
+      border: darkMode ? '1px solid #fb923c' : '1px solid #fdba74'
     }
   }), [darkMode]);
 
@@ -403,9 +403,9 @@ const GestionCursos = () => {
 
       // Mostrar mensaje de confirmación
       if (target === 'cancelado') {
-        showToast.closed('Curso bloqueado. Las matrículas están suspendidas.', darkMode);
+        showToast.closed('Matrículas cerradas. El curso sigue activo pero no acepta nuevas inscripciones.', darkMode);
       } else {
-        showToast.reopened('Curso reanudado. Las matrículas están habilitadas.', darkMode);
+        showToast.reopened('Matrículas abiertas. El curso ahora acepta nuevas inscripciones.', darkMode);
       }
     } catch (e: any) {
       setError(e.message || 'Error actualizando estado');
@@ -876,14 +876,27 @@ const GestionCursos = () => {
         borderRadius: '0.375rem',
         border: `1px solid ${darkMode ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.18)'}`
       }}>
-        <div className="responsive-filters">
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          flexWrap: 'wrap',
+          gap: '0.75em',
+          alignItems: isMobile ? 'stretch' : 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '0.75rem',
+            alignItems: isMobile ? 'stretch' : 'center',
+            flex: 1
+          }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ position: 'relative', flex: 1, width: isMobile ? '100%' : 'auto' }}>
               <Search size={16} style={{ position: 'absolute', left: '0.5rem', top: '50%', transform: 'translateY(-50%)', color: themeColors.iconMuted }} />
               <input
                 type="text"
-                placeholder="Buscar cursos o instructores..."
+                placeholder={isMobile ? "Buscar..." : "Buscar cursos o instructores..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -912,13 +925,18 @@ const GestionCursos = () => {
                   { value: 'planificado', label: 'Planificados' },
                   { value: 'activo', label: 'Activos' },
                   { value: 'finalizado', label: 'Finalizados' },
-                  { value: 'cancelado', label: 'Cancelados' },
+                  { value: 'cancelado', label: 'Matrículas Cerradas' },
                 ]}
               />
             </div>
 
-            {/* Toggle Vista y Botón Excel */}
-            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+            {/* Toggle Vista */}
+            <div style={{
+              display: 'flex',
+              gap: '0.375rem',
+              alignItems: 'center',
+              width: isSmallScreen ? '100%' : 'auto'
+            }}>
               <div style={{
                 display: 'flex',
                 gap: '0.375rem',
@@ -926,7 +944,8 @@ const GestionCursos = () => {
                 borderRadius: '0.65rem',
                 padding: '0.1875rem',
                 border: 'none',
-                boxShadow: 'none'
+                boxShadow: 'none',
+                width: isSmallScreen ? '100%' : 'auto'
               }}>
                 <button
                   onClick={() => setViewMode('cards')}
@@ -971,8 +990,6 @@ const GestionCursos = () => {
                   <List size={16} color={viewMode === 'table' ? themeColors.toggleActiveText : themeColors.toggleInactiveText} /> {!isMobile && 'Tabla'}
                 </button>
               </div>
-
-
             </div>
           </div>
 
@@ -998,7 +1015,7 @@ const GestionCursos = () => {
             }}
           >
             <Plus size={16} color="currentColor" />
-            Nuevo Curso
+            {isMobile ? 'Crear' : 'Nuevo Curso'}
           </button>
         </div>
 
@@ -1009,9 +1026,9 @@ const GestionCursos = () => {
       {viewMode === 'cards' && paginatedCursos.length > 0 && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: isMobile ? '8px' : '0.75rem',
-          marginBottom: isMobile ? '12px' : '0.5rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(16rem, 90vw), 1fr))',
+          gap: '0.9em',
+          marginBottom: '1.125em'
         }}>
           {paginatedCursos.map((curso) => {
             const estadoConfig = {
@@ -1215,7 +1232,7 @@ const GestionCursos = () => {
                   </button>
                   <button
                     onClick={() => handleToggleMatricula(curso)}
-                    title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
+                    title={curso.estado === 'cancelado' ? 'Abrir matrículas (el curso está activo)' : 'Cerrar matrículas (el curso seguirá activo)'}
                     style={{
                       flex: 0,
                       minWidth: '24px',
@@ -1470,7 +1487,7 @@ const GestionCursos = () => {
                           border: estadoBadge.border,
                           color: estadoBadge.color
                         }}>
-                          {curso.estado}
+                          {curso.estado === 'cancelado' ? 'Matrículas Cerradas' : curso.estado}
                         </span>
                       </td>
                       <td style={{ padding: '0.25rem 0.5rem' }}>
@@ -1565,7 +1582,7 @@ const GestionCursos = () => {
                               e.currentTarget.style.backgroundColor = 'transparent';
                               e.currentTarget.style.color = color;
                             }}
-                            title={curso.estado === 'cancelado' ? 'Reanudar matrículas' : 'Cerrar matrículas'}
+                            title={curso.estado === 'cancelado' ? 'Abrir matrículas (el curso está activo)' : 'Cerrar matrículas (el curso seguirá activo)'}
                           >
                             {curso.estado === 'cancelado' ? (
                               <Unlock style={{ width: '0.85rem', height: '0.85rem' }} />
@@ -2061,7 +2078,7 @@ const GestionCursos = () => {
                       options={[
                         { value: 'activo', label: 'Activo' },
                         { value: 'finalizado', label: 'Finalizado' },
-                        { value: 'cancelado', label: 'Cancelado' },
+                        { value: 'cancelado', label: 'Matrículas Cerradas' },
                       ]}
                     />
                   </div>

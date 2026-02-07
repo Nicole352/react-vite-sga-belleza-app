@@ -375,10 +375,23 @@ const GestionTiposCurso: React.FC = () => {
           border: `1px solid ${filterInputBorder}`
         }}
       >
-        <div className="responsive-filters">
-          <div style={{ display: 'flex', flexDirection: isSmallScreen ? 'column' : 'row', gap: '0.75rem', alignItems: isSmallScreen ? 'stretch' : 'center', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          flexWrap: 'wrap',
+          gap: '0.75em',
+          alignItems: isMobile ? 'stretch' : 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '0.75rem',
+            alignItems: isMobile ? 'stretch' : 'center',
+            flex: 1
+          }}>
             {/* Búsqueda */}
-            <div style={{ position: 'relative', flex: 1, width: isSmallScreen ? '100%' : 'auto' }}>
+            <div style={{ position: 'relative', flex: 1, width: isMobile ? '100%' : 'auto' }}>
               <Search
                 size={16}
                 style={{
@@ -391,7 +404,7 @@ const GestionTiposCurso: React.FC = () => {
               />
               <input
                 type="text"
-                placeholder="Buscar por nombre o descripción..."
+                placeholder={isMobile ? "Buscar..." : "Buscar tipo de curso..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -409,63 +422,58 @@ const GestionTiposCurso: React.FC = () => {
             </div>
 
             {/* Toggle Vista */}
-            <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-              <div
+            <div style={{
+              display: 'flex',
+              gap: '0.375rem',
+              background: theme.toggleContainerBg,
+              borderRadius: '0.65rem',
+              padding: '0.1875rem',
+              width: isSmallScreen ? '100%' : 'auto',
+              border: 'none',
+              boxShadow: 'none'
+            }}>
+              <button
+                onClick={() => setViewMode('cards')}
                 style={{
                   display: 'flex',
-                  gap: '0.375rem',
-                  background: theme.toggleContainerBg,
-                  borderRadius: '0.65rem',
-                  padding: '0.1875rem',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'cards' ? theme.toggleActiveBg : 'transparent',
                   border: 'none',
-                  boxShadow: 'none'
+                  borderRadius: '0.5em',
+                  color: cardsTabColor,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: 1
                 }}
               >
-                <button
-                  onClick={() => setViewMode('cards')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3em',
-                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: viewMode === 'cards' ? theme.toggleActiveBg : 'transparent',
-                    border: 'none',
-                    borderRadius: '0.5em',
-                    color: cardsTabColor,
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
-                  }}
-                >
-                  <Grid size={16} color={cardsTabColor} /> {!isMobile && 'Tarjetas'}
-                </button>
-                <button
-                  onClick={() => setViewMode('table')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.3em',
-                    padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
-                    background: viewMode === 'table' ? theme.toggleActiveBg : 'transparent',
-                    border: 'none',
-                    borderRadius: '0.5em',
-                    color: tableTabColor,
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease',
-                    flex: isSmallScreen ? 1 : 'initial'
-                  }}
-                >
-                  <List size={16} color={tableTabColor} /> {!isMobile && 'Tabla'}
-                </button>
-              </div>
-
-
+                <Grid size={16} color={cardsTabColor} /> {!isMobile && 'Tarjetas'}
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3em',
+                  padding: isMobile ? '0.3125rem 0.5rem' : '0.3125rem 0.75rem',
+                  background: viewMode === 'table' ? theme.toggleActiveBg : 'transparent',
+                  border: 'none',
+                  borderRadius: '0.5em',
+                  color: tableTabColor,
+                  cursor: 'pointer',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  flex: 1
+                }}
+              >
+                <List size={16} color={tableTabColor} /> {!isMobile && 'Tabla'}
+              </button>
             </div>
           </div>
 
@@ -486,7 +494,8 @@ const GestionTiposCurso: React.FC = () => {
               fontWeight: '600',
               cursor: 'pointer',
               boxShadow: '0 0.35rem 1rem rgba(239,68,68,0.35)',
-              width: isSmallScreen ? '100%' : 'auto'
+              width: isSmallScreen ? '100%' : 'auto',
+              transition: 'all 0.2s ease'
             }}
           >
             <Plus size={16} color="currentColor" />
@@ -501,9 +510,9 @@ const GestionTiposCurso: React.FC = () => {
       {viewMode === 'cards' && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: isMobile ? '8px' : '0.75rem',
-          marginBottom: isMobile ? '12px' : '0.5rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(16rem, 90vw), 1fr))',
+          gap: '0.9em',
+          marginBottom: '1.125em'
         }}>
           {paginatedTipos.map((t) => (
             <div
