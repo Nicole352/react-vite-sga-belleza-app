@@ -154,7 +154,7 @@ const SobreNosotros: React.FC = () => {
   const logros: Logro[] = [
     { numero: '1,200+', texto: 'Estudiantes Graduadas', icono: <Users size={24} /> },
     { numero: '100%', texto: 'Tasa de Empleabilidad', icono: <Trophy size={24} /> },
-    { numero: '6', texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
+    { numero: `${new Date().getFullYear() - 2020}`, texto: 'Años de Experiencia', icono: <Calendar size={24} /> },
     { numero: '3', texto: 'Certificaciones Oficiales', icono: <Award size={24} /> }
   ];
 
@@ -791,7 +791,8 @@ const SobreNosotros: React.FC = () => {
               }}
             >
               Transformamos vidas a través de la educación en belleza y estética,
-              formando profesionales de excelencia con más de 5 años de experiencia
+              formando profesionales de excelencia con más de {new Date().getFullYear() - 2020} años de experiencia
+
             </p>
 
             {/* Estadísticas destacadas */}

@@ -188,7 +188,8 @@ const Cursos = () => {
           transition: `opacity 600ms ease, transform 600ms ease`,
           transitionDelay: `${index * 150}ms`,
           perspective: '1000px',
-          height: '360px'
+          height: '450px',
+          flex: '1 1 300px'
         }}
         onMouseEnter={() => setHoveredCard(curso.id)}
         onMouseLeave={() => setHoveredCard(null)}
@@ -227,7 +228,7 @@ const Cursos = () => {
             }}
           >
             {/* Imagen */}
-            <div style={{ height: '290px', overflow: 'hidden', borderRadius: '1rem 1rem 0 0' }}>
+            <div style={{ height: '360px', overflow: 'hidden', borderRadius: '1rem 1rem 0 0' }}>
               <img
                 src={curso.imagen}
                 alt={curso.titulo}
@@ -243,7 +244,7 @@ const Cursos = () => {
             <div style={{ padding: '0.85rem' }}>
               <h3
                 style={{
-                  fontSize: '0.85rem',
+                  fontSize: '1rem',
                   fontWeight: 700,
                   color: theme === 'dark' ? 'rgba(255,255,255,0.98)' : 'rgba(31, 41, 55, 0.98)',
                   margin: 0,
@@ -255,14 +256,14 @@ const Cursos = () => {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Clock size={12} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
-                  <span style={{ fontSize: '0.65rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)' }}>
+                  <Clock size={14} color={theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)'} />
+                  <span style={{ fontSize: '0.75rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)' }}>
                     {curso.duracion}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Star size={12} fill="#fbbf24" color="#fbbf24" />
-                  <span style={{ fontSize: '0.65rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)' }}>
+                  <Star size={14} fill="#fbbf24" color="#fbbf24" />
+                  <span style={{ fontSize: '0.75rem', color: theme === 'dark' ? 'rgba(255,255,255,0.75)' : 'rgba(31, 41, 55, 0.75)' }}>
                     {curso.rating}
                   </span>
                 </div>
@@ -295,7 +296,7 @@ const Cursos = () => {
               justifyContent: 'space-between'
             }}
           >
-            <div>
+            <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
               <h3
                 style={{
                   fontSize: '1rem',
@@ -308,14 +309,14 @@ const Cursos = () => {
                   gap: '0.5rem'
                 }}
               >
-                {React.cloneElement(curso.icon as React.ReactElement, { size: 20, color: '#fbbf24' })}
+                {React.cloneElement(curso.icon as React.ReactElement<any>, { size: 20, color: '#fbbf24' })}
                 {curso.titulo}
               </h3>
 
               <p
                 style={{
-                  fontSize: '0.75rem',
-                  color: theme === 'dark' ? 'rgba(255,255,255,0.85)' : 'rgba(31, 41, 55, 0.85)',
+                  fontSize: '0.8rem',
+                  color: theme === 'dark' ? 'rgba(255,255,255,0.9)' : 'rgba(31, 41, 55, 0.9)',
                   lineHeight: 1.6,
                   margin: 0,
                   marginBottom: '1rem'
@@ -384,7 +385,9 @@ const Cursos = () => {
                 justifyContent: 'center',
                 gap: 8,
                 textDecoration: 'none',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                marginTop: '1rem',
+                width: '100%'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = '0 12px 36px rgba(251, 191, 36, 0.6)';
@@ -522,9 +525,11 @@ const Cursos = () => {
 
         <div
           style={{
-            maxWidth: '90%',
-            margin: '0 auto',
-            padding: '0 0.75rem',
+            maxWidth: '1400px',
+            width: '100%',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            padding: '0 1rem',
             position: 'relative',
             zIndex: 1
           }}
@@ -588,10 +593,12 @@ const Cursos = () => {
           <div
             data-aos="fade-up"
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '1.25rem',
-              marginBottom: '2rem'
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '1.5rem',
+              marginBottom: '2rem',
+              width: '100%'
             }}
           >
             {cursosData.map((curso, index) => (

@@ -267,7 +267,7 @@ const PaginaInicio: React.FC = () => {
                   <span className="gradient-text">Escuela Jessica Vélez</span>
                 </h2>
                 <p className="video-description">
-                  Somos un centro de capacitación en estética con 6 años de experiencia, fundado en 2020,
+                  Somos un centro de capacitación en estética con {new Date().getFullYear() - 2020} años de experiencia, fundado en 2020,
                   dedicado a formar profesionales altamente competentes en el área. Nuestra escuela se
                   destaca por su metodología práctica, acompañamiento personalizado, instructores especializados
                   y espacios modernos equipados con tecnología actual para fortalecer el aprendizaje.
@@ -306,7 +306,7 @@ const PaginaInicio: React.FC = () => {
             <span className="gradient-text"> Escuela Jessica Vélez?</span>
           </h2>
           <p className="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-            Líder en formación de esteticistas profesionales con más de 5 años de experiencia
+            Líder en formación de esteticistas profesionales con {new Date().getFullYear() - 2020} años de experiencia
           </p>
 
           <div className="features-grid" data-aos="fade-up" data-aos-delay="150">

@@ -114,7 +114,7 @@ const detallesCursos: DetallesCursos = {
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758901284/cosmeto_cy3e36.jpg',
     rating: 4.8,
-    estudiantes: 320,
+    estudiantes: 620,
     instructor: 'Especialistas en Cosmiatría',
     precio: '$90/mes',
     certificacion: 'Certificado Profesional en Cosmiatría'
@@ -146,7 +146,7 @@ const detallesCursos: DetallesCursos = {
       'Prácticas en salón profesional'
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758908293/cos2_se1xyb.jpg',
-    rating: 4.9,
+    rating: 5.0,
     estudiantes: 100,
     instructor: 'Equipo Multidisciplinario',
     precio: '$90/mes',
@@ -180,7 +180,7 @@ const detallesCursos: DetallesCursos = {
       'Kit de herramientas incluido'
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758902047/una_yzabr3.jpg',
-    rating: 4.8,
+    rating: 4.7,
     estudiantes: 700,
     instructor: 'Especialista en Nail Art',
     precio: '$50 inicio + $15,40 por 15 clases (≈$280 total)',
@@ -213,8 +213,8 @@ const detallesCursos: DetallesCursos = {
       'Kit profesional incluido'
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758900822/lashi_vuiiiv.jpg',
-    rating: 4.9,
-    estudiantes: 280,
+    rating: 4.8,
+    estudiantes: 650,
     instructor: 'Lashista Certificada Internacional',
     precio: '$50 inicio + $26 por 5 clases (≈$180 total)',
     certificacion: 'Certificado Profesional Lashista'
@@ -308,7 +308,7 @@ const detallesCursos: DetallesCursos = {
     ],
     imagen: 'https://res.cloudinary.com/dfczvdz7b/image/upload/v1758920782/pelu_hvfyfn.png',
     rating: 4.9,
-    estudiantes: 60,
+    estudiantes: 50,
     instructor: 'Estilista Profesional Certificado',
     precio: '$90/mes',
     certificacion: 'Certificado Profesional en Alta Peluquería'
@@ -958,7 +958,7 @@ const DetalleCurso: React.FC = () => {
           </div>
 
           {/* Sección Duración */}
-            <SectionCard
+          <SectionCard
             variant="default"
             delay={200}
             icon={<Clock size={20} color="#fbbf24" />}
@@ -992,9 +992,9 @@ const DetalleCurso: React.FC = () => {
                   }}>
                     <BookOpen size={18} color="#fbbf24" style={{ marginBottom: '0.35rem' }} />
                     <div style={{ fontWeight: '600', color: theme === 'dark' ? '#fff' : '#1f2937', fontSize: '0.95rem' }}>
-                      Modalidad Mixta
+                      Modalidad Presencial
                     </div>
-                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.7rem' }}>Presencial</div>
+                    <div style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(31, 41, 55, 0.7)', fontSize: '0.7rem' }}>Teórico y Práctico</div>
                   </div>
                 </div>
                 <p style={{ color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(31, 41, 55, 0.8)', fontSize: '0.85rem', lineHeight: 1.6 }}>
