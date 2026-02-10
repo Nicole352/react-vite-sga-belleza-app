@@ -1842,25 +1842,28 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
 
                     return (
                       <div key={idx} style={{
-                        background: darkMode ? '#1e293b' : '#ffffff',
-                        border: darkMode ? '1px solid #334155' : '1px solid #e2e8f0',
+                        background: darkMode
+                          ? 'linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(10, 10, 10, 0.8) 100%)'
+                          : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+                        backdropFilter: 'blur(12px)',
+                        border: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0'}`,
                         borderRadius: '1rem',
                         overflow: 'hidden',
-                        boxShadow: darkMode ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' : '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-                        transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                        boxShadow: darkMode ? '0 15px 35px -5px rgba(0, 0, 0, 0.6)' : '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
                       }}>
                         {/* Cabecera de la Tarjeta del Estudiante */}
                         <div
                           onClick={() => toggleTarjetaFinanciera(estudiante.cedula)}
                           style={{
                             padding: isMobile ? '1rem' : '1.25rem',
-                            borderBottom: darkMode ? '1px solid #334155' : '1px solid #f1f5f9',
+                            borderBottom: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9'}`,
                             display: 'flex',
                             flexDirection: isMobile ? 'column' : 'row',
                             justifyContent: 'space-between',
                             alignItems: isMobile ? 'stretch' : 'center',
                             gap: isMobile ? '0.75rem' : '0',
-                            background: darkMode ? 'rgba(255,255,255,0.02)' : 'rgba(248,250,252,0.5)',
+                            background: darkMode ? 'rgba(255,255,255,0.03)' : 'rgba(248,250,252,0.5)',
                             cursor: 'pointer'
                           }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '0.75rem' : '1rem', flex: 1, minWidth: 0 }}>                            {/* Número de índice */}
@@ -1949,7 +1952,8 @@ const Reportes: React.FC<ReportesProps> = ({ darkMode: inheritedDarkMode }) => {
                           <div style={{ padding: '0', maxHeight: '350px', overflowY: 'auto' }}>
                             {Object.entries(pagosPorCurso).map(([curso, pagos], cIdx) => (
                               <div key={cIdx} style={{
-                                borderBottom: cIdx === Object.keys(pagosPorCurso).length - 1 ? 'none' : (darkMode ? '1px solid #334155' : '1px solid #e2e8f0')
+                                background: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+                                borderTop: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid #e2e8f0',
                               }}>
                                 {/* Cabecera del Curso */}
                                 <div style={{
