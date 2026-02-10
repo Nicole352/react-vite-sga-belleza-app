@@ -297,17 +297,17 @@ const MisCursos: React.FC<MisCursosProps> = ({ darkMode }) => {
                         {curso.codigo_curso}
                       </div>
                       <div style={{
-                        background: curso.estado === 'activo'
+                        background: (curso.estado === 'activo' || curso.estado === 'cancelado')
                           ? (darkMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(16, 185, 129, 0.08)')
                           : (darkMode ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.08)'),
                         padding: '0.25rem 0.625rem',
                         borderRadius: '0.5rem',
                         fontSize: '0.65rem',
                         fontWeight: '700',
-                        color: curso.estado === 'activo' ? theme.success : theme.warning,
+                        color: (curso.estado === 'activo' || curso.estado === 'cancelado') ? theme.success : theme.warning,
                         textTransform: 'uppercase'
                       }}>
-                        {curso.estado}
+                        {curso.estado === 'cancelado' ? 'ACTIVO' : curso.estado}
                       </div>
                     </div>
 

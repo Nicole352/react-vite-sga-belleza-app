@@ -32,7 +32,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
   const [cursoFiltro, setCursoFiltro] = useState<string>('');
   const [estadoFiltro, setEstadoFiltro] = useState<'todos' | 'activos' | 'finalizados'>('todos');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(15);
+  const [itemsPerPage] = useState(10);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
   useEffect(() => {
@@ -125,7 +125,7 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
     const studentEstado = est.estado_curso || 'activo';
 
     const matchEstado = estadoFiltro === 'todos' ||
-      (estadoFiltro === 'activos' && studentEstado === 'activo') ||
+      (estadoFiltro === 'activos' && (studentEstado === 'activo' || studentEstado === 'cancelado')) ||
       (estadoFiltro === 'finalizados' && studentEstado === 'finalizado');
 
     return matchTexto && matchCurso && matchEstado;
@@ -380,8 +380,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     statusText = 'Planificado';
                     break;
                   case 'cancelado':
-                    statusColor = theme.danger;
-                    statusText = 'Cancelado';
+                    statusColor = theme.success;
+                    statusText = 'Activo';
                     break;
                   default:
                     statusText = studentEstado || 'Activo';
@@ -497,8 +497,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 gap: '0.5rem',
                 background: darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'
               }}>
-                <span style={{ fontSize: '0.7rem', color: theme.textSecondary, fontWeight: '600' }}>
-                  Pág. {currentPage} de {totalPages} · {estudiantesFiltrados.length} alumnos
+                <span style={{ fontSize: '0.75rem', color: theme.textSecondary, fontWeight: '500' }}>
+                  Mostrando <strong style={{ color: theme.textPrimary }}>{estudiantesPaginados.length}</strong> estudiantes
                 </span>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -646,8 +646,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                     statusText = 'Planificado';
                     break;
                   case 'cancelado':
-                    statusColor = theme.danger;
-                    statusText = 'Cancelado';
+                    statusColor = theme.success;
+                    statusText = 'Activo';
                     break;
                   default:
                     statusText = studentEstado || 'Activo';
@@ -765,8 +765,8 @@ const MisEstudiantes: React.FC<MisEstudiantesProps> = ({ darkMode }) => {
                 background: darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)',
                 marginTop: '0.5rem'
               }}>
-                <span style={{ fontSize: '0.7rem', color: theme.textSecondary, fontWeight: '600' }}>
-                  Pág. {currentPage} de {totalPages} · {estudiantesFiltrados.length} alumnos
+                <span style={{ fontSize: '0.75rem', color: theme.textSecondary, fontWeight: '500' }}>
+                  Mostrando <strong style={{ color: theme.textPrimary }}>{estudiantesPaginados.length}</strong> estudiantes
                 </span>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>

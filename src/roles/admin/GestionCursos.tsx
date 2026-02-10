@@ -65,7 +65,7 @@ const GestionCursos = () => {
   // Estados para vista y paginación
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // 8 cursos por página en tabla
+  const itemsPerPage = 10; // 10 cursos por página en tabla
 
   // Detectar modo oscuro desde localStorage
   const [darkMode, setDarkMode] = useState(() => {
@@ -1675,7 +1675,7 @@ const GestionCursos = () => {
               fontSize: isMobile ? '0.75rem' : '0.8rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              Página {currentPage} de {totalPages} • Total: {filteredCursos.length} cursos
+              Página {currentPage} de {totalPages} • Mostrando: {paginatedCursos.length} cursos
             </div>
             <div style={{
               display: 'flex',

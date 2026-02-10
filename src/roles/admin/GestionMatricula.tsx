@@ -1358,7 +1358,7 @@ const GestionMatricula = () => {
               fontSize: isMobile ? '0.75rem' : '0.8rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              Página {page} de {totalPages} • Total: {totalRecords} solicitudes
+              Página {page} de {totalPages} • Mostrando: {paginatedSolicitudes.length} solicitudes
             </div>
             <div style={{
               display: 'flex',

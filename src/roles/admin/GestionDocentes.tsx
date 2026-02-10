@@ -1358,7 +1358,7 @@ const GestionDocentes = () => {
               fontSize: isMobile ? '0.75rem' : '0.8rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              Página {page} de {Math.ceil(totalCount / limit)} • Total: {totalCount} docentes
+              Página {page} de {Math.ceil(totalCount / limit)} • Mostrando: {docentesFiltrados.length} docentes
             </div>
             <div style={{
               display: 'flex',

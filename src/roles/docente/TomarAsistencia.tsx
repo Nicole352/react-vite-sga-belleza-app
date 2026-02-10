@@ -76,7 +76,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
   const [documentoPreviewUrl, setDocumentoPreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  const estudiantesPorPagina = 15;
+  const estudiantesPorPagina = 10;
 
   // Obtener ID del docente desde el token
   useEffect(() => {
@@ -767,11 +767,14 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
               }}
             >
               <option value="">-- Selecciona un curso --</option>
-              {cursos.map((curso) => (
-                <option key={curso.id_curso} value={curso.id_curso}>
-                  {curso.nombre_curso} - {curso.horario} ({curso.total_estudiantes} estudiantes)
-                </option>
-              ))}
+              {cursos.map((curso) => {
+                const horarioCapitalizado = curso.horario ? curso.horario.charAt(0).toUpperCase() + curso.horario.slice(1) : '';
+                return (
+                  <option key={curso.id_curso} value={curso.id_curso}>
+                    {curso.codigo_curso} - {curso.nombre_curso} - {horarioCapitalizado}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -1206,7 +1209,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                   })}
                 </div>
 
-                {/* Paginación Compacta */}
+                {/* Paginación */}
                 {totalPaginas > 1 && (
                   <div style={{
                     padding: '0.5rem 0.75rem',
@@ -1216,10 +1219,11 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                     alignItems: 'center',
                     flexWrap: 'wrap',
                     gap: '0.5rem',
-                    background: darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)'
+                    background: darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)',
+                    marginTop: '0.5rem'
                   }}>
-                    <span style={{ fontSize: '0.7rem', color: theme.textSecondary, fontWeight: '600' }}>
-                      Pág. {paginaActual} de {totalPaginas} · {estudiantes.length} alumnos
+                    <span style={{ fontSize: '0.75rem', color: theme.textSecondary, fontWeight: '500' }}>
+                      Mostrando <strong style={{ color: theme.textPrimary }}>{estudiantesActuales.length}</strong> estudiantes
                     </span>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -1230,7 +1234,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                           padding: '0.3rem 0.6rem',
                           borderRadius: '0.375rem',
                           border: `1px solid ${theme.border}`,
-                          background: theme.cardBg,
+                          background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
                           color: paginaActual === 1 ? theme.textMuted : theme.textPrimary,
                           fontSize: '0.7rem',
                           fontWeight: '700',
@@ -1258,38 +1262,40 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                       </button>
 
                       <div style={{ display: 'flex', gap: '2px' }}>
-                        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => (
-                          <button
-                            key={numero}
-                            onClick={() => cambiarPagina(numero)}
-                            style={{
-                              minWidth: '1.75rem',
-                              height: '1.75rem',
-                              borderRadius: '0.375rem',
-                              border: numero === paginaActual ? 'none' : `1px solid ${theme.border}`,
-                              background: numero === paginaActual ? theme.accent : 'transparent',
-                              color: numero === paginaActual ? '#fff' : theme.textPrimary,
-                              fontSize: '0.7rem',
-                              fontWeight: '700',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (numero !== paginaActual) {
-                                e.currentTarget.style.borderColor = theme.accent;
-                                e.currentTarget.style.color = theme.accent;
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (numero !== paginaActual) {
-                                e.currentTarget.style.borderColor = theme.border;
-                                e.currentTarget.style.color = theme.textPrimary;
-                              }
-                            }}
-                          >
-                            {numero}
-                          </button>
-                        ))}
+                        {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((numero) => {
+                          return (
+                            <button
+                              key={numero}
+                              onClick={() => cambiarPagina(numero)}
+                              style={{
+                                minWidth: '1.75rem',
+                                height: '1.75rem',
+                                borderRadius: '0.375rem',
+                                border: numero === paginaActual ? 'none' : `1px solid ${theme.border}`,
+                                background: numero === paginaActual ? theme.accent : 'transparent',
+                                color: numero === paginaActual ? '#fff' : theme.textPrimary,
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (numero !== paginaActual) {
+                                  e.currentTarget.style.borderColor = theme.accent;
+                                  e.currentTarget.style.color = theme.accent;
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (numero !== paginaActual) {
+                                  e.currentTarget.style.borderColor = theme.border;
+                                  e.currentTarget.style.color = theme.textPrimary;
+                                }
+                              }}
+                            >
+                              {numero}
+                            </button>
+                          );
+                        })}
                       </div>
 
                       <button
@@ -1299,7 +1305,7 @@ const TomarAsistencia: React.FC<TomarAsistenciaProps> = ({ darkMode }) => {
                           padding: '0.3rem 0.6rem',
                           borderRadius: '0.375rem',
                           border: `1px solid ${theme.border}`,
-                          background: theme.cardBg,
+                          background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
                           color: paginaActual === totalPaginas ? theme.textMuted : theme.textPrimary,
                           fontSize: '0.7rem',
                           fontWeight: '700',

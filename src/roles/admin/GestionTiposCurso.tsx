@@ -165,7 +165,7 @@ const GestionTiposCurso: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   // Helper: formato de precio consistente
   const formatPrice = (v?: number | null) => {
@@ -756,7 +756,7 @@ const GestionTiposCurso: React.FC = () => {
             fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
-            Página {currentPage} de {totalPages} • Total: {filteredTipos.length} tipos
+            Página {currentPage} de {totalPages} • Mostrando: {paginatedTipos.length} tipos
           </div>
           <div style={{
             display: 'flex',
@@ -1039,7 +1039,7 @@ const GestionTiposCurso: React.FC = () => {
                 fontSize: isMobile ? '0.75rem' : '0.8rem',
                 textAlign: isMobile ? 'center' : 'left'
               }}>
-                Página {currentPage} de {totalPages} • Total: {filteredTipos.length} tipos
+                Página {currentPage} de {totalPages} • Mostrando: {paginatedTipos.length} tipos
               </div>
               <div style={{
                 display: 'flex',

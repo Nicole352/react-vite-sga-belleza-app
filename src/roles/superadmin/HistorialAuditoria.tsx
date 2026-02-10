@@ -1022,6 +1022,30 @@ const HistorialAuditoria: React.FC = () => {
                 justifyContent: isMobile ? 'center' : 'flex-start',
                 flexWrap: 'wrap'
               }}>
+                {/* Botón Ir a la Primera Página */}
+                {totalPaginas > 5 && paginaActual > 3 && (
+                  <button
+                    onClick={() => setPaginaActual(1)}
+                    style={{
+                      padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                      background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)',
+                      border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
+                      borderRadius: '0.5rem',
+                      color: darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)',
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      minWidth: isMobile ? '30px' : '2rem',
+                    }}
+                  >
+                    1
+                  </button>
+                )}
+                {totalPaginas > 5 && paginaActual > 3 && (
+                  <span style={{ color: theme.textMuted, display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>...</span>
+                )}
+
                 <button
                   onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
                   disabled={paginaActual === 1}
@@ -1050,33 +1074,52 @@ const HistorialAuditoria: React.FC = () => {
                   <ChevronLeft size={isMobile ? 14 : 14} />
                   {!isMobile && 'Anterior'}
                 </button>
-                {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(pageNum => (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPaginaActual(pageNum)}
-                    style={{
-                      padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
-                      background: paginaActual === pageNum
-                        ? (darkMode
-                          ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                          : 'linear-gradient(135deg, #fca5a5 0%, #ef4444 100%)')
-                        : (darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)'),
-                      border: paginaActual === pageNum
-                        ? `1px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`
-                        : `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
-                      borderRadius: '0.5rem',
-                      color: paginaActual === pageNum ? '#ffffff' : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
-                      fontSize: isMobile ? '0.75rem' : '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      minWidth: isMobile ? '30px' : '2rem',
-                      boxShadow: 'none'
-                    }}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
+                {(() => {
+                  const pages = [];
+                  const delta = 2; // Número de páginas a mostrar a cada lado de la actual
+                  let start = Math.max(1, paginaActual - delta);
+                  let end = Math.min(totalPaginas, paginaActual + delta);
+
+                  // Ajustar si estamos cerca del inicio o el final para mostrar siempre 5 si es posible
+                  if (paginaActual <= delta) {
+                    end = Math.min(5, totalPaginas);
+                  }
+                  if (paginaActual > totalPaginas - delta) {
+                    start = Math.max(1, totalPaginas - 4);
+                  }
+
+                  for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                  }
+
+                  return pages.map(pageNum => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setPaginaActual(pageNum)}
+                      style={{
+                        padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                        background: paginaActual === pageNum
+                          ? (darkMode
+                            ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                            : 'linear-gradient(135deg, #fca5a5 0%, #ef4444 100%)')
+                          : (darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)'),
+                        border: paginaActual === pageNum
+                          ? `1px solid ${darkMode ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`
+                          : `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
+                        borderRadius: '0.5rem',
+                        color: paginaActual === pageNum ? '#ffffff' : (darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)'),
+                        fontSize: isMobile ? '0.75rem' : '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        minWidth: isMobile ? '30px' : '2rem',
+                        boxShadow: 'none'
+                      }}
+                    >
+                      {pageNum}
+                    </button>
+                  ));
+                })()}
                 <button
                   onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
                   disabled={paginaActual === totalPaginas}
@@ -1105,6 +1148,29 @@ const HistorialAuditoria: React.FC = () => {
                   {!isMobile && 'Siguiente'}
                   <ChevronRight size={isMobile ? 14 : 14} />
                 </button>
+
+                {totalPaginas > 5 && paginaActual < totalPaginas - 2 && (
+                  <span style={{ color: theme.textMuted, display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>...</span>
+                )}
+                {totalPaginas > 5 && paginaActual < totalPaginas - 2 && (
+                  <button
+                    onClick={() => setPaginaActual(totalPaginas)}
+                    style={{
+                      padding: isMobile ? '6px 0.5rem' : '4px 0.75rem',
+                      background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.9)',
+                      border: `1px solid ${darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.45)'}`,
+                      borderRadius: '0.5rem',
+                      color: darkMode ? '#f8fafc' : 'rgba(30,41,59,0.85)',
+                      fontSize: isMobile ? '0.75rem' : '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      minWidth: isMobile ? '30px' : '2rem',
+                    }}
+                  >
+                    {totalPaginas}
+                  </button>
+                )}
               </div>
             </div>
           )}

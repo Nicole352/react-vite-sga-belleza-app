@@ -833,7 +833,7 @@ const GestionEstudiantes = () => {
             fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
-            Página {page} de {totalPages} • Total: {totalCount} estudiantes
+            Página {page} de {totalPages} • Mostrando: {estudiantesFiltrados.length} estudiantes
           </div>
           <div style={{
             display: 'flex',
@@ -1151,7 +1151,7 @@ const GestionEstudiantes = () => {
                 fontSize: isMobile ? '0.75rem' : '0.8rem',
                 textAlign: isMobile ? 'center' : 'left'
               }}>
-                Página {page} de {totalPages} • Total: {totalCount} estudiantes
+                Página {page} de {totalPages} • Mostrando: {estudiantesFiltrados.length} estudiantes
               </div>
               <div style={{
                 display: 'flex',

@@ -131,7 +131,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
   // Estados para paginación y vista
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [page, setPage] = useState(1);
-  const limit = 5; // 5 asignaciones por página
+  const limit = 10; // 10 asignaciones por página
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -1332,7 +1332,7 @@ const AsignacionAula: React.FC<AsignacionAulaProps> = ({ darkMode: inheritedDark
             fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
-            Página {page} de {totalPages} • Total: {totalCount} asignaciones
+            Página {page} de {totalPages} • Mostrando: {asignacionesPaginadas.length} asignaciones
           </div>
           <div style={{
             display: 'flex',

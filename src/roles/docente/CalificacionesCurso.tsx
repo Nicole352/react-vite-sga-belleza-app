@@ -8,6 +8,8 @@ import {
   BookOpen,
   Table2,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useSocket } from "../../hooks/useSocket";
 import { showToast } from "../../config/toastConfig";
@@ -71,6 +73,10 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
   const [moduloActivo, setModuloActivo] = useState<string>("todos");
   const [tareasFiltradas, setTareasFiltradas] = useState<Tarea[]>([]);
 
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
   useEffect(() => {
     if (cursoId) {
       fetchCalificaciones();
@@ -126,6 +132,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
     });
 
     setFilteredEstudiantes(result);
+    setCurrentPage(1); // Resetear a página 1 cuando cambian filtros
   }, [estudiantes, busqueda, filtro]);
 
   // Escuchar eventos de WebSocket para actualizaciones en tiempo real
@@ -405,6 +412,18 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
   };
 
   const stats = calcularEstadisticas();
+
+  // Lógica de paginación
+  const totalPages = Math.ceil(filteredEstudiantes.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const estudiantesPaginados = filteredEstudiantes.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   // Estilos usando variables CSS del tema docente
   const theme = {
@@ -1268,7 +1287,7 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
                       )}
                     </thead>
                     <tbody>
-                      {filteredEstudiantes.map((estudiante, idx) => (
+                      {estudiantesPaginados.map((estudiante, idx) => (
                         <tr
                           key={estudiante.id_estudiante}
                           style={{
@@ -1479,6 +1498,132 @@ const CalificacionesCurso: React.FC<ModalCalificacionesProps> = ({ darkMode }) =
             </div>
           )}
         </div>
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div style={{
+            padding: '0.5rem 0.75rem',
+            borderTop: `1px solid ${theme.border}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            background: darkMode ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.01)',
+            marginTop: '0.5rem'
+          }}>
+            <span style={{ fontSize: '0.75rem', color: theme.textSecondary, fontWeight: '500' }}>
+              Mostrando <strong style={{ color: theme.textPrimary }}>{estudiantesPaginados.length}</strong> estudiantes
+            </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '0.375rem',
+                  border: `1px solid ${theme.border}`,
+                  background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                  color: currentPage === 1 ? theme.textMuted : theme.textPrimary,
+                  fontSize: '0.7rem',
+                  fontWeight: '700',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== 1) {
+                    e.currentTarget.style.borderColor = theme.accent;
+                    e.currentTarget.style.color = theme.accent;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== 1) {
+                    e.currentTarget.style.borderColor = theme.border;
+                    e.currentTarget.style.color = theme.textPrimary;
+                  }
+                }}
+              >
+                <ChevronLeft size={14} /> Anterior
+              </button>
+
+              <div style={{ display: 'flex', gap: '2px' }}>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((numero) => {
+                  return (
+                    <button
+                      key={numero}
+                      onClick={() => goToPage(numero)}
+                      style={{
+                        minWidth: '1.75rem',
+                        height: '1.75rem',
+                        borderRadius: '0.375rem',
+                        border: numero === currentPage ? 'none' : `1px solid ${theme.border}`,
+                        background: numero === currentPage ? theme.accent : 'transparent',
+                        color: numero === currentPage ? '#fff' : theme.textPrimary,
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (numero !== currentPage) {
+                          e.currentTarget.style.borderColor = theme.accent;
+                          e.currentTarget.style.color = theme.accent;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (numero !== currentPage) {
+                          e.currentTarget.style.borderColor = theme.border;
+                          e.currentTarget.style.color = theme.textPrimary;
+                        }
+                      }}
+                    >
+                      {numero}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '0.3rem 0.6rem',
+                  borderRadius: '0.375rem',
+                  border: `1px solid ${theme.border}`,
+                  background: darkMode ? 'rgba(255,255,255,0.05)' : '#fff',
+                  color: currentPage === totalPages ? theme.textMuted : theme.textPrimary,
+                  fontSize: '0.7rem',
+                  fontWeight: '700',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== totalPages) {
+                    e.currentTarget.style.borderColor = theme.accent;
+                    e.currentTarget.style.color = theme.accent;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== totalPages) {
+                    e.currentTarget.style.borderColor = theme.border;
+                    e.currentTarget.style.color = theme.textPrimary;
+                  }
+                }}
+              >
+                Siguiente <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        )}
 
         <style>{`
         @keyframes spin {

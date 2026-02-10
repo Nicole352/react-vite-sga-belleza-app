@@ -129,7 +129,7 @@ const GestionAulas = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState('todos');
   const [page, setPage] = useState(1);
-  const [limit] = useState(3);
+  const [limit] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
 
@@ -1151,7 +1151,7 @@ const GestionAulas = () => {
               fontSize: isMobile ? '0.75rem' : '0.8rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              Página {page} de {totalPages} • Total: {totalCount} aulas
+              Página {page} de {totalPages} • Mostrando: {aulasSorted.length} aulas
             </div>
             <div style={{
               display: 'flex',

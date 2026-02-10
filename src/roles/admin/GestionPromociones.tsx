@@ -97,7 +97,7 @@ const GestionPromociones: React.FC = () => {
   const [filterActiva, setFilterActiva] = useState<string>('todas');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 10;
 
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -1416,7 +1416,7 @@ const GestionPromociones: React.FC = () => {
             fontSize: isMobile ? '0.75rem' : '0.8rem',
             textAlign: isMobile ? 'center' : 'left'
           }}>
-            Página {currentPage} de {totalPages} • Total: {filteredPromociones.length} promociones
+            Página {currentPage} de {totalPages} • Mostrando: {paginatedPromociones.length} promociones
           </div>
 
           <div style={{ display: 'flex', gap: '0.375rem', justifyContent: isMobile ? 'center' : 'flex-start', flexWrap: 'wrap' }}>

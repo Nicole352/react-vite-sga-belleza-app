@@ -254,7 +254,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
             <span style={{ color: theme.textMuted, fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Cursos Activos</span>
           </div>
           <span style={{ color: theme.accent, fontSize: '1.2rem', fontWeight: '800', lineHeight: 1, marginLeft: '2px' }}>
-            {cursos.filter(c => (c.estado || 'activo') === 'activo').length}
+            {cursos.filter(c => (c.estado || 'activo') === 'activo' || c.estado === 'cancelado').length}
           </span>
         </div>
 
@@ -550,7 +550,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
               {cursos
-                .filter(c => (c.estado || 'activo') === 'activo')
+                .filter(c => (c.estado || 'activo') === 'activo' || c.estado === 'cancelado')
                 .map(c => ({ ...c, nextClassDate: calculateNextClass(c.dias) || new Date(c.fecha_inicio) }))
                 .sort((a, b) => a.nextClassDate.getTime() - b.nextClassDate.getTime())
                 .slice(0, 3)
@@ -588,7 +588,7 @@ const DocenteDashboard: React.FC<DocenteDashboardProps> = ({ darkMode }) => {
                   </div>
                 ))}
 
-              {cursos.filter(c => (c.estado || 'activo') === 'activo').length === 0 && (
+              {cursos.filter(c => (c.estado || 'activo') === 'activo' || c.estado === 'cancelado').length === 0 && (
                 <div style={{
                   padding: '0.75em',
                   textAlign: 'center',

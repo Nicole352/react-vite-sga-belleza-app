@@ -2824,7 +2824,7 @@ const GestionPagosEstudiante = () => {
               fontSize: isMobile ? '0.75rem' : '0.8rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              Página {currentPage} de {totalPages} • Total: {estudiantesFiltrados.length} estudiantes
+              Página {currentPage} de {totalPages} • Mostrando: {paginatedEstudiantes.length} estudiantes
             </div>
             <div style={{
               display: 'flex',

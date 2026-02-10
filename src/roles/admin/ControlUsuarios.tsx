@@ -202,29 +202,8 @@ const ControlUsuarios = () => {
 
       const data = await response.json();
 
-      // Obtener ID del usuario logueado
-      let idUsuarioLogueado = null;
-      try {
-        const meResponse = await fetch(`${API_BASE}/auth/me`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (meResponse.ok) {
-          const meData = await meResponse.json();
-          idUsuarioLogueado = meData.id_usuario;
-        }
-      } catch (err) {
-        console.error('Error obteniendo usuario logueado:', err);
-      }
-
-      // SEGURIDAD: Filtrar SuperAdmin Y Administrativo y el admin logueado - no deben aparecer en Control de Usuarios
-      const usuariosFiltrados = (data.usuarios || []).filter(
-        (usuario: Usuario) =>
-          usuario.nombre_rol?.toLowerCase() !== 'superadmin' &&
-          usuario.nombre_rol?.toLowerCase() !== 'administrativo' &&
-          usuario.id_usuario !== idUsuarioLogueado
-      );
-
-      setUsuarios(usuariosFiltrados);
+      // El backend ya filtra SuperAdmin y Administrativo, solo usamos los datos directamente
+      setUsuarios(data.usuarios || []);
       setTotalPages(data.totalPages || 1);
     } catch (err: any) {
       console.error('Error al cargar usuarios:', err);
@@ -933,7 +912,7 @@ const ControlUsuarios = () => {
                   fontSize: isMobile ? '0.75rem' : '0.8rem',
                   textAlign: isMobile ? 'center' : 'left'
                 }}>
-                  Página {page} de {totalPages} • Total: {usuarios.length} usuarios
+                  Página {page} de {totalPages} • Mostrando: {usuarios.length} usuarios
                 </div>
                 <div style={{
                   display: 'flex',
